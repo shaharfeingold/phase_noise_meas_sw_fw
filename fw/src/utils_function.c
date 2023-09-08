@@ -12,7 +12,7 @@
 
 void convert_hex_to_string(uint64_t address, char target_string[]){
     verb_print(HIGH, "enterd covert_hex_to_string with address = 0x%x\n", address);
-    sprintf(target_string, "0x%08x", address);
+    sprintf(target_string, "0x%08llx", address);
     verb_print(HIGH, "returning from covert_hex_to_string with target_sting = %s\n", target_string);
 }
 
