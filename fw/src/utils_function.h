@@ -10,7 +10,7 @@
 #define NONE 1
 #define OFF 0
 
-#define VERB OFF //right know verb for all the module (shared verbose)
+#define VERB HIGH //right know verb for all the module (shared verbose)
 
 #include <stdint.h>
 
