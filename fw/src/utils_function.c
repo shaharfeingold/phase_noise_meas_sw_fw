@@ -27,3 +27,7 @@ void verb_print(int verbose, const char* format, ...) {
         va_end(args);
     }
 }
+
+uint32_t convert_string_to_hex(char src_string[]){
+    return strtoul(src_string, NULL, 16);
+}

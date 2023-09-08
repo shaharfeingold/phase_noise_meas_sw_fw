@@ -52,12 +52,20 @@ uint32_t read_from_logic(uint64_t address){
     char read_data_as_string[11]; //todo switch to define //8 hex symbols + 2 prefix + 1 null char
     char addr_as_string[ADDRESS_WIDTH_HEX]; 
     char cmd[100]; //todo review if enough for the cmd length. //todo switch to defines
+    FILE* cmd_pipe; //pipe to system call to catch sdtout.
     memset(addr_as_string, 0, ADDRESS_WIDTH_HEX);
     memset(cmd, 0, 100); //todo switch to defines
     convert_hex_to_string(address, addr_as_string);
     sprintf(cmd, "monitor %s", addr_as_string);
     verb_print(MED, "DEBUG | running cmd = %s\n", cmd);
-    read_data = system(cmd); //todo review what is the reutn type
+    // read_data = system(cmd); //todo review what is the reutn type
+    cmd_pipe = popen(cmd, "r");
+    if (cmd_pipe == NULL){
+        perror("popen failed");
+        exit(1); //error handling
+    }
+    fgets(read_data_as_string, 11, cmd_pipe); //todo switch to defines. //todo handling error, no output.
+    read_data = convert_string_to_hex(read_data_as_string);
     verb_print(HIGH, "DEBUG | returning value from above cmd = %s, read_data = %d\n", cmd, read_data);
     return read_data;
 }
