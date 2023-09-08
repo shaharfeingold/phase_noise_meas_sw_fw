@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include "utils_function.h"
 
 // file:        utils_function.c
