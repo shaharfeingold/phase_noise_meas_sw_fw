@@ -45,7 +45,7 @@ int write_to_logic(uint32_t data, uint64_t address){
 //    system("monitor 0x41200000 21474836");
 }
 
-uint32_t read_from_logic(uint32_t address){
+uint32_t read_from_logic(uint64_t address){
     verb_print(MED, "DEBUG | enterd read_from_logic with addr = %x\n", address);
     //variables
     uint32_t read_data = 0x0000;
