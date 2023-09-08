@@ -12,6 +12,8 @@
 
 #define VERB OFF //right know verb for all the module (shared verbose)
 
+#include <stdint.h>
+
 void convert_hex_to_string(uint64_t address, char target_string[]);
 void verb_print(int verbose, const char* format, ...);
 
