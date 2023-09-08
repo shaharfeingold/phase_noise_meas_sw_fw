@@ -11,7 +11,9 @@
 // comment:     
 
 void convert_hex_to_string(uint64_t address, char target_string[]){
-    sprintf(target_string, "%08x");
+    verb_print(HIGH, "enterd covert_hex_to_string with address = 0x%x\n", address);
+    sprintf(target_string, "0x%08x");
+    verb_print(HIGH, "returning from covert_hex_to_string with target_sting = %s\n", target_string);
 }
 
 void verb_print(int verbose, const char* format, ...) {
