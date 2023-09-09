@@ -27,17 +27,17 @@ void UpdateConfigSent(LogicConfig* logic_config, uint32_t data){
 }
 
 //update field got_finish.
-void UpdateConfigSent(LogicConfig* logic_config, uint32_t data){
+void UpdateGotFinish(LogicConfig* logic_config, uint32_t data){
     logic_config->got_finish = data;
 }
 
 //update field phase_inc.
-void UpdateConfigSent(LogicConfig* logic_config, uint32_t data){
+void UpdatePhaseInc(LogicConfig* logic_config, uint32_t data){
     logic_config->phase_inc = data;
 }
 
 //update field start_sent.
-void UpdateConfigSent(LogicConfig* logic_config, uint32_t data){
+void UpdateStartSent(LogicConfig* logic_config, uint32_t data){
     logic_config->start_sent = data;
 }
 

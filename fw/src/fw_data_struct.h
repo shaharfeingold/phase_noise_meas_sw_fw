@@ -19,9 +19,9 @@ typedef struct _Events{
 //struct functions:
 void init_logic_config_struct(LogicConfig* new_logic_config);
 void UpdateConfigSent(LogicConfig* logic_config, uint32_t data);
-void UpdateConfigSent(LogicConfig* logic_config, uint32_t data);
-void UpdateConfigSent(LogicConfig* logic_config, uint32_t data);
-void UpdateConfigSent(LogicConfig* logic_config, uint32_t data);
+void UpdateGotFinish(LogicConfig* logic_config, uint32_t data);
+void UpdatePhaseInc(LogicConfig* logic_config, uint32_t data);
+void UpdateStartSent(LogicConfig* logic_config, uint32_t data);
 
 void init_events_struct(Events* new_event_struct);
 

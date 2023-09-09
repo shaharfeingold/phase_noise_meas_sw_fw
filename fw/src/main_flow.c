@@ -31,7 +31,7 @@ void print_hello_msg(){
 }
 
 void print_exit_msg(){
-    verb_print("Exit Fw simulation\n");
+    verb_print(NONE, "Exit Fw simulation\n");
 }
 
 int main(int argc, char** argv){
