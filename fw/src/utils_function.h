@@ -10,12 +10,13 @@
 #define NONE 1
 #define OFF 0
 
-#define VERB HIGH //right know verb for all the module (shared verbose)
+#define VERB HIGH //right know verb for all the module (shared verbose) //todo shahar change to off when finish
 
 #include <stdint.h>
 
 void convert_hex_to_string(uint64_t address, char target_string[]);
 void verb_print(int verbose, const char* format, ...);
 uint32_t convert_string_to_hex(char src_string[]);
+uint32_t system_call(cmd); //todo create a generic function to create a system call with a pipe.
 
 #endif
