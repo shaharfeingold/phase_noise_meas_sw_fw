@@ -56,6 +56,15 @@ int accept_connection(int server_socket, _sockaddr_in* client_addr){
 	return client_socket;
 }
 
+void init_connection(int* server_socket, int* client_socket, _sockaddr_in* server_addr, _sockaddr_in* client_addr){
+	*server_socket = create_server_socket();
+    set_server_addr_struct(server_addr);
+    bind_server_socket(*server_socket, server_addr);
+    listen_server_socket(*server_socket);
+
+    // wait for a client to connect
+    *client_socket = accept_connection(server_socket, client_addr);
+}
 // int main(){
 	// int server_socket, client_socket;
     	// struct sockaddr_in server_addr, client_addr;

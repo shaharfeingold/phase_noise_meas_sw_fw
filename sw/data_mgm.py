@@ -26,6 +26,7 @@ class Data:
 
     def send_req_to_data(self):
         # todo make sure it is resamlbe to logic config module
+        return
 
     def check_all_data_recv(self):
         if self.data_size == self.data_size_expected:
