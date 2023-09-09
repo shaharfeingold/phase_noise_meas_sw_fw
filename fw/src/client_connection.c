@@ -63,7 +63,7 @@ void init_connection(int* server_socket, int* client_socket, _sockaddr_in* serve
     listen_server_socket(*server_socket);
 
     // wait for a client to connect
-    *client_socket = accept_connection(server_socket, client_addr);
+    *client_socket = accept_connection(*server_socket, client_addr);
 }
 // int main(){
 	// int server_socket, client_socket;
