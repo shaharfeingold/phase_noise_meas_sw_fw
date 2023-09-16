@@ -34,7 +34,8 @@ uint32_t convert_string_to_hex(char src_string[]){
 }
 
 uint32_t encode_uint_data_to_send(uint32_t data_as_uint){
-    return htonl(data_as_uint);
+    uint32_t result = htonl(data_as_uint);
+    return result;
 }
 
 void build_data_packet_header(char* header, uint32_t len, int type){
@@ -62,6 +63,6 @@ void build_data_packet_header(char* header, uint32_t len, int type){
     uint64_t len_casted = (uint64_t)len << 24; //todo shahar review this line.
     uint64_t result = 0x0000000000000000;
     result = pkt_type_casted | len_casted | array_type_casted;
-    sprintf(header, "%016x", result);
+    sprintf(header, "%016llx", result);
     verb_print(HIGH, "the header result from the encoder = %s", header);
 }

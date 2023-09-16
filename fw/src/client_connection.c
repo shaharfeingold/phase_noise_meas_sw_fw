@@ -78,7 +78,7 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	//todo shahar code review this section
 	while(bytes_sent < strlen(data)){
 		bytes_left = strlen(data) - bytes_sent;
-		bytes_sent += send(client_socket, data + bytes_sent, bytes_left, 0);
+		bytes_sent += send(*client_socket, data + bytes_sent, bytes_left, 0);
 	}
 }
 
@@ -94,7 +94,7 @@ void send_uint32_t_to_client(int* client_socket, uint32_t data){
 	//todo shahar review this section.
 	while(bytes_sent < sizeof(data_in_network_order)){
 		bytes_left = sizeof(data_in_network_order) - bytes_sent;
-		bytes_sent += send(client_socket, &data_in_network_order + bytes_sent, bytes_left, 0);
+		bytes_sent += send(*client_socket, &data_in_network_order + bytes_sent, bytes_left, 0);
 	}
 }
 

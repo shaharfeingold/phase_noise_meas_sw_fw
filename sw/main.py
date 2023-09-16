@@ -46,6 +46,33 @@ def main():
     logic_unit.close_connection()
     return 0
 
+def DebugTest():
+    # first set up all the modules:
+    logic_unit = connect.LogicConnection()
+    logic_cfg = logic_config.LogicConfig()
+    meas_data = data_mgm.Data()
+
+    # get from user inputs
+    ip_addr = input("Enter IP address of Red Pitaya\n")
+    port = input("Enter Port Num of Red Pitaya\n")
+    # connect to socket
+    logic_unit.get_from_user_connection_info(ip_addr, port)
+    logic_unit.connect_socket()
+    # get real data from client 3 values header, 1, 2, 3
+    buffer = logic_unit.rcvr_data().decode()
+    print("rcvr data from server : " + buffer + '\n')
+    buffer = logic_unit.rcvr_data().decode()
+    print("rcvr data from server : " + buffer + '\n')
+    buffer = logic_unit.rcvr_data().decode()
+    print("rcvr data from server : " + buffer + '\n')
+    buffer = logic_unit.rcvr_data().decode()
+    print("rcvr data from server : " + buffer + '\n')
+   
+    
+    return 0
 
 if __name__ == '__main__':
-    main()
+    if (defines.DEBUG == True):
+        DebugTest()
+    else:
+        main()
