@@ -65,6 +65,39 @@ void init_connection(int* server_socket, int* client_socket, _sockaddr_in* serve
     // wait for a client to connect
     *client_socket = accept_connection(*server_socket, client_addr);
 }
+
+void send_data_as_string_to_client(int* client_socket, char data[]){
+	verb_print(HIGH, "send_data_as_string_to_client with data = %s\n", data);
+	//todo shahar need to make sure that the data send is ended with string null to work properly.
+	int bytes_sent = 0;
+	int bytes_left = 0;
+	bytes_sent += send(*client_socket, data, strlen(data), 0);
+	if (bytes_sent == -1){
+ 		perror("Error sending data to client");
+	}
+	//todo shahar code review this section
+	while(bytes_sent < strlen(data)){
+		bytes_left = strlen(data) - bytes_sent;
+		bytes_sent += send(client_socket, data + bytes_sent, bytes_left, 0);
+	}
+}
+
+void send_uint32_t_to_client(int* client_socket, uint32_t data){
+	verb_print(HIGH, "send_data_as_uint32_to_client with data = %d\n", data);
+	uint32_t data_in_network_order = encode_uint_data_to_send(data);
+	int bytes_sent = 0;
+	int bytes_left = 0;
+	bytes_sent += send(*client_socket, &data_in_network_order, sizeof(data_in_network_order), 0);
+	if (bytes_sent == -1){
+ 		perror("Error sending data to client");
+	}
+	//todo shahar review this section.
+	while(bytes_sent < sizeof(data_in_network_order)){
+		bytes_left = sizeof(data_in_network_order) - bytes_sent;
+		bytes_sent += send(client_socket, &data_in_network_order + bytes_sent, bytes_left, 0);
+	}
+}
+
 // int main(){
 	// int server_socket, client_socket;
     	// struct sockaddr_in server_addr, client_addr;

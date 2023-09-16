@@ -10,6 +10,7 @@
 // owner:       shahar
 // description: module to read and write to logic unit.
 // comment:     currntly support write / read  through os call. later by template can switch to mem mapping
+//              need to support also catch the return code from the read/write.
 
 
 int write_to_logic(uint32_t data, uint64_t address){

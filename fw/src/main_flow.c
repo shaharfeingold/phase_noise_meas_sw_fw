@@ -38,6 +38,7 @@ int main(int argc, char** argv){
     //var structs:
     LogicConfig logic_config;
     Events events;
+    DataArray data_array;
     int server_socket, client_socket;
     struct sockaddr_in server_addr, client_addr;
     char buffer[BUFFER_SIZE];
@@ -47,15 +48,20 @@ int main(int argc, char** argv){
     // init structs
     init_logic_config_struct(&logic_config);
     init_events_struct(&events);
+    init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed
 
     // init socket
-    server_socket = create_server_socket();
-    set_server_addr_struct(&server_addr);
-    bind_server_socket(server_socket, &server_addr);
-    listen_server_socket(server_socket);
+    init_connection(&server_socket, &client_socket, &server_addr, &client_addr);
 
-    // wait for a client to connect
-    client_socket = accept_connection(server_socket, &client_addr);
+    // reached this point connection is established !!
+    
+    // server_socket = create_server_socket();
+    // set_server_addr_struct(&server_addr);
+    // bind_server_socket(server_socket, &server_addr);
+    // listen_server_socket(server_socket);
+
+    // // wait for a client to connect
+    // client_socket = accept_connection(server_socket, &client_addr);
     
     // rcev and send echo.
     memset(buffer, 0, sizeof(buffer));

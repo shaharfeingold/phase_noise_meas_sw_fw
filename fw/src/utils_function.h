@@ -19,4 +19,6 @@ void verb_print(int verbose, const char* format, ...);
 uint32_t convert_string_to_hex(char src_string[]);
 uint32_t system_call(char cmd[]); //todo create a generic function to create a system call with a pipe.
 
+uint32_t encode_uint_data_to_send(uint32_t data_as_uint);
+void build_data_packet_header(char* header, uint32_t len, int type);
 #endif
