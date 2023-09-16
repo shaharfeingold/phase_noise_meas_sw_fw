@@ -8,6 +8,7 @@ import logic_config
 import connection_module as connect
 import defines
 import data_mgm
+import binascii
 
 """
 file : maim.py
@@ -60,15 +61,20 @@ def DebugTest():
     logic_unit.connect_socket()
     # get real data from client 3 values header, 1, 2, 3
     buffer = logic_unit.rcvr_data().decode()
-    print("rcvr data from server : " + buffer + '\n')
-    buffer = logic_unit.rcvr_data().decode()
-    print("rcvr data from server : " + buffer + '\n')
-    buffer = logic_unit.rcvr_data().decode()
-    print("rcvr data from server : " + buffer + '\n')
-    buffer = logic_unit.rcvr_data().decode()
-    print("rcvr data from server : " + buffer + '\n')
-   
+    print("rcvr data from server 1 : " + buffer + '\n')
+    buffer = logic_unit.client_socket.recv(4)
+    hex_string = binascii.hexlify(buffer).decode()
+    print("rcvr data from server 2 : " + hex_string + '\n')
+    buffer = logic_unit.client_socket.recv(4)
+    hex_string = binascii.hexlify(buffer).decode()
+    print("rcvr data from server 3 : " + hex_string + '\n')
+    buffer = logic_unit.client_socket.recv(4)
+    hex_string = binascii.hexlify(buffer).decode()
+    print("rcvr data from server 4 : " + hex_string + '\n')
     
+    msg_to_send = "got all threre msg and sending this ack"
+    print(msg_to_send + '\n')
+    logic_unit.send_data(msg_to_send.encode())
     return 0
 
 if __name__ == '__main__':
