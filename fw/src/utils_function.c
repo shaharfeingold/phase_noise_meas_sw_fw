@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "utils_function.h"
 #include "defines.h"
+#include <arpa/inet.h>
 
 // file:        utils_function.c
 // owner:       shahar
