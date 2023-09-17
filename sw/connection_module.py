@@ -13,6 +13,7 @@ import socket
 
 # todo shaharf review if enough
 MAX_MSG_SIZE = 1024  # in terms of bytes, the amount of the bytes to read from socket at once
+# todo shahar review above if it is enough or can be reduced.
 
 
 class LogicConnection:
@@ -65,13 +66,16 @@ class LogicConnection:
         except ConnectionRefusedError:
             # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
             print("Connection refused. Make sure the server is running.")
+            exit(2)
         except TimeoutError:
             # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
             # todo shaharf need to define error procedure
             print("Connection timed out. The server might be unreachable.")
+            exit(2)
         except socket.error as e:
             # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
             print("Socket error:", e)
+            exit(2)
         return 0  # todo shaharf if are here we connect succfully
 
     def get_from_user_connection_info(self, ip, port):
