@@ -176,6 +176,6 @@ void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_in
     header_as_uint = header_as_uint | pkt_type_casted | phase_inc_casted | control_byte_casted;
     char header[MAX_DATA_LEN];
     memset(header, 0, MAX_DATA_LEN);
-    convert_hex_to_string(header_as_uint, header);
+    convert_hex_to_string_unformnatted(header_as_uint, header);
     send_data_as_string_to_client(client_socket_ptr, header);
 }
