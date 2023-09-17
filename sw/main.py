@@ -76,6 +76,7 @@ def DebugTest():
     # wait for user to start operation
     user_interface.print_wait_for_start_op()
     start_indication = user_interface.get_from_user_start_op_indication()
+    #todo shahar need to send start indication pakcet 
 
     # wait for recv from server operation finished
     user_interface.print_wait_to_finish_op()
