@@ -14,13 +14,13 @@
 
 void convert_hex_to_string(uint64_t address, char target_string[]){
     verb_print(HIGH, "enterd covert_hex_to_string with address = 0x%x\n", address);
-    sprintf(target_string, "0x%08llx", address);
+    sprintf(target_string, "0x%016llx", address);
     verb_print(HIGH, "returning from covert_hex_to_string with target_sting = %s\n", target_string);
 }
 
 void convert_hex_to_string_unformnatted(uint64_t num, char target_string[]){
     verb_print(HIGH, "enterd covert_hex_to_string_unformatted with num = 0x%x\n", num);
-    sprintf(target_string, "%08llx", num);
+    sprintf(target_string, "%016llx", num);
     verb_print(HIGH, "returning from covert_hex_to_string_unformatted with target_sting = %s\n", target_string);
 }
 
