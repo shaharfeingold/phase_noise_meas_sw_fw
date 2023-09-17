@@ -99,7 +99,7 @@ void send_uint32_t_to_client(int* client_socket, uint32_t data){
 }
 
 void recv_bytes_from_client(int* client_socket_ptr, char data[]){
-	int bytes_recv = recv(*client_socket_ptr, data, sizeof(data), 0);
+	int bytes_recv = recv(*client_socket_ptr, data, MAX_DATA_LEN, 0);
 }
 
 // int main(){
