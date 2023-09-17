@@ -27,6 +27,9 @@ typedef struct _DataArray{
 
 //struct functions:
 void init_logic_config_struct(LogicConfig* new_logic_config);
+void get_config_header(LogicConfig* logic_config, int* client_socket_ptr);
+void decode_header(LogicConfig* logic_config, char header[], int* client_socket_ptr);
+void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_inc, char control_byte, int* client_socket_ptr);
 void UpdateConfigSent(LogicConfig* logic_config, uint32_t data);
 void UpdateGotFinish(LogicConfig* logic_config, uint32_t data);
 void UpdatePhaseInc(LogicConfig* logic_config, uint32_t data);

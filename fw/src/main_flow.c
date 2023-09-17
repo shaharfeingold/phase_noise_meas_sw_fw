@@ -88,6 +88,11 @@ int main(int argc, char** argv){
     store_new_data(&data_array, 2, 0);
     verb_print(MED, "DEBUG | store new data -> 3\n");
     store_new_data(&data_array, 3, 0);
+
+    verb_print(MED, "DEBUG | Get config packet from client\n");
+    verb_print(MED, "DEBUG | decode config pakcet and send ack if needed\n");
+    get_config_header(&logic_config, &client_socket);
+
     verb_print(MED, "DEBUG | send data to client\n");
     send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);
     memset(buffer, 0, sizeof(buffer));

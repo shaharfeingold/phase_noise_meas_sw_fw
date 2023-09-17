@@ -34,6 +34,10 @@ uint32_t convert_string_to_hex(char src_string[]){
     return strtoul(src_string, NULL, 16);
 }
 
+uint64_t convert_string_to_hex_uint64_t(char src_string[]){
+    return strtoull(src_string, NULL, 16);
+}
+
 uint32_t encode_uint_data_to_send(uint32_t data_as_uint){
     uint32_t result = htonl(data_as_uint);
     return result;

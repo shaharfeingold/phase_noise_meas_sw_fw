@@ -74,7 +74,7 @@ void send_data_array_to_client(DataArray* data_array, int type ,int* client_sock
     //* all data is send as bytes (string) need to encode it on server and decode it (convert back to num) on client side
     //* goint to send item by item.
     //1. first msg: type of msg = data, array_len, array_type [real, img, real+img]
-    //2. payload one by one (in case read+img, first real)
+    //2. payload one by one (in case read+img, real + img)
     //implement:
     //print warning in case expected len is not equal to len.
     uint32_t len = data_array->Len;
@@ -117,11 +117,12 @@ void send_data_array_to_client_according_to_type(DataArray* data_array, int type
         case REAL_IMG_DATA_MSG:
             for(index = 0; index < len ; index++){
                 send_uint32_t_to_client(client_socket_ptr, data_array->RealDataArray[index]);
-            }
-            for (index = 0 ; index < len ; index++){
                 send_uint32_t_to_client(client_socket_ptr, data_array->ImgDataArray[index]);
             }
-            break;
+            // for (index = 0 ; index < len ; index++){
+            //     send_uint32_t_to_client(client_socket_ptr, data_array->ImgDataArray[index]);
+            // }
+            // break;
     }
 }
 
@@ -143,4 +144,38 @@ void print_uint32_array(uint32_t* array_head, uint32_t len){
             verb_print(HIGH, "\n");
         }
     }
+}
+
+void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){
+    char header[MAX_DATA_LEN];
+    memset(header, 0, MAX_DATA_LEN);
+    recv_bytes_from_client(client_socket_ptr, header);
+    decode_header(logic_config, header, client_socket_ptr);
+}
+
+void decode_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
+    uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
+    char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
+    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d", pkt_type);
+    uint32_t phase_inc = (header_as_uint & 0x00FFFFFFFF000000) >> 24; //4B long
+    verb_print(HIGH, "DEBUG | phase_inc recv from header = %d", phase_inc);
+    char control_byte = (header_as_uint & 0x0000000000FF0000) >> 16; //4B long;//1B long
+    verb_print(HIGH, "DEBUG | control_byte recv from header = %d", control_byte);
+    if ((pkt_type == CONFIG_PKT) && (control_byte == 255)){ //meaning good packet
+        UpdateConfigSent(logic_config, TRUE);
+        UpdatePhaseInc(logic_config, phase_inc);
+        send_config_ack(logic_config, pkt_type, phase_inc, control_byte, client_socket_ptr);
+    }
+}
+
+void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_inc, char control_byte, int* client_socket_ptr){
+    uint64_t header_as_uint = 0x0000000000000000;
+    uint64_t pkt_type_casted = (uint64_t)pkt_type << 56;
+    uint64_t phase_inc_casted = (uint64_t)phase_inc << 24;
+    uint64_t control_byte_casted = 0x00 << 16;
+    header_as_uint = header_as_uint | pkt_type_casted | phase_inc_casted | control_byte_casted;
+    char header[MAX_DATA_LEN];
+    memset(header, 0, MAX_DATA_LEN);
+    convert_hex_to_string(header_as_uint, header);
+    send_data_as_string_to_client(client_socket_ptr, header);
 }
