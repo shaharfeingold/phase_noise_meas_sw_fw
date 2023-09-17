@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 void convert_hex_to_string(uint64_t address, char target_string[]);
+void convert_hex_to_string_unformnatted(uint64_t num, char target_string[]);
 void verb_print(int verbose, const char* format, ...);
 uint32_t convert_string_to_hex(char src_string[]);
 uint64_t convert_string_to_hex_uint64_t(char src_string[]);
