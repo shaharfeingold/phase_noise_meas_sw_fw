@@ -56,6 +56,7 @@ class LogicConfig:
             # todo shaharf, if we reach here before we send anything to logic error
             exit(2)
         ack_msg = logic_unit.rcvr_data().decode()
+        print(ack_msg)
         if (not self.check_ack_msg(ack_msg)):
             # todo shahar need to define what to do if we reach here.
             exit(2)
@@ -63,8 +64,11 @@ class LogicConfig:
 
     def check_ack_msg(self, ack_msg):
         rcev_pkt_type = int(ack_msg[0:2], 16)
+        print(rcev_pkt_type)
         rcev_phase_inc = int(ack_msg[2:10], 16)
+        print(rcev_phase_inc)
         rcev_control_byte = int(ack_msg[10:12], 16)
+        print(rcev_control_byte)
         if (rcev_pkt_type != defines.CONFIG):
             return False
         if (rcev_phase_inc != self.phase_inc):

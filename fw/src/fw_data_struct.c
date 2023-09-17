@@ -169,10 +169,14 @@ void decode_header(LogicConfig* logic_config, char header[], int* client_socket_
 }
 
 void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_inc, char control_byte, int* client_socket_ptr){
+    verb_print(HIGH, "entered send_config_ack\n");
     uint64_t header_as_uint = 0x0000000000000000;
     uint64_t pkt_type_casted = (uint64_t)pkt_type << 56;
+    verb_print(HIGH, "DEBUG | pkt_type = 0x%08x \n", pkt_type_casted);
     uint64_t phase_inc_casted = (uint64_t)phase_inc << 24;
+    verb_print(HIGH, "DEBUG | phase_inc = 0x%08x \n", phase_inc_casted);
     uint64_t control_byte_casted = 0x00 << 16;
+    verb_print(HIGH, "DEBUG | control_byte = 0x%08x \n", control_byte_casted);
     header_as_uint = header_as_uint | pkt_type_casted | phase_inc_casted | control_byte_casted;
     char header[MAX_DATA_LEN];
     memset(header, 0, MAX_DATA_LEN);
