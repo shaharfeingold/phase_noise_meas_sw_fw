@@ -81,6 +81,7 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	int bytes_sent = 0;
 	int bytes_left = 0;
 	bytes_sent += send(*client_socket, data, strlen(data), 0);
+	verb_print(HIGH, "DEBUG | first attempt, #bytes sends = %d\n", bytes_sent);
 	if (bytes_sent == -1){
  		perror("Error sending data to client");
 	}
@@ -88,6 +89,7 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	while(bytes_sent < strlen(data)){
 		bytes_left = strlen(data) - bytes_sent;
 		bytes_sent += send(*client_socket, data + bytes_sent, bytes_left, 0);
+		verb_print(HIGH, "DEBUG | other attempt attempt, #bytes sends = %d, bytes left = %d\n", bytes_sent, bytes_left);
 	}
 }
 
@@ -97,6 +99,7 @@ void send_uint32_t_to_client(int* client_socket, uint32_t data){
 	int bytes_sent = 0;
 	int bytes_left = 0;
 	bytes_sent += send(*client_socket, &data_in_network_order, sizeof(data_in_network_order), 0);
+	verb_print(HIGH, "DEBUG | first attempt, #bytes sends = %d\n", bytes_sent);
 	if (bytes_sent == -1){
  		perror("Error sending data to client");
 	}
@@ -104,6 +107,7 @@ void send_uint32_t_to_client(int* client_socket, uint32_t data){
 	while(bytes_sent < sizeof(data_in_network_order)){
 		bytes_left = sizeof(data_in_network_order) - bytes_sent;
 		bytes_sent += send(*client_socket, &data_in_network_order + bytes_sent, bytes_left, 0);
+		verb_print(HIGH, "DEBUG | other attempt attempt, #bytes sends = %d, bytes left = %d\n", bytes_sent, bytes_left);
 	}
 }
 
