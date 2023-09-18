@@ -89,7 +89,7 @@ def DebugTest():
     user_interface.print_data_unload()
 
     # unload data
-    meas_data.decode_header(logic_unit)
+    
     for i in range(meas_data.data_size_expected):
         meas_data.store_new_line_wrapper(logic_unit)
 
