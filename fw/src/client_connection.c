@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h> // Required for TCP_NODELAY
 
 #include "utils_function.h"
 #include "defines.h"
@@ -52,6 +53,14 @@ int accept_connection(int server_socket, _sockaddr_in* client_addr){
         perror("Error accepting connection"); //todo shahar define handling error and implement.
         exit(1);
     }	
+
+	// Enable TCP_NODELAY
+    int flag = 1;
+    if (setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)) == -1) {
+        perror("TCP_NODELAY setting failed");
+        exit(EXIT_FAILURE);
+    }
+
 	verb_print(MED, "DEBUG | connection accepted, return client socket\n");
 	return client_socket;
 }
