@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
+#include <pthread.h>
 
 //for socket?
 #include <unistd.h>
@@ -15,7 +16,8 @@
 // file:        main_flow.c
 // owner:       shahar
 // description: main flow for fw. manage and coordinate.
-// comment:     //todo shahar need to define error handling and memory error 
+// comment:     todo shahar need to define error handling and memory error
+//              need to create a thread to watch for events from logics
 
 // todo shahar need to add all modules.
 
@@ -81,7 +83,7 @@ int main(int argc, char** argv){
 
     // ******* start test section *******
     verb_print(MED, "DEBUG | init new data_array struct\n");
-    init_data_array_struct(&data_array, 3);
+    init_data_array_struct(&data_array, MAX_DATA_LEN);
     verb_print(MED, "DEBUG | store new data -> 1\n");
     store_new_data(&data_array, 1, 0);
     verb_print(MED, "DEBUG | store new data -> 2\n");

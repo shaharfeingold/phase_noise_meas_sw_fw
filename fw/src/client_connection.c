@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <netinet/tcp.h> // Required for TCP_NODELAY
 
+#include "client_connection.h"
 #include "utils_function.h"
 #include "defines.h"
 
@@ -81,7 +82,7 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	int bytes_sent = 0;
 	int bytes_left = 0;
 	// bytes_sent += send(*client_socket, data, strlen(data), 0); //here we are sending only up until null char
-	bytes_sent += send(*client_socket, data, MAX_DATA_LEN, 0); //here we send the entire buffer include the null chars
+	bytes_sent += send(*client_socket, data, MAX_MSG_SIZE, 0); //here we send the entire buffer include the null chars
 	verb_print(HIGH, "DEBUG | first attempt, #bytes sends = %d\n", bytes_sent);
 	if (bytes_sent == -1){
  		perror("Error sending data to client");
