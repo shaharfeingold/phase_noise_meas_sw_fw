@@ -12,15 +12,19 @@
 #include "utils_function.h"
 #include "fw_data_struct.h"
 #include "client_connection.h"
+#include "event_watcher.c"
 
 // file:        main_flow.c
 // owner:       shahar
 // description: main flow for fw. manage and coordinate.
 // comment:     todo shahar need to define error handling and memory error
 //              need to create a thread to watch for events from logics
+//              todo need to catch the event when the client wants to close  
+//              todo review all >> or << operation
 
 // todo shahar need to add all modules.
-
+//kill to send signal to process.
+//pthread_kill to send signal to a thread within the process.
 
 void print_hello_msg(){
     time_t current_time;
@@ -36,27 +40,70 @@ void print_exit_msg(){
     verb_print(NONE, "Exit Fw simulation\n");
 }
 
+void main_signals_handler(int sig){
+    //todo shahar continue implement
+    switch (sig){
+        case EVENT_OCCUER:{
+
+        }
+
+        case CLIENT_WANTS_TO_CLOSE:{
+
+        }
+
+        default:{
+            verb_print(HIGH, "Error sig number within main signals handler\n");
+        }
+    }
+}
+
 // global for multithred case.
-DataArray data_array;
+
 
 int main(int argc, char** argv){
     //var structs:
     LogicConfig logic_config;
     Events events;
-    // DataArray data_array;
+    DataArray data_array;
+    BufferInfo buffer_info;
+
+    //vars socket
     int server_socket, client_socket;
     struct sockaddr_in server_addr, client_addr;
     char buffer[BUFFER_SIZE];
+
+    //var pid
+    pid_t parent_pid = getpid();
+    pthread_t event_monitor_pthread;
+    int* event_monitor_exist_status;
+
+    //vars for shared data
+    ThreadArgs thread_args;  
 
     // main flow:
     print_hello_msg();
     // init structs
     init_logic_config_struct(&logic_config);
-    init_events_struct(&events);
+    init_events_struct(&events, EVENT_MASK);
+    init_buffer_info(&buffer_info, BUFFER_LEN, BUFFER_BASE_ADDR);
     // init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
 
     // init socket
     init_connection(&server_socket, &client_socket, &server_addr, &client_addr);
+
+    //init shared args for data shared 
+    // todo shahar need to init this struct last becuase it uses other prog. pointer !!
+    init_thread_args_struct(&thread_args, &logic_config, parent_pid, &client_socket, &events);
+
+    // Register the signals to thier handlers
+    signal(EVENT_OCCUER, main_signals_handler);
+    signal(CLIENT_WANTS_TO_CLOSE, main_signals_handler);
+
+    //create the events_watcher theard
+    if (pthread_create(&event_monitor_pthread, NULL, mainEventThread, &thread_args) != 0) {
+        perror("pthread_create");
+        exit(EXIT_FAILURE);
+    }
 
     // reached this point connection is established !!
 
@@ -109,6 +156,18 @@ int main(int argc, char** argv){
     //close sockets
     close(server_socket);
     close(client_socket);
+
+    //wait for thread to finish
+    //todo shahar review maybe need to before closeing sokcets
+    if (pthread_join(event_monitor_pthread, (void **)&event_monitor_exist_status) != 0) {
+        perror("pthread_join");
+        exit(EXIT_FAILURE);
+    }
+
+    if (event_monitor_exist_status != NULL) {
+        verb_print(HIGH, "Thread exited with status code: %d\n", *event_monitor_exist_status);
+        free(event_monitor_exist_status); // Free the memory only if it's not NULL
+    }
     print_exit_msg();
     return 0;
 }

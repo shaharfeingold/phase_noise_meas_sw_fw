@@ -15,6 +15,10 @@ typedef struct _LogicConfig{
 
 typedef struct _Events{
     uint32_t EventsBitsVector;
+    uint32_t EventMask;
+    uint32_t EventVectorMasked;
+    int test_event0; //pos bit 0
+    int test_event1; //pos bit 1
     //todo shahar add evenets signals according to logic designs
 }Events;
 
@@ -50,7 +54,10 @@ void unload_data_from_logic(DataArray* data_array, BufferInfo* buffer_info);
 void get_from_client_start_operation(LogicConfig* logic_config);
 void start_operation_wrapper(LogicConfig* logic_config, BufferInfo* buffer_info); //todo shahar wrapper to all above.
 
-void init_events_struct(Events* new_event_struct);
+void init_events_struct(Events* new_event_struct, uint32_t event_mask);
+void UpdateEventsVec(Events* event_strcut, uint32_t new_event_vec);
+void handle_read_new_event_vector(Events* event_struct, uint32_t new_event_vector); //todo implemt
+void decode_event_vector(Events* event_struct); //todo implemenet
 
 void init_data_array_struct(DataArray* new_data_array, uint32_t expected_data_len);
 void store_new_data(DataArray* data_array, uint32_t RealData, uint32_t ImgData);

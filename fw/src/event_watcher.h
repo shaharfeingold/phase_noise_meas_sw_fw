@@ -16,8 +16,11 @@ typedef struct _ThreadArgs
 #define EVENT_OCCUER SIGUSR1
 #define CLIENT_WANTS_TO_CLOSE SIGUSR2
 
+void init_thread_args_struct(ThreadArgs* thread_args, LogicConfig* logic_config, pid_t parent_pid, int* client_socket_ptr, Events* events);
+
 void mainEventThread(void* args);
-void monitorEvents();
-void terminate_signal_handler(int sig);
+void monitorEvents(Events* event_struct);
+
+void events_signals_handler(int sig);
 
 #endif

@@ -43,12 +43,30 @@ void UpdateStartSent(LogicConfig* logic_config, uint32_t data){
 }
 
 //get a pointer for a new allocated strct and modify it inside.
-//modify all field to zero.
-void init_events_struct(Events* new_event_struct){
-    new_event_struct->EventsBitsVector = 0x0000;
+void init_events_struct(Events* new_event_struct, uint32_t event_mask){
+    new_event_struct->EventsBitsVector = 0x00000000;
+    new_event_struct->EventMask = event_mask;
+    new_event_struct->EventVectorMasked = 0x00000000;
+    new_event_struct->test_event0 = 0;
+    new_event_struct->test_event1 = 1;
     //todo shahar init more fields upon their addition.
 }
 
+void UpdateEventsVec(Events* event_strcut, uint32_t new_event_vec){
+    event_strcut->EventsBitsVector = new_event_vec;
+}
+
+void handle_read_new_event_vector(Events* event_struct, uint32_t new_event_vector){
+    UpdateEventsVec(event_struct, new_event_vector);
+    decode_event_vector(event_struct);
+}
+
+void decode_event_vector(Events* event_struct) {
+    uint32_t event_vec_maksed = event_struct->EventMask & event_struct->EventsBitsVector;
+    event_struct->EventVectorMasked = event_vec_maksed;
+    event_struct->test_event0 = 0x00000001 & event_vec_maksed; //pos bit 0
+    event_struct->test_event1 = (0x00000002 & event_vec_maksed) >> 1; //pos bit 1
+}
 //todo shahar make function to set bit event.
 
 void init_data_array_struct(DataArray* new_data_array, uint32_t expected_data_len){
@@ -182,4 +200,10 @@ void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_in
     memset(header, 0, MAX_DATA_LEN);
     convert_hex_to_string_unformnatted(header_as_uint, header);
     send_data_as_string_to_client(client_socket_ptr, header);
+}
+
+//todo shahar connect to vars/defines
+void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buffer_base_address){
+    buffer_info->buffer_base_address = buffer_base_address;
+    buffer_info->buffer_len = buffer_len;
 }

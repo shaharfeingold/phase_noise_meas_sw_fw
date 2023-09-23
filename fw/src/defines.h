@@ -22,4 +22,15 @@
 
 typedef struct sockaddr_in _sockaddr_in;
 
+//buffer info
+//todo shahar need to review this defines after finish logic
+#define BUFFER_LEN  MAX_DATA_LEN //buffer inside the logic
+#define BUFFER_BASE_ADDR 0x0000000000000000
+
+//Event Mask
+//todo shahar need to make after define which events should be read by the fw according to severity
+#define EVENT_MASK 0xffffffff
+#define EVENT_ADDRESS 0x0000000000000000 //todo shahar change after implement logic 8B
+//todo shahar consider pack the address in struct
+
 #endif
