@@ -5,8 +5,8 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
-typedef struct _ThreadArgs
-{
+
+typedef struct _ThreadArgs{
     Events* events_ptr;
     LogicConfig* logic_config;
     pid_t parent_pid;
