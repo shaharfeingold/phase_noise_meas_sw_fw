@@ -57,6 +57,7 @@ void UpdateEventsVec(Events* event_strcut, uint32_t new_event_vec){
 }
 
 void handle_read_new_event_vector(Events* event_struct, uint32_t new_event_vector){
+    verb_print(HIGH, "entered handle_read_new_event_vector\n");
     UpdateEventsVec(event_struct, new_event_vector);
     decode_event_vector(event_struct);
 }

@@ -58,6 +58,7 @@ void* mainEventThread(void* args){
         //monitor the events for logic.
         monitorEvents(event_struct);
         if (event_struct->EventVectorMasked != 0){
+            verb_print(HIGH, "EventVectorMasked != 0 | Going to signal to main thread\n");
             kill(parent_pid, EVENT_OCCUER);
             break;
         }
