@@ -13,6 +13,7 @@
 #include "fw_data_struct.h"
 #include "client_connection.h"
 #include "event_watcher.h"
+#include "main.h"
 
 // file:        main_flow.c
 // owner:       shahar
