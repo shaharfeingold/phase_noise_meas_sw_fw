@@ -14,6 +14,7 @@
 #include "event_watcher.h"
 #include "defines.h"
 #include "read_write.h"
+#include <pthread.h>
 
 // file:        event_watcher.c
 // owner:       shahar
@@ -33,7 +34,7 @@ void init_thread_args_struct(ThreadArgs* thread_args, LogicConfig* logic_config,
 // global vars
 int client_running = TRUE; //bool, when client stop running, parent signal to thread to stop
 
-void mainEventThread(void* args){
+void* mainEventThread(void* args){
     verb_print(HIGH, "entered mainEventThread\n");
     //cast args struct to vars.
     ThreadArgs* thread_args = (ThreadArgs*) args;
