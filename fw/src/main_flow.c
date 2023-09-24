@@ -131,7 +131,7 @@ int main(int argc, char** argv){
 
     // ******* start test section *******
     verb_print(MED, "DEBUG | init new data_array struct\n");
-    init_data_array_struct(&data_array, MAX_DATA_LEN);
+    init_data_array_struct(&data_array, MAX_DATA_LEN); //note here we put the expected len. the actual len is according to method that fill the array
     verb_print(MED, "DEBUG | store new data -> 1\n");
     store_new_data(&data_array, 1, 0);
     verb_print(MED, "DEBUG | store new data -> 2\n");
@@ -157,6 +157,10 @@ int main(int argc, char** argv){
     //close sockets
     close(server_socket);
     close(client_socket);
+
+    // ### this section to signal the child (event_monitor) that client wants to end connection ***
+    pthread_kill(event_monitor_pthread, CLIENT_WANTS_TO_CLOSE);
+    // ********************************************************************************************
 
     //wait for thread to finish
     //todo shahar review maybe need to before closeing sokcets
