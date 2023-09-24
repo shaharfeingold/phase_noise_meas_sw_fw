@@ -92,6 +92,7 @@ void events_signals_handler(int sig){
         case CLIENT_WANTS_TO_CLOSE:{
             verb_print(HIGH, "client signal to server to close the session, event_watchers close_as_well\n");
             client_running = FALSE;
+            break;
         }
 
         default:{

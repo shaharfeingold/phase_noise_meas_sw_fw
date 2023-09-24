@@ -158,6 +158,8 @@ int main(int argc, char** argv){
     close(server_socket);
     close(client_socket);
 
+    sleep(10); //todo shahar for debug only
+
     // ### this section to signal the child (event_monitor) that client wants to end connection ***
     pthread_kill(event_monitor_pthread, CLIENT_WANTS_TO_CLOSE);
     // ********************************************************************************************
