@@ -11,6 +11,7 @@ IDLE = 0
 CONFIG = 1
 DATA = 2
 ERROR = 3
+END_CONNECTION = 255 #0xFF
 
 # data msg types defines:
 REAL_DATA_MSG = 0

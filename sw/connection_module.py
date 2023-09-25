@@ -10,11 +10,14 @@ import os
 import time
 import subprocess
 import socket
+import logging
+import defines
 
 # todo shaharf review if enough
 MAX_MSG_SIZE = 1024  # in terms of bytes, the amount of the bytes to read from socket at once
 # todo shahar review above if it is enough or can be reduced.
 
+# todo shahar close looger after finsish dev.
 
 class LogicConnection:
     def __init__(self):
@@ -23,6 +26,16 @@ class LogicConnection:
         self.logic_address = 0
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # client socket to communicate with logic modules
         self.connection_established = False
+        self.user_wants_to_close = False
+
+        # create a logger under LogicConnection class
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        self.handler = logging.StreamHandler()
+        self.handler.setLevel(logging.DEBUG)
+        self.formater = logging.Formatter('%(name)s | %(message)s')
+        self.handler.setFormatter(self.formater)
+        self.logger.addHandler(self.handler)
 
     def __str__(self):
         result = "-------------"
@@ -87,10 +100,56 @@ class LogicConnection:
         # todo shaharf need to add flag or indication that user wants to close and server finish sending info
         # todo shaharf we are not relaying on tcp protocol close connection procedure.
         try:
+            pkt_to_send = self.build_packet_close_connection()
+            self.send_data(pkt_to_send)
+            ack_msg_to_check = self.rcvr_data().decode()
+            self.check_ack_close_connection_pkt(ack_msg_to_check)
             self.client_socket.close()
         except Exception as e:
             print("Error occurred ! {}".formt(e))  # todo shaharf error handling
+    
+    def build_packet_close_connection(self):
+        # the pkt itself is 64 bits long (8B)
+        # header format: 1B     | 4B        | 1B
+        #                type   | null      | control_byte
+        # sender set control byte to FF, recv sends ack msg (echo the msg with unset control byte)
+        # to support the defined socket interface between server and client, we need to send 1024 B msg 
+        # => add null bytes to header.
+        if (not self.connection_established):
+            self.logger.debug("trying to send close connection packet but didn't established the connection yet")
+            raise Exception
+            # todo shahar need to define how to handle and what to do unter this error
 
+        null_field = '00000000'
+        control_byte = 255
+        header = f"{defines.END_CONNECTION:02X}" + null_field + f"{control_byte:02X}"
+        # extend to have 64 bits long pkt
+        header = header + "0000"
+        header = header.encode()
+
+        # fill with null chars to have 1024 B msg.
+        desired_length = 1024 # todo shahar switch to defines.
+        # todo shahar maybe need to 1023 because of the null char that end the entire string. (review with print both client and server)
+        # todo shahar need to support the case when we don't need to add null chars (the header itself enough)
+
+        # Calculate the number of null characters to add
+        null_characters = b'\x00' * (desired_length - len(header))
+
+        # Concatenate the original string with null characters to reach the desired length
+        extended_string = header + null_characters
+        return extended_string # the return value is encoded string
+
+    def check_ack_close_connection_pkt(self, pkt_to_check):
+        rcev_pkt_type = int(pkt_to_check[0:2], 16)
+        rcev_control_byte = int(pkt_to_check[10:12], 16)
+        # check pkt
+        if ((rcev_control_byte != 0) or (rcev_pkt_type != defines.END_CONNECTION)):
+            self.logger.debug("rcve ack close connection packet is not a valid one")
+            self.logger.debug("recv_pkt_type = %d, recv_control_byte = %d", rcev_pkt_type, rcev_control_byte)
+            return False
+            # todo shahar need to define what to do in case false
+        return True
+    
 """""
 import socket
 
