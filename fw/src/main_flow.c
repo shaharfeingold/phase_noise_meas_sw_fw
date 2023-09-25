@@ -47,6 +47,7 @@ void print_exit_msg(){
 }
 
 void main_signals_handler(int sig){
+    verb_print(HIGH, "main_signals_handler\n");
     //todo shahar continue implement
     switch (sig){
         case EVENT_OCCUER:{
