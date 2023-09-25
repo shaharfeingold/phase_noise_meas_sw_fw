@@ -47,7 +47,7 @@ void* mainEventThread(void* args){
 
 
     // Register the signals to thier handlers
-    signal(EVENT_OCCUER, events_signals_handler);
+    // signal(EVENT_OCCUER, events_signals_handler); //todo only main thread should catch this
     signal(CLIENT_WANTS_TO_CLOSE, events_signals_handler);
 
     //event_watcher_main_logic
@@ -61,9 +61,7 @@ void* mainEventThread(void* args){
         monitorEvents(event_struct);
         if (event_struct->EventVectorMasked != 0){
             verb_print(HIGH, "EventVectorMasked != 0 | Going to signal to main thread\n");
-            // kill(parent_pid, EVENT_OCCUER);
-		printf("hello | %d\n", main_thread);
-            pthread_kill(main_thread, EVENT_OCCUER);
+            kill(parent_pid, EVENT_OCCUER);
             break;
         }
     }
@@ -87,12 +85,12 @@ void monitorEvents(Events* event_strcut){
 void events_signals_handler(int sig){
     verb_print(HIGH, "entered terminate_signal_handler\n");
     switch (sig) {
-        case EVENT_OCCUER:{
+        //case EVENT_OCCUER:{
             //todo need to implement
             // when an fatal events happends we exit the program. and send to client the events
             // if no fatal need to set the signal watch again and continue executaion
-            break;
-        }
+        //    break;
+       // }
         
         case CLIENT_WANTS_TO_CLOSE:{
             verb_print(HIGH, "client signal to server to close the session, event_watchers close_as_well\n");

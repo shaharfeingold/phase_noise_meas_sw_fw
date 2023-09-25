@@ -57,9 +57,9 @@ void main_signals_handler(int sig){
             seek_event_from_vec();
         }
 
-        case CLIENT_WANTS_TO_CLOSE:{
-            break;
-        }
+        //case CLIENT_WANTS_TO_CLOSE:{
+        //    break;
+        //}
 
         default:{
             verb_print(HIGH, "Error sig number within main signals handler\n");
@@ -113,7 +113,7 @@ int main(int argc, char** argv){
 
     // Register the signals to thier handlers
     signal(EVENT_OCCUER, main_signals_handler);
-    signal(CLIENT_WANTS_TO_CLOSE, main_signals_handler);
+    // signal(CLIENT_WANTS_TO_CLOSE, main_signals_handler); //todo only the thread should catch this signal
 
     //create the events_watcher theard
     if (pthread_create(&event_monitor_pthread, NULL, mainEventThread, &thread_args) != 0) {
