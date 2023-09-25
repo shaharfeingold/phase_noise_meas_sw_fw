@@ -89,6 +89,7 @@ int main(int argc, char** argv){
 
     //var pid
     pid_t parent_pid = getpid();
+    pthread_t main_pthread = pthread_self();
     pthread_t event_monitor_pthread;
     int* event_monitor_exist_status;
 
@@ -108,7 +109,7 @@ int main(int argc, char** argv){
 
     //init shared args for data shared 
     // todo shahar need to init this struct last becuase it uses other prog. pointer !!
-    init_thread_args_struct(&thread_args, &logic_config, parent_pid, &client_socket, &events);
+    init_thread_args_struct(&thread_args, &logic_config, parent_pid, &main_pthread, &client_socket, &events);
 
     // Register the signals to thier handlers
     signal(EVENT_OCCUER, main_signals_handler);

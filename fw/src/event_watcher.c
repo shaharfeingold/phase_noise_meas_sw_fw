@@ -24,11 +24,12 @@
 //              todo need to verify that all ptr are working and passing all the needed data
 //              for example if event_mointor rise an event, the main process can also see which event rise. 
 
-void init_thread_args_struct(ThreadArgs* thread_args, LogicConfig* logic_config, pid_t parent_pid, int* client_socket_ptr, Events* events){
+void init_thread_args_struct(ThreadArgs* thread_args, LogicConfig* logic_config, pid_t parent_pid, pthread_t* main_thread, int* client_socket_ptr, Events* events){
     thread_args->logic_config = logic_config;
     thread_args->parent_pid = parent_pid;
     thread_args->client_socket_ptr = client_socket_ptr;
     thread_args->events_ptr = events;
+    thread_args->main_thread = main_thread;
 }
 
 // global vars
@@ -42,6 +43,7 @@ void* mainEventThread(void* args){
     pid_t parent_pid = thread_args->parent_pid;
     LogicConfig* logic_config  = thread_args->logic_config;
     int* clinet_socket_ptr = thread_args->client_socket_ptr;
+    pthread_t main_thread = *(thread_args->main_thread);
 
 
     // Register the signals to thier handlers
@@ -59,7 +61,8 @@ void* mainEventThread(void* args){
         monitorEvents(event_struct);
         if (event_struct->EventVectorMasked != 0){
             verb_print(HIGH, "EventVectorMasked != 0 | Going to signal to main thread\n");
-            kill(parent_pid, EVENT_OCCUER);
+            // kill(parent_pid, EVENT_OCCUER);
+            pthread_kill(main_thread, EVENT_OCCUER);
             break;
         }
     }
