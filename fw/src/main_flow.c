@@ -27,6 +27,11 @@
 //kill to send signal to process.
 //pthread_kill to send signal to a thread within the process.
 
+
+// global vars.
+Events events;
+
+
 void print_hello_msg(){
     time_t current_time;
     struct tm *time_info;
@@ -45,26 +50,34 @@ void main_signals_handler(int sig){
     //todo shahar continue implement
     switch (sig){
         case EVENT_OCCUER:{
-
+            verb_print(MED, "event watcher sends to main thread EVENT_OCCUER signal\n");
+            //tdoo shahar consider init a semaphore until main finish hadling also  main reset the vec in logic 
+            // prio 1
+            seek_event_from_vec();
         }
 
         case CLIENT_WANTS_TO_CLOSE:{
-
+            break;
         }
 
         default:{
             verb_print(HIGH, "Error sig number within main signals handler\n");
+            break;
         }
     }
 }
 
-// global for multithred case.
-
+void seek_event_from_vec(){
+    //todo shahar contiune implement as the events grows prio 2
+    int IsEvent0Up = events.test_event0;
+    int IsEvent1Up = events.test_event1;
+    verb_print(MED, "Event0Up ? %d , Event1Up ? %d\n", IsEvent0Up, IsEvent1Up);
+}
 
 int main(int argc, char** argv){
     //var structs:
     LogicConfig logic_config;
-    Events events;
+    // Events events; //todo shahar prio3 review | moved to be global.
     DataArray data_array;
     BufferInfo buffer_info;
 
@@ -158,7 +171,7 @@ int main(int argc, char** argv){
     close(server_socket);
     close(client_socket);
 
-    sleep(10); //todo shahar for debug only
+    sleep(2); //todo shahar for debug only
 
     // ### this section to signal the child (event_monitor) that client wants to end connection ***
     pthread_kill(event_monitor_pthread, CLIENT_WANTS_TO_CLOSE);
