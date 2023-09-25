@@ -62,6 +62,7 @@ void* mainEventThread(void* args){
         if (event_struct->EventVectorMasked != 0){
             verb_print(HIGH, "EventVectorMasked != 0 | Going to signal to main thread\n");
             // kill(parent_pid, EVENT_OCCUER);
+		printf("hello | %d\n", main_thread);
             pthread_kill(main_thread, EVENT_OCCUER);
             break;
         }
