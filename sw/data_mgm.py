@@ -4,6 +4,9 @@ import defines
 import connection_module
 import binascii
 import logging
+import numpy as np
+import matplotlib.pyplot as plt
+import utilis_func as utilis
 
 """ 
 file: data_mgm.py
@@ -21,8 +24,10 @@ class Data:
         self.data_size = 0
         self.data_size_expected = 0
         self.data_type = 0 # only real -> 0, only img -> 1, both real and img -> 2
+        self.sample_freq = 50 # sampling frequncy in units of MHz # todo shahar review this defualt value # todo shahar prio1 need to pass this parameters using the config pkt or using a define
         self.req_sent = False
         self.data_rcvr = False
+    
         # create a logger under Data class
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -116,3 +121,28 @@ class Data:
             return
             # todo shaharf switch to exception or error handling !!!
         return self.data[index]
+
+    def compute_ftt(self):
+        # todo shahar review, if we are using this methods we are assuming that we are getting the data before fft (only real value)
+        # Create a sample signal
+        if (self.data_type != defines.REAL_DATA_MSG):
+            self.logger.debug("Error ! trying to compute fft with value which are not only real")
+            # todo shahar continue implement how to handle this.
+        
+        signal = np.array(utilis.convertList32HexToInt(self.real_data))
+        # print(self.real_data)
+        # print(signal)
+        # Compute the FFT   
+        fs = self.sample_freq*1000000 # todo converd to Hz units
+        fft_result = np.fft.fft(signal)
+        frequencies = np.fft.fftfreq(len(fft_result), 1/fs)  # Frequency values
+
+        # Plot the FFT result
+        plt.figure(figsize=(10, 6))
+        plt.plot(frequencies, np.abs(fft_result))
+        plt.title("FFT ")
+        plt.xlabel("Frequency (Hz)")
+        plt.ylabel("Amplitude")
+
+        plt.tight_layout()
+        plt.show()

@@ -19,9 +19,10 @@
 // owner:       shahar
 // description: main flow for fw. manage and coordinate.
 // comment:     todo shahar need to define error handling and memory error
-//              need to create a thread to watch for events from logics
 //              todo need to catch the event when the client wants to close  
 //              todo review all >> or << operation
+//              need to implemenet "wait to start operation"
+//              need to implemenet "wait to stop operation"
 
 // todo shahar need to add all modules.
 //kill to send signal to process.
@@ -55,6 +56,7 @@ void main_signals_handler(int sig){
             //tdoo shahar consider init a semaphore until main finish hadling also  main reset the vec in logic 
             // prio 1
             seek_event_from_vec();
+            break;
         }
 
         //case CLIENT_WANTS_TO_CLOSE:{

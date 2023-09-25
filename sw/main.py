@@ -81,7 +81,7 @@ def DebugTest():
     # wait for recv from server operation finished
     user_interface.print_wait_to_finish_op()
 
-    # wait until header of data recv which indication of finish operation.
+    # wait until header of data recv which indicat of finish operation.
     # todo shahar need to make sure that we are blocked up until the header recv. maybe add some sleep
     meas_data.decode_header(logic_unit)
 
@@ -112,6 +112,20 @@ def DebugTest():
     msg_to_send = "got all threre msg and sending this ack" # if we want to send this need to make sure that its 1024 B wide.
     print(msg_to_send + '\n')
     logic_unit.send_data(msg_to_send.encode())
+
+    # data anylsis:
+    # todo shahar implement + add print to screen
+    meas_data.compute_ftt()
+    # wait to close window
+
+    # prompt user how to continue
+
+    # wait for user to choose: redo ? new config ? exit:
+
+    # todo implement pkt to close connection
+
+    # todo implement close socket
+    logic_unit.close_connection()
     return 0
 
 if __name__ == '__main__':
