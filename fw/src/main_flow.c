@@ -98,6 +98,7 @@ char decode_end_of_op_pkt(char* pkt, int* client_socket_ptr){
     if ((pkt_type >= RESTART) && (control_byte == 255)){ //meaning good packet end of operation pkt
         send_end_of_op_ack(pkt_type, control_byte, client_socket_ptr);
     }
+    return pkt_type;
 }
 
 void send_end_of_op_ack(char pkt_type, char control_byte, int* client_socket_ptr){
@@ -210,7 +211,7 @@ int main(int argc, char** argv){
     int loop = TRUE;
     while (loop){
         char pkt_type = get_end_of_operation_pkt(&client_socket);
-        verb_print(HIGH, "pkt_type_rcev = %d", pkt_type);
+        verb_print(HIGH, "pkt_type_rcev = %d\n", pkt_type);
         switch (pkt_type){
             case END_CONNECTION:
                 loop = FALSE;
