@@ -52,3 +52,15 @@ def print_wait_to_finish_op():
 
 def print_data_unload():
     print("red pitya finished its operation, start unloading data")
+
+def print_end_of_op_how_to_proceed():
+    print("you close the window of result, please select how to proceed")
+
+def print_end_of_op_options():
+    print("*************************************************************************")
+    print("if you want to exit please type 1")
+    print("if you want to measure again with the same configuration please select 2")
+    print("if you want to set new configuration please select 3")
+    print("*************************************************************************")
+    result = input("please enter your choice\n")
+    return result

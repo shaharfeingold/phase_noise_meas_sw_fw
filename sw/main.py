@@ -110,7 +110,7 @@ def DebugTest():
     # meas_data.store_new_line(hex_string)
 
     msg_to_send = "got all threre msg and sending this ack" # if we want to send this need to make sure that its 1024 B wide.
-    print(msg_to_send + '\n')
+    print(msg_to_send)
     logic_unit.send_data(msg_to_send.encode())
 
     # data anylsis:
@@ -119,13 +119,25 @@ def DebugTest():
     # wait to close window
 
     # prompt user how to continue
-
+    user_interface.print_end_of_op_how_to_proceed()
     # wait for user to choose: redo ? new config ? exit:
+    end_of_op_user_choice = user_interface.print_end_of_op_options()
+    if (end_of_op_user_choice == '1'):
+        logic_unit.close_connection()
+    elif (end_of_op_user_choice == '2'):
+        # todo shahar implement redo + support in fw
+        # todo shahar upuntil we implelent redo we will close connection
+        logic_unit.close_connection()
+    
+    elif (end_of_op_user_choice == '3'):
+        # todo shahar implement redo + support in fw
+        # todo shahar upuntil we implelent redo we will close connection
+        logic_unit.close_connection()
+    else:
+        print("unvalid choice please try again")
+        #todo shahar implement as while a loop
 
-    # todo implement pkt to close connection
-
-    # todo implement close socket
-    logic_unit.close_connection()
+    # logic_unit.close_connection()
     return 0
 
 if __name__ == '__main__':
