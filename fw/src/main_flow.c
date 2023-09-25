@@ -210,6 +210,7 @@ int main(int argc, char** argv){
     int loop = TRUE;
     while (loop){
         char pkt_type = get_end_of_operation_pkt(&client_socket);
+        verb_print(HIGH, "pkt_type_rcev = %d", pkt_type);
         switch (pkt_type){
             case END_CONNECTION:
                 loop = FALSE;
