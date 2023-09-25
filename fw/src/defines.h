@@ -19,6 +19,9 @@
 #define CONFIG_PKT 1
 #define DATA_PKT 2
 #define ERROR_PKT 3
+#define RESTART 253
+#define REDO 254
+#define END_CONNECTION 255 //0xFF
 
 typedef struct sockaddr_in _sockaddr_in;
 

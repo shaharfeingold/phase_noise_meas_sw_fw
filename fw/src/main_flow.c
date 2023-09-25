@@ -14,6 +14,7 @@
 #include "client_connection.h"
 #include "event_watcher.h"
 #include "main.h"
+#include "defines.h"
 
 // file:        main_flow.c
 // owner:       shahar
@@ -75,6 +76,42 @@ void seek_event_from_vec(){
     int IsEvent0Up = events.test_event0;
     int IsEvent1Up = events.test_event1;
     verb_print(MED, "Event0Up ? %d , Event1Up ? %d\n", IsEvent0Up, IsEvent1Up);
+}
+
+char get_end_of_operation_pkt(int* client_socket_ptr){
+    verb_print(HIGH, "entered get_end_of_operation_pkt\n");
+    char pkt[MAX_MSG_SIZE];
+    memset(pkt, 0, MAX_MSG_SIZE);
+    char pkt_type;
+    recv_bytes_from_client(client_socket_ptr, pkt);
+    pkt_type = decode_end_of_op_pkt(pkt, client_socket_ptr);
+    return pkt_type;
+}
+
+char decode_end_of_op_pkt(char* pkt, int* client_socket_ptr){
+    verb_print(HIGH, "entered decode_end_of_op_pkt\n");
+    uint64_t pkt_as_uint = convert_string_to_hex_uint64_t(pkt);
+    char pkt_type = (pkt_as_uint & 0xFF00000000000000) >> 56; //1B long
+    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
+    char control_byte = (pkt_as_uint & 0x0000000000FF0000) >> 16; //4B long;//1B long
+    verb_print(HIGH, "DEBUG | control_byte recv from header = %d\n", control_byte);
+    if ((pkt_type >= RESTART) && (control_byte == 255)){ //meaning good packet end of operation pkt
+        send_end_of_op_ack(pkt_type, control_byte, client_socket_ptr);
+    }
+}
+
+void send_end_of_op_ack(char pkt_type, char control_byte, int* client_socket_ptr){
+    verb_print(HIGH, "entered send_end_of_op_ack\n");
+    uint64_t ack_pkt_as_uint = 0x0000000000000000;
+    uint64_t pkt_type_casted = (uint64_t)pkt_type << 56;
+    verb_print(HIGH, "DEBUG | pkt_type = 0x%08x \n", pkt_type_casted);
+    uint64_t control_byte_casted = 0x00 << 16;
+    verb_print(HIGH, "DEBUG | control_byte = 0x%08x \n", control_byte_casted);
+    ack_pkt_as_uint = ack_pkt_as_uint | pkt_type_casted | control_byte_casted;
+    char ack_pkt[MAX_MSG_SIZE];
+    memset(ack_pkt, 0, MAX_MSG_SIZE);
+    convert_hex_to_string_unformnatted(ack_pkt_as_uint, ack_pkt);
+    send_data_as_string_to_client(client_socket_ptr, ack_pkt);
 }
 
 int main(int argc, char** argv){
@@ -169,7 +206,26 @@ int main(int argc, char** argv){
    	}
     verb_print(MED, "DEBUG | Received message from client: %s\n", buffer);
 
-
+    //wait to rcve end of operation pakcet
+    int loop = TRUE;
+    while (loop){
+        char pkt_type = get_end_of_operation_pkt(&client_socket);
+        switch (pkt_type){
+            case END_CONNECTION:
+                loop = FALSE;
+                break;
+            case REDO:
+                //todo shahar need to support this type
+                break;
+            case RESTART:
+                //todo shahar need to support this type
+                break;
+            default:
+                verb_print(MED, "recv pkt type here which is not valid end of operation pkt\n");
+                //todo need to handle this
+                break;
+        }
+    }
     // ******** end test section ********
     //close sockets
     close(server_socket);
