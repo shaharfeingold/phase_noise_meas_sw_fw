@@ -104,9 +104,9 @@ void send_end_of_op_ack(char pkt_type, char control_byte, int* client_socket_ptr
     verb_print(HIGH, "entered send_end_of_op_ack\n");
     uint64_t ack_pkt_as_uint = 0x0000000000000000;
     uint64_t pkt_type_casted = (uint64_t)pkt_type << 56;
-    verb_print(HIGH, "DEBUG | pkt_type = 0x%08x \n", pkt_type_casted);
+    verb_print(HIGH, "DEBUG | pkt_type = 0x%08lx \n", pkt_type_casted);
     uint64_t control_byte_casted = 0x00 << 16;
-    verb_print(HIGH, "DEBUG | control_byte = 0x%08x \n", control_byte_casted);
+    verb_print(HIGH, "DEBUG | control_byte = 0x%08lx \n", control_byte_casted);
     ack_pkt_as_uint = ack_pkt_as_uint | pkt_type_casted | control_byte_casted;
     char ack_pkt[MAX_MSG_SIZE];
     memset(ack_pkt, 0, MAX_MSG_SIZE);

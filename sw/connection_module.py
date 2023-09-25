@@ -115,6 +115,7 @@ class LogicConnection:
         # sender set control byte to FF, recv sends ack msg (echo the msg with unset control byte)
         # to support the defined socket interface between server and client, we need to send 1024 B msg 
         # => add null bytes to header.
+        self.logger.debug("entered build_packet_close_connection")
         if (not self.connection_established):
             self.logger.debug("trying to send close connection packet but didn't established the connection yet")
             raise Exception
@@ -140,8 +141,10 @@ class LogicConnection:
         return extended_string # the return value is encoded string
 
     def check_ack_close_connection_pkt(self, pkt_to_check):
+        self.logger.debug("entered check_ack_close_connection_pkt")
         rcev_pkt_type = int(pkt_to_check[0:2], 16)
         rcev_control_byte = int(pkt_to_check[10:12], 16)
+        self.logger.debug("rcev_pkt_type = %d, recv_control_byte = %d", rcev_pkt_type, rcev_control_byte)
         # check pkt
         if ((rcev_control_byte != 0) or (rcev_pkt_type != defines.END_CONNECTION)):
             self.logger.debug("rcve ack close connection packet is not a valid one")
