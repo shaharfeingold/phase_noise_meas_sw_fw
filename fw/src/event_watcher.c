@@ -75,8 +75,8 @@ void monitorEvents(Events* event_strcut){
     // read vector from logic.
     uint32_t new_event_vec = read_from_logic(EVENT_ADDRESS); //read current event vec.
     int write_succeed = write_to_logic(0x00000000, EVENT_ADDRESS); //after reading events, rest all.
-    // handle_read_new_event_vector(event_strcut, new_event_vec);
-    handle_read_new_event_vector(event_strcut, 0x00000003); //todo prio1 remove for deubg only
+    handle_read_new_event_vector(event_strcut, new_event_vec);
+    // handle_read_new_event_vector(event_strcut, 0x00000003); //todo prio1 remove for deubg only
 }
 
 
