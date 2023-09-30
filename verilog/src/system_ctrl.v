@@ -1,6 +1,10 @@
 
 
-module system_ctrl();
+module system_ctrl(clk, rstn, clken, start_op, finish_op, event_start_op_when_system_not_ready,
+                   event_finihs_op_when_system_not_ready, restart_vld, restart_type, 
+                   event_restart_vld_when_system_not_in_finish_mode, start_config, phase_inc, 
+                   event_start_config_when_state_is_not_idle, in_data, in_data_vld, 
+                   event_in_data_when_system_not_ready, out_data, out_data_vld);
 //parameters
 parameter FIFO_SIZE = 1024;
 localparam FIFO_SIZE_WIDTH  = $clog2(FIFO_SIZE);
@@ -48,7 +52,7 @@ output event_restart_vld_when_system_not_in_finish_mode;
 //start_confg | phase_inc
 input start_config;
 input [DATA_WIDTH-1 : 0] phase_inc; 
-output start_config_when_state_is_not_idle;
+output event_start_config_when_state_is_not_idle;
 
 // ---------------
 // -- ctrl flow --
@@ -72,26 +76,30 @@ always @(posedge clk) begin
     if (~rstn) begin
         state <= {NUM_OF_STATES_WIDTH{1'b0}};
         delay_counter <= 2'b00;
+        fifo_size <= {FIFO_SIZE_WIDTH{1'b0}};
     end
     else begin
         state <= state_ns;
         delay_counter <= (state == CONFIG) ? delay_counter + 2'b01 : 2'b00; 
+        fifo_size <= in_data_vld & fifo_not_full ? fifo_size + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} : fifo_size;
     end
 end
 
-case (state)
-    IDLE: state_ns =  start_config ? CONFIG : IDLE;
-    CONFIG: state_ns = config_done ? WAIT_FOR_START : CONFIG;
-    WAIT_FOR_START: state_ns = start_op ? EXE : WAIT_FOR_START ;
-    EXE: state_ns = fifo_full ? FINISH : EXE; 
-    FINISH: state_ns = restart_vld ?                                //todo shahar review this syntax
-                       (restart_type == REDO) ? WAIT_FOR_START : 
-                       (restart_type == RECONFIG) ? IDLE :
-                       (restart_type == CLOSE) ? IDLE :
-                       FINISH;
-
-    default: state_ns = IDLE; //todo shahar if we reach here unvalid state
-endcase
+always @(*) begin
+    case (state)
+        IDLE: state_ns =  start_config ? CONFIG : IDLE;
+        CONFIG: state_ns = config_done ? WAIT_FOR_START : CONFIG;
+        WAIT_FOR_START: state_ns = start_op ? EXE : WAIT_FOR_START ;
+        EXE: state_ns = fifo_full ? FINISH : EXE; 
+        //todo shahar review syntax below
+        FINISH: state_ns = restart_vld ? 
+                        (restart_type == REDO) ? WAIT_FOR_START : 
+                        (restart_type == RECONFIG) ? IDLE :
+                        (restart_type == CLOSE) ? IDLE : FINISH :
+                        FINISH;
+        default: state_ns = IDLE; //todo shahar if we reach here unvalid state
+    endcase
+end
 
 //misc
 reg [FIFO_SIZE_WIDTH-1 : 0] fifo_size;
@@ -99,14 +107,14 @@ wire fifo_not_full = fifo_size < FIFO_SIZE;
 wire fifo_full = fifo_size == FIFO_SIZE;
 wire fifo_overflow = fifo_size > FIFO_SIZE;
 
-always @(*posedge clk) begin
-    if (~rstn) begin
-        fifo_size <= {FIFO_SIZE_WIDTH{1'b0}};
-    end
-    else begin
-        fifo_size <= in_data_vld & fifo_not_full ? fifo_size + {FIFO_SIZE_WIDTH-1{1'b0},1'b1} : fifo_size;
-    end
-end
+// always @(*posedge clk) begin
+//     if (~rstn) begin
+//         fifo_size <= {FIFO_SIZE_WIDTH{1'b0}};
+//     end
+//     else begin
+//         fifo_size <= in_data_vld & fifo_not_full ? fifo_size + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} : fifo_size;
+//     end
+// end
 
 assign out_data = in_data;
 assign out_data_vld = in_data & fifo_not_full;
