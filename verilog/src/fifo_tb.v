@@ -36,13 +36,16 @@ fifo #(.FIFO_SIZE(5)) fifo_0(
     .event_overflow(event_overflow),
     .event_underrun(event_underrun)
     );
-
+integer i;
 //simulation
 initial begin
     $display("[%0t] stat simulation", $time);
     $display("[%0t] init vcd file", $time);
     $dumpfile("output.vcd"); // Specify the VCD file name
     $dumpvars(0, fifo_tb); // Replace "top_module" with the top-level module instance name
+    for (i = 0; i < FIFO_SIZE; i = i + 1) begin //todo shahar an attempt to dump the data itself inside the fifo
+        $dumpvars(0, fifo_tb.fifo_0.data[i]);
+    end
     $display("[%0t] finish open vcd file", $time);
     clk = 1'b0;
     rstn = 1'b1;
