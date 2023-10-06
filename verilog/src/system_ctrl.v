@@ -7,25 +7,25 @@ module system_ctrl(clk, rstn, clken, start_op, finish_op, event_start_op_when_sy
                    event_in_data_when_system_not_ready, out_data, out_data_vld);
 //parameters
 parameter FIFO_SIZE = 1024;
-localparam FIFO_SIZE_WIDTH  = $clog2(FIFO_SIZE);
+parameter integer FIFO_SIZE_WIDTH  = $clog2(FIFO_SIZE) + 1;
 
 parameter DATA_WIDTH = 32;
 
 //system state
-localparam IDLE = 0;
-localparam CONFIG = 1;
-localparam WAIT_FOR_START = 2;
-localparam EXE = 3;
-localparam FINISH = 4;
-localparam NUM_OF_STATES = 5;
-localparam NUM_OF_STATES_WIDTH = $clog2(NUM_OF_STATES);
+parameter IDLE = 0;
+parameter CONFIG = 1;
+parameter WAIT_FOR_START = 2;
+parameter EXE = 3;
+parameter FINISH = 4;
+parameter NUM_OF_STATES = 5;
+parameter integer NUM_OF_STATES_WIDTH = $clog2(NUM_OF_STATES);
 
 //restart type
-localparam REDO = 0;
-localparam RECONFIG = 1;
-localparam CLOSE = 2;
-localparam NUM_OF_RESTART_TYPE = 3;
-localparam NUM_OF_RESTART_TYPE_WIDTH = $clog2(NUM_OF_RESTART_TYPE);
+parameter REDO = 0;
+parameter RECONFIG = 1;
+parameter CLOSE = 2;
+parameter NUM_OF_RESTART_TYPE = 3;
+parameter integer NUM_OF_RESTART_TYPE_WIDTH = $clog2(NUM_OF_RESTART_TYPE);
 
 
 //interfaces
@@ -72,6 +72,12 @@ reg [NUM_OF_STATES_WIDTH-1 : 0] state_ns;
 reg [1:0] delay_counter;
 wire config_done = (delay_counter == 2'b10);
 
+//misc
+reg [FIFO_SIZE_WIDTH-1 : 0] fifo_size;
+wire fifo_not_full = fifo_size < FIFO_SIZE;
+wire fifo_full = fifo_size == FIFO_SIZE;
+wire fifo_overflow = fifo_size > FIFO_SIZE;
+
 always @(posedge clk) begin
     if (~rstn) begin
         state <= {NUM_OF_STATES_WIDTH{1'b0}};
@@ -101,11 +107,7 @@ always @(*) begin
     endcase
 end
 
-//misc
-reg [FIFO_SIZE_WIDTH-1 : 0] fifo_size;
-wire fifo_not_full = fifo_size < FIFO_SIZE;
-wire fifo_full = fifo_size == FIFO_SIZE;
-wire fifo_overflow = fifo_size > FIFO_SIZE;
+
 
 // always @(*posedge clk) begin
 //     if (~rstn) begin
@@ -117,7 +119,7 @@ wire fifo_overflow = fifo_size > FIFO_SIZE;
 // end
 
 assign out_data = in_data;
-assign out_data_vld = in_data & fifo_not_full;
+assign out_data_vld = in_data_vld & fifo_not_full;
 assign finish_op = (state == FINISH);
 assign clken = (state == EXE);
 endmodule
