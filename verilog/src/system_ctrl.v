@@ -1,5 +1,11 @@
 
 
+// file:        system_ctrl.v
+// owner:       shaharf
+// description: state machine to keep track of interaction between fw/logic.
+// comments:    switch localparam to parameter according to vivdo support
+//              add integer before paramter--> vivado compiler iterperate it as string
+
 module system_ctrl(clk, rstn, clken, start_op, finish_op, event_start_op_when_system_not_ready,
                    event_finihs_op_when_system_not_ready, restart_vld, restart_type, 
                    event_restart_vld_when_system_not_in_finish_mode, start_config, phase_inc, 
