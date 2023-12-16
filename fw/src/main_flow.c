@@ -194,9 +194,20 @@ int main(int argc, char** argv){
     get_config_header(&logic_config, &client_socket);
 
     //start config the logic
+    verb_print(MED, "DEBUG | start config logic\n");
     config_logic(&logic_config);
 
-    get_start_header(&logic_config, &client_socket); //todo shahar stopped here need to implement
+    verb_print(MED, "DEBUG | Get start packet from client\n");
+    verb_print(MED, "DEBUG | decode start pakcet and send ack if needed\n");
+    get_start_header(&logic_config, &client_socket);
+
+    //send start_op to design
+    verb_print(MED, "DEBUG | Send start op to logic\n");
+    config_start(&logic_config); //todo implement
+
+    //wait for stop
+
+    //send data to client
 
     verb_print(MED, "DEBUG | send data to client\n");
     send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);

@@ -165,6 +165,13 @@ void print_uint32_array(uint32_t* array_head, uint32_t len){
     }
 }
 
+void get_start_header(LogicConfig* logic_config, int* client_socket_ptr){
+    char header[MAX_DATA_LEN];
+    memset(header, 0, MAX_DATA_LEN);
+    recv_bytes_from_client(client_socket_ptr, header);
+    decode_start_header(logic_config, header, client_socket_ptr);
+}
+
 void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){
     char header[MAX_DATA_LEN];
     memset(header, 0, MAX_DATA_LEN);
@@ -172,6 +179,22 @@ void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){
     decode_header(logic_config, header, client_socket_ptr);
 }
 
+void decode_start_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
+    uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
+    char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
+    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d", pkt_type);
+    uint32_t start_bit = (header_as_uint & 0x00FFFFFFFF000000) >> 24; //4B long
+    verb_print(HIGH, "DEBUG | start_bit recv from header = %d", start_bit);
+    char control_byte = (header_as_uint & 0x0000000000FF0000) >> 16; //4B long;//1B long
+    verb_print(HIGH, "DEBUG | control_byte recv from header = %d", control_byte);
+    if ((pkt_type == START_PKT) && (start_bit == 1) && (control_byte == 255)){ //meaning good packet
+        UpdateStartSent(logic_config, TRUE);
+        send_start_ack(logic_config, pkt_type, start_bit, control_byte, client_socket_ptr);
+    }
+    //todo shahar need to define routine for what to do if bad packet is recived.    
+}
+
+//todo shahar change name to decode_config_header
 void decode_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
     uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
     char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
@@ -186,6 +209,22 @@ void decode_header(LogicConfig* logic_config, char header[], int* client_socket_
         send_config_ack(logic_config, pkt_type, phase_inc, control_byte, client_socket_ptr);
     }
     //todo shahar need to define routine for what to do if bad packet is recived.
+}
+
+void send_start_ack(LogicConfig* logic_config, char pkt_type, uint32_t start_bit, char control_byte, int* client_socket_ptr){
+    verb_print(HIGH, "entered send_start_ack\n");
+    uint64_t header_as_uint = 0x0000000000000000;
+    uint64_t pkt_type_casted = (uint64_t)pkt_type << 56;
+    verb_print(HIGH, "DEBUG | pkt_type = 0x%016llx \n", pkt_type_casted);
+    uint64_t start_bit_casted = (uint64_t)start_bit << 24;
+    verb_print(HIGH, "DEBUG | phase_inc = 0x%016llx \n", start_bit_casted);
+    uint64_t control_byte_casted = 0x00 << 16;
+    verb_print(HIGH, "DEBUG | control_byte = 0x%016llx \n", control_byte_casted);
+    header_as_uint = header_as_uint | pkt_type_casted | start_bit_casted | control_byte_casted;
+    char header[MAX_DATA_LEN];
+    memset(header, 0, MAX_DATA_LEN);
+    convert_hex_to_string_unformnatted(header_as_uint, header);
+    send_data_as_string_to_client(client_socket_ptr, header);
 }
 
 void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_inc, char control_byte, int* client_socket_ptr){
