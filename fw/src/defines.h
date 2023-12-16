@@ -41,6 +41,11 @@ typedef struct sockaddr_in _sockaddr_in;
 #define RESTART_TYPE_WITH 2
 //todo shahar missing phase inc bit and width
 
+//finsih_op and data_count regs addr
+#define FINISH_OP_DATA_COUNT_BASE_ADDR 0x41220000
+#define FINISH_OP_MASK 0x00000800
+#define DATA_COUNT_MASK 0x000007FF
+
 //Event Mask
 //todo shahar need to make after define which events should be read by the fw according to severity
 #define EVENT_MASK 0xffffffff

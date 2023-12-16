@@ -203,12 +203,14 @@ int main(int argc, char** argv){
 
     //send start_op to design
     verb_print(MED, "DEBUG | Send start op to logic\n");
-    config_start(&logic_config); //todo implement
+    config_start(&logic_config);
 
     //wait for stop
+    verb_print(MED, "DEBUG | wait for finish op\n");
+    wait_4_finish(&logic_config);
 
     //send data to client
-
+    //todo shahar stopped here develop //need to send actuall data from logic + add send restrat vld+type to logic
     verb_print(MED, "DEBUG | send data to client\n");
     send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);
     memset(buffer, 0, sizeof(buffer));

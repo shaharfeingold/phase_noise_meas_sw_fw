@@ -6,5 +6,5 @@
 
 void config_logic(LogicConfig* logic_config);
 uint32_t prepare_data_to_write(LogicConfig* logic_config, int start_config, int start_op, int restart_vld);
-
+void config_start(LogicConfig* logic_config);
 #endif

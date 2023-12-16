@@ -27,6 +27,30 @@ void config_logic(LogicConfig* logic_config){
     write_to_logic(data_to_write, CONIG_BASE_ADDR);
 }
 
+void config_start(LogicConfig* logic_config){
+    uint32_t data_to_write = 0x00000000;
+    verb_print(HIGH, "DEBUG | enterd config_start\n");
+    //write to logic start_config
+    //todo shahar add phase inc write after having support in logic side 
+    verb_print(MED, "Tracker | enable logic to start operation\n");
+    check_config_strcut(logic_config, "start");
+    data_to_write = prepare_data_to_write(logic_config, FALSE, TRUE, FALSE);
+    write_to_logic(data_to_write, CONIG_BASE_ADDR);
+}
+
+void wait_4_finish(LogicConfig* logic_config){
+    verb_print(HIGH, "DEBUG | entered wait_4_finish\n");
+    int finish_op = 0x00000000;
+    while (TRUE){
+        finish_op = (read_from_logic(FINISH_OP_DATA_COUNT_BASE_ADDR) & FINISH_OP_MASK) >> 11 ;
+        verb_print(HIGH, "DEBUG | read_design, finish_op = %d\n", finish_op);
+        sleep(2);
+        if (finish_op == TRUE){
+            return;
+        }
+    }
+}
+
 uint32_t prepare_data_to_write(LogicConfig* logic_config, int start_config, int start_op, int restart_vld){
     verb_print(HIGH, "DEBUG | enterd prepare_data_to_write with start_config %d start_op = %d restart_vld = %d\n", start_config, start_op, restart_vld);
     uint32_t result = 0x00000000;
