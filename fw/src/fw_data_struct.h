@@ -73,5 +73,6 @@ void print_uint32_array(uint32_t* array_head, uint32_t len);
 void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buffer_base_address);
 
 int unload_data_from_logic(DataArray* data_array);
+int check_all_data_read(DataArray* data_array);
 
 #endif
