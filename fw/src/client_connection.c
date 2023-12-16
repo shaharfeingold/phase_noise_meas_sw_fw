@@ -115,6 +115,7 @@ void send_uint32_t_to_client(int* client_socket, uint32_t data){
 
 void recv_bytes_from_client(int* client_socket_ptr, char data[]){
 	int bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, 0);
+	verb_print(HIGH, "got the following bytes from socket : %s\n", data);
 }
 
 // int main(){

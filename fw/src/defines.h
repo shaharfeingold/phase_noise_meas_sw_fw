@@ -1,6 +1,6 @@
 #ifndef _DEFINES
 #define _DEFINES
-
+//todo shahar review all the declare of the function with address maybe need only 4B address space.
 #include <stdint.h>
 
 #define MAX_CONNECTIONS 5
@@ -29,6 +29,16 @@ typedef struct sockaddr_in _sockaddr_in;
 //todo shahar need to review this defines after finish logic
 #define BUFFER_LEN  MAX_DATA_LEN //buffer inside the logic
 #define BUFFER_BASE_ADDR 0x0000000000000000
+
+//config addr
+//todo shahar need to review this defines after finish logic
+#define CONIG_BASE_ADDR 0x41210000 
+#define START_CONFIG_BIT 0
+#define START_OP_BIT 1
+#define RESTART_VLD_BIT 2
+#define RESTART_TYPE_BIT 3
+#define RESTART_TYPE_WITH 2
+//todo shahar missing phase inc bit and width
 
 //Event Mask
 //todo shahar need to make after define which events should be read by the fw according to severity

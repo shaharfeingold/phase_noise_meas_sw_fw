@@ -185,6 +185,7 @@ void decode_header(LogicConfig* logic_config, char header[], int* client_socket_
         UpdatePhaseInc(logic_config, phase_inc);
         send_config_ack(logic_config, pkt_type, phase_inc, control_byte, client_socket_ptr);
     }
+    //todo shahar need to define routine for what to do if bad packet is recived.
 }
 
 void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_inc, char control_byte, int* client_socket_ptr){

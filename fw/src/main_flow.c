@@ -15,6 +15,7 @@
 #include "event_watcher.h"
 #include "main.h"
 #include "defines.h"
+#include "logic_config.h"
 
 // file:        main_flow.c
 // owner:       shahar
@@ -185,18 +186,17 @@ int main(int argc, char** argv){
 	// }
 
     // ******* start test section *******
-    verb_print(MED, "DEBUG | init new data_array struct\n");
-    init_data_array_struct(&data_array, MAX_DATA_LEN); //note here we put the expected len. the actual len is according to method that fill the array
-    verb_print(MED, "DEBUG | store new data -> 1\n");
-    store_new_data(&data_array, 1, 0);
-    verb_print(MED, "DEBUG | store new data -> 2\n");
-    store_new_data(&data_array, 2, 0);
-    verb_print(MED, "DEBUG | store new data -> 3\n");
-    store_new_data(&data_array, 3, 0);
 
+    //wait for config header to arrive.
+    //todo need to handle a case where the config header is delayed. (maybe loop)
     verb_print(MED, "DEBUG | Get config packet from client\n");
     verb_print(MED, "DEBUG | decode config pakcet and send ack if needed\n");
     get_config_header(&logic_config, &client_socket);
+
+    //start config the logic
+    config_logic(&logic_config);
+
+    get_start_header(&logic_config, &client_socket); //todo shahar stopped here need to implement
 
     verb_print(MED, "DEBUG | send data to client\n");
     send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);
