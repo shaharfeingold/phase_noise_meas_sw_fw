@@ -76,7 +76,11 @@ def DebugTest():
     # wait for user to start operation
     user_interface.print_wait_for_start_op()
     start_indication = user_interface.get_from_user_start_op_indication()
-    #todo shahar need to send start indication pakcet 
+    #todo shahar need to send start indication pakcet
+    logic_cfg.send_to_logic_start_header(logic_unit, start_indication)
+    
+    # wait and get ack
+    logic_cfg.start_ack_rcvr(logic_unit)
 
     # wait for recv from server operation finished
     user_interface.print_wait_to_finish_op()
