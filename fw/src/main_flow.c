@@ -216,7 +216,7 @@ int main(int argc, char** argv){
     unload_data_from_logic(&data_array);
 
     //send data to client
-    //todo shahar stopped here develop //need to send actuall data from logic + add send restrat vld+type to logic
+    
     verb_print(MED, "DEBUG | send data to client\n");
     send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);
 
@@ -225,7 +225,9 @@ int main(int argc, char** argv){
     	perror("Error receiving data");
     	exit(1);
    	}
-    verb_print(MED, "DEBUG | Received message from client: %s\n", buffer);
+    verb_print(MED, "DEBUG | Received message from client: %s\n", buffer); //todo shahar need to remove this echo msg.
+
+    //todo shahar stopped here develop //add send restrat vld+type to logic
 
     //wait to rcve end of operation pakcet
     int loop = TRUE;
@@ -256,20 +258,24 @@ int main(int argc, char** argv){
     sleep(2); //todo shahar for debug only
 
     // ### this section to signal the child (event_monitor) that client wants to end connection ***
-    pthread_kill(event_monitor_pthread, CLIENT_WANTS_TO_CLOSE);
+    //pthread_kill(event_monitor_pthread, CLIENT_WANTS_TO_CLOSE); //todo shahar need to uncomment if we are using thread for event watching also need to uncomment code at start of file
     // ********************************************************************************************
 
+    //todo shahar need to uncomment the section below if we are using thread for event watching also need to uncomment code at start of file
     //wait for thread to finish
     //todo shahar review maybe need to before closeing sokcets
-    if (pthread_join(event_monitor_pthread, (void **)&event_monitor_exist_status) != 0) {
-        perror("pthread_join");
-        exit(EXIT_FAILURE);
-    }
+    // if (pthread_join(event_monitor_pthread, (void **)&event_monitor_exist_status) != 0) {
+    //     perror("pthread_join");
+    //     exit(EXIT_FAILURE);
+    // }
 
-    if (event_monitor_exist_status != NULL) {
-        verb_print(HIGH, "Thread exited with status code: %d\n", *event_monitor_exist_status);
-        free(event_monitor_exist_status); // Free the memory only if it's not NULL
-    }
+    // if (event_monitor_exist_status != NULL) {
+    //     verb_print(HIGH, "Thread exited with status code: %d\n", *event_monitor_exist_status);
+    //     free(event_monitor_exist_status); // Free the memory only if it's not NULL
+    // }
+
+    //end section
+
     print_exit_msg();
     return 0;
 }
