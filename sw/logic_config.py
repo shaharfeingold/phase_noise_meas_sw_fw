@@ -133,7 +133,7 @@ class LogicConfig:
         to support the defined socket interface between server and client, we need to send 1024 B msg 
         => add null bytes to header.
         """
-        start_bit = start_indication
+        start_bit = int(start_indication)
         control_byte = 255
         header = f"{defines.START:02X}" + f"{start_bit:08X}" + f"{control_byte:02X}"
         # extend to have 64 bits long header
