@@ -251,7 +251,7 @@ void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buf
     buffer_info->buffer_len = buffer_len;
 }
 
-void unload_data_from_logic(DataArray* data_array){
+int unload_data_from_logic(DataArray* data_array){
     int index = 0;
     int offset = 0;
     int result = TRUE;
