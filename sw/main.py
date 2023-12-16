@@ -113,7 +113,7 @@ def DebugTest():
     # print("rcvr data from server 4 : " + hex_string + '\n')
     # meas_data.store_new_line(hex_string)
 
-    msg_to_send = "got all threre msg and sending this ack" # if we want to send this need to make sure that its 1024 B wide.
+    msg_to_send = "got all msg and sending this ack" # if we want to send this need to make sure that its 1024 B wide.
     print(msg_to_send)
     logic_unit.send_data(msg_to_send.encode())
 
