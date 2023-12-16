@@ -5,6 +5,8 @@
 #include "utils_function.h"
 #include "fw_data_struct.h"
 #include "client_connection.h"
+#include "read_write.h"
+#include "logic_config.h"
 
 // file:        fw_data_struct.c
 // owner:       shahar
@@ -182,11 +184,11 @@ void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){
 void decode_start_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
     uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
     char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
-    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d", pkt_type);
+    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
     uint32_t start_bit = (header_as_uint & 0x00FFFFFFFF000000) >> 24; //4B long
-    verb_print(HIGH, "DEBUG | start_bit recv from header = %d", start_bit);
+    verb_print(HIGH, "DEBUG | start_bit recv from header = %d\n", start_bit);
     char control_byte = (header_as_uint & 0x0000000000FF0000) >> 16; //4B long;//1B long
-    verb_print(HIGH, "DEBUG | control_byte recv from header = %d", control_byte);
+    verb_print(HIGH, "DEBUG | control_byte recv from header = %d\n", control_byte);
     if ((pkt_type == START_PKT) && (start_bit == 1) && (control_byte == 255)){ //meaning good packet
         UpdateStartSent(logic_config, TRUE);
         send_start_ack(logic_config, pkt_type, start_bit, control_byte, client_socket_ptr);
@@ -198,11 +200,11 @@ void decode_start_header(LogicConfig* logic_config, char header[], int* client_s
 void decode_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
     uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
     char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
-    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d", pkt_type);
+    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
     uint32_t phase_inc = (header_as_uint & 0x00FFFFFFFF000000) >> 24; //4B long
-    verb_print(HIGH, "DEBUG | phase_inc recv from header = %d", phase_inc);
+    verb_print(HIGH, "DEBUG | phase_inc recv from header = %d\n", phase_inc);
     char control_byte = (header_as_uint & 0x0000000000FF0000) >> 16; //4B long;//1B long
-    verb_print(HIGH, "DEBUG | control_byte recv from header = %d", control_byte);
+    verb_print(HIGH, "DEBUG | control_byte recv from header = %d\n", control_byte);
     if ((pkt_type == CONFIG_PKT) && (control_byte == 255)){ //meaning good packet
         UpdateConfigSent(logic_config, TRUE);
         UpdatePhaseInc(logic_config, phase_inc);
@@ -247,4 +249,25 @@ void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_in
 void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buffer_base_address){
     buffer_info->buffer_base_address = buffer_base_address;
     buffer_info->buffer_len = buffer_len;
+}
+
+void unload_data_from_logic(DataArray* data_array){
+    int index = 0;
+    int offset = 0;
+    int result = TRUE;
+    uint32_t data_from_logic = 0x00000000;
+    for (index = 0; index < data_array->TargetLen; index++){
+        offset = index * 4;
+        data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
+        store_new_data(data_array, data_from_logic, 0);
+    }
+    result = check_all_data_read(data_array);
+    //todo shahar add error handling
+}
+
+int check_all_data_read(DataArray* data_array){
+    if (data_array->TargetLen != data_array->Len){
+        return FALSE;
+    }
+    return TRUE;
 }

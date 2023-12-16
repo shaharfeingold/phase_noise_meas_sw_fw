@@ -143,7 +143,7 @@ int main(int argc, char** argv){
     init_logic_config_struct(&logic_config);
     init_events_struct(&events, EVENT_MASK);
     init_buffer_info(&buffer_info, BUFFER_LEN, BUFFER_BASE_ADDR);
-    // init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
+    init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
 
     // init socket
     init_connection(&server_socket, &client_socket, &server_addr, &client_addr);
@@ -157,10 +157,12 @@ int main(int argc, char** argv){
     // signal(CLIENT_WANTS_TO_CLOSE, main_signals_handler); //todo only the thread should catch this signal
 
     //create the events_watcher theard
-    if (pthread_create(&event_monitor_pthread, NULL, mainEventThread, &thread_args) != 0) {
-        perror("pthread_create");
-        exit(EXIT_FAILURE);
-    }
+    //todo shahar close for now the thread open if we want to have events to design
+    //todo shahar for now not supporting events
+    // if (pthread_create(&event_monitor_pthread, NULL, mainEventThread, &thread_args) != 0) {
+    //     perror("pthread_create");
+    //     exit(EXIT_FAILURE);
+    // }
 
     // reached this point connection is established !!
 
@@ -209,10 +211,15 @@ int main(int argc, char** argv){
     verb_print(MED, "DEBUG | wait for finish op\n");
     wait_4_finish(&logic_config);
 
+    //unload data from logic
+    verb_print(MED, "DEBUG | unload data from logic\n");
+    unload_data_from_logic(&data_array);
+
     //send data to client
     //todo shahar stopped here develop //need to send actuall data from logic + add send restrat vld+type to logic
     verb_print(MED, "DEBUG | send data to client\n");
     send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);
+
     memset(buffer, 0, sizeof(buffer));
     if (recv(client_socket, buffer, sizeof(buffer), 0) == -1) {
     	perror("Error receiving data");
