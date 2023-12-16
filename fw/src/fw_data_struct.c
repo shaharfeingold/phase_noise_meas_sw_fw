@@ -252,15 +252,16 @@ void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buf
 }
 
 int unload_data_from_logic(DataArray* data_array){
-    int index = 0;
-    int offset = 0;
+    // int index = 0;
+    // int offset = 0;
     int result = TRUE;
-    uint32_t data_from_logic = 0x00000000;
-    for (index = 0; index < data_array->TargetLen; index++){
-        offset = index * 4;
-        data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
-        store_new_data(data_array, data_from_logic, 0);
-    }
+    // uint32_t data_from_logic = 0x00000000;
+    // for (index = 0; index < data_array->TargetLen; index++){
+    //     offset = index * 4;
+    //     data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
+    //     store_new_data(data_array, data_from_logic, 0);
+    // }
+    read_from_array(data_array);
     result = check_all_data_read(data_array);
     //todo shahar add error handling
 }
