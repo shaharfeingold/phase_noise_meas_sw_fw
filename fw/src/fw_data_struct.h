@@ -53,7 +53,7 @@ void UpdateConfigAddress(LogicConfig* logic_config, uint64_t config_address);
 //todo shahar need to review the width of the data is read from logic
 void send_to_logic_start_operation(LogicConfig* logic_config);
 char wait_to_finish_operation(LogicConfig* logic_config); //todo shahar here while loop up until we read finish. + consider add a feature to have time out
-void unload_data_from_logic(DataArray* data_array, BufferInfo* buffer_info);
+//void unload_data_from_logic(DataArray* data_array, BufferInfo* buffer_info);
 void get_from_client_start_operation(LogicConfig* logic_config);
 void start_operation_wrapper(LogicConfig* logic_config, BufferInfo* buffer_info); //todo shahar wrapper to all above.
 
