@@ -71,7 +71,7 @@ uint32_t read_from_logic(uint64_t address){
     return read_data;
 }
 
-void read_from_array(DataArray* data_array){
+int read_from_array(DataArray* data_array){
     verb_print(MED, "DEBUG | enterd read_from_array\n");
     //variables
     int fd;
@@ -99,5 +99,5 @@ void read_from_array(DataArray* data_array){
     verb_print(HIGH, "DEBUG | unmap memory to fd and close file descriptor\n");
     munmap(ptr, sysconf(_SC_PAGESIZE));
     close(fd);
-    // return read_data;
+    return 0;
 }
