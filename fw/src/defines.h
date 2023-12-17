@@ -38,7 +38,7 @@ typedef struct sockaddr_in _sockaddr_in;
 #define START_OP_BIT 1
 #define RESTART_VLD_BIT 2
 #define RESTART_TYPE_BIT 3
-#define RESTART_TYPE_WITH 2
+#define RESTART_TYPE_WIDTH 2
 //todo shahar missing phase inc bit and width
 
 //finsih_op and data_count regs addr

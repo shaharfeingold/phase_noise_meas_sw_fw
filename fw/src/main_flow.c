@@ -25,6 +25,7 @@
 //              todo review all >> or << operation
 //              need to implemenet "wait to start operation"
 //              need to implemenet "wait to stop operation"
+//              need to implement restart --> reset all data strcucts (as well in software)
 
 // todo shahar need to add all modules.
 //kill to send signal to process.
@@ -228,6 +229,7 @@ int main(int argc, char** argv){
     verb_print(MED, "DEBUG | Received message from client: %s\n", buffer); //todo shahar need to remove this echo msg.
 
     //todo shahar stopped here develop //add send restrat vld+type to logic
+    get_end_header(&logic_config, &client_socket);
 
     //wait to rcve end of operation pakcet
     int loop = TRUE;
