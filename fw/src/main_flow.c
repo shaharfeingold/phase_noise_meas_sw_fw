@@ -229,29 +229,32 @@ int main(int argc, char** argv){
     verb_print(MED, "DEBUG | Received message from client: %s\n", buffer); //todo shahar need to remove this echo msg.
 
     //todo shahar stopped here develop //add send restrat vld+type to logic
-    //get_end_header(&logic_config, &client_socket); //todo shahar this function end all its decented are written by mistake need to remove
+    uint32_t end_type_byte = get_end_header(&logic_config, &client_socket); 
 
     //wait to rcve end of operation pakcet
-    int loop = TRUE;
-    while (loop){
-        char pkt_type = get_end_of_operation_pkt(&client_socket);
-        verb_print(HIGH, "pkt_type_rcev = %d\n", pkt_type);
-        switch (pkt_type){
+    //int loop = TRUE;
+    //while (loop){
+        //char pkt_type = get_end_of_operation_pkt(&client_socket); //todo shahar need to remove this function and its decented not useful
+        //verb_print(HIGH, "pkt_type_rcev = %d\n", pkt_type);
+        verb_print(HIGH, "end_type_byte = %d\n", end_type_byte);
+        send_restart_op_to_logic(&logic_config, end_type_byte);
+        
+        switch (end_type_byte){
             case END_CONNECTION:
-                loop = FALSE;
+               // loop = FALSE;
                 break;
             case REDO:
-                //todo shahar need to support this type
+                //todo shahar need to support this type jump to the relavent program point
                 break;
             case RESTART:
-                //todo shahar need to support this type
+                //todo shahar need to support this type jump to the relavent program point
                 break;
             default:
                 verb_print(MED, "recv pkt type here which is not valid end of operation pkt\n");
                 //todo need to handle this
                 break;
         }
-    }
+    //}
     // ******** end test section ********
     //close sockets
     close(server_socket);

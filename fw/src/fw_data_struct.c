@@ -188,7 +188,7 @@ void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){
     decode_header(logic_config, header, client_socket_ptr);
 }
 
-void decode_end_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
+uint32_t decode_end_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
     uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
     char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
     verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
@@ -199,6 +199,7 @@ void decode_end_header(LogicConfig* logic_config, char header[], int* client_soc
     if ((pkt_type == CONFIG_PKT) && (end_type_byte >= RESTART) && (control_byte == 255)){ //meaning good packet
         //UpdateStartSent(logic_config, TRUE); //should we need this
         send_end_ack(logic_config, pkt_type, end_type_byte, control_byte, client_socket_ptr);
+        return end_type_byte;
     }
     //todo shahar need to define routine for what to do if bad packet is recived.    
 }

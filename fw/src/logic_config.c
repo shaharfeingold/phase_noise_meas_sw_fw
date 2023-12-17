@@ -51,6 +51,39 @@ void wait_4_finish(LogicConfig* logic_config){
     }
 }
 
+uint32_t prepare_restart_type_to_write(uint32_t end_type_byte){
+    uint32_t result = 0x00000000;
+    verb_print(HIGH, "DEBUG | enterd prepare_data_to_write with end_type_byte %x\n", end_type_byte);
+    switch (end_type_byte)
+    {
+    case RESTART:{
+        return (0x00000001 >> RESTART_TYPE_BIT);
+        break;
+    }
+    case REDO:{
+        return (0x00000000);
+        break;
+    }
+    case END_CONNECTION:{
+        return (0x00000002 >> RESTART_TYPE_BIT);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void send_restart_op_to_logic(LogicConfig* logic_config, uint32_t end_type_byte){
+    verb_print(HIGH, "DEBUG | send_restart_op_to_logic\n");
+    uint32_t data_to_write = 0x00000000;
+    verb_print(MED, "Tracker | write restart type\n");
+    data_to_write = prepare_restart_type_to_write(end_type_byte);
+    write_to_logic(data_to_write, CONIG_BASE_ADDR);
+    verb_print(MED, "Tracker | enable restart vld\n");
+    data_to_write = prepare_data_to_write(logic_config, FALSE, FALSE, TRUE);
+    write_to_logic(data_to_write, CONIG_BASE_ADDR);
+}
+
 uint32_t prepare_data_to_write(LogicConfig* logic_config, int start_config, int start_op, int restart_vld){
     verb_print(HIGH, "DEBUG | enterd prepare_data_to_write with start_config %d start_op = %d restart_vld = %d\n", start_config, start_op, restart_vld);
     uint32_t result = 0x00000000;
