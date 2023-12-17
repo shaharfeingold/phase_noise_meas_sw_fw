@@ -229,7 +229,7 @@ int main(int argc, char** argv){
     verb_print(MED, "DEBUG | Received message from client: %s\n", buffer); //todo shahar need to remove this echo msg.
 
     //todo shahar stopped here develop //add send restrat vld+type to logic
-    get_end_header(&logic_config, &client_socket);
+    //get_end_header(&logic_config, &client_socket); //todo shahar this function end all its decented are written by mistake need to remove
 
     //wait to rcve end of operation pakcet
     int loop = TRUE;
