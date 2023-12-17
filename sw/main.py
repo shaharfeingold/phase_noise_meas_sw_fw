@@ -120,6 +120,9 @@ def DebugTest():
     # send to logic end of operation packet according to usr choice.
     logic_cfg.send_to_logic_end_header(logic_unit, end_of_op_user_choice)
 
+    # wait and get ack
+    logic_cfg.end_ack_rcvr(logic_unit)
+
     if (end_of_op_user_choice == '1'):
         logic_unit.close_connection()
     elif (end_of_op_user_choice == '2'):
