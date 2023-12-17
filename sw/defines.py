@@ -14,7 +14,7 @@ ERROR = 3
 START = 4
 RESTART = 253
 REDO = 254
-END_CONNECTION = 255 #0xFF
+END_CONNECTION = 255 #0xFF (1B)
 
 # data msg types defines:
 REAL_DATA_MSG = 0

@@ -12,9 +12,10 @@ import binascii
 import user_interface
 
 """
-file : maim.py
-owner : shaharf
+file        : maim.py
+owner       : shaharf
 description : main file to call each class and excute commands and functionality.
+todo        : 1. wrap some function to be able to jump at the end of operation
 """
 
 
@@ -97,25 +98,14 @@ def DebugTest():
     for i in range(meas_data.data_size_expected):
         meas_data.store_new_line_wrapper(logic_unit)
 
-    # buffer = logic_unit.rcvr_data().decode()
-    # print("rcvr data from server 1 : " + buffer + '\n')
-    # meas_data.decode_header(buffer)
-    # buffer = logic_unit.client_socket.recv(4)
-    # hex_string = binascii.hexlify(buffer).decode()
-    # print("rcvr data from server 2 : " + hex_string + '\n')
-    # meas_data.store_new_line(hex_string)
-    # buffer = logic_unit.client_socket.recv(4)
-    # hex_string = binascii.hexlify(buffer).decode()
-    # print("rcvr data from server 3 : " + hex_string + '\n')
-    # meas_data.store_new_line(hex_string)
-    # buffer = logic_unit.client_socket.recv(4)
-    # hex_string = binascii.hexlify(buffer).decode()
-    # print("rcvr data from server 4 : " + hex_string + '\n')
-    # meas_data.store_new_line(hex_string)
+    # todo shahar need to convert number to the right format.
 
     msg_to_send = "got all msg and sending this ack" # if we want to send this need to make sure that its 1024 B wide.
     print(msg_to_send)
+    str_to_debug = "recived from logic #" + str(meas_data.data_size) + " is all expected data (" + str(meas_data.data_size_expected) + ") rcvr ? " + str(meas_data.check_all_data_recv())
+    print(str_to_debug)
     logic_unit.send_data(msg_to_send.encode())
+    logic_cfg.got_finish = True # todo wrap around function of rcvr data
 
     # data anylsis:
     # todo shahar implement + add print to screen
@@ -126,6 +116,10 @@ def DebugTest():
     user_interface.print_end_of_op_how_to_proceed()
     # wait for user to choose: redo ? new config ? exit:
     end_of_op_user_choice = user_interface.print_end_of_op_options()
+
+    # send to logic end of operation packet according to usr choice.
+    logic_cfg.send_to_logic_end_header(logic_unit, end_of_op_user_choice)
+
     if (end_of_op_user_choice == '1'):
         logic_unit.close_connection()
     elif (end_of_op_user_choice == '2'):

@@ -22,6 +22,7 @@ class LogicConfig:
         self.got_ack = False
         self.store_config = False
         self.start_sent = False
+        self.got_finish = False
 
     def __repr__(self):
         result = "------------------------------"
@@ -43,10 +44,19 @@ class LogicConfig:
         """
         """
         if not self.send_config:
-            # todo shaharf, handle error, should not reach this code section if we didn't get any config.
+            # todo shaharf, handle error, should not reach this code section if we didn't get any start_op.
             exit(2)  # todo shaharf, need to see if there is any better way to handle error
         self.start_sent = True
         header = self.build_start_header(start_indication)
+        logic_unit.send_data(header) 
+
+    def send_to_logic_end_header(self, logic_unit, end_of_op_user_choice):
+        """
+        """
+        if not self.got_finish:
+            # todo shaharf, handle error, should not reach this code section if we didn't get any end_op.
+            exit(2)  # todo shaharf, need to see if there is any better way to handle error
+        header = self.build_end_header(end_of_op_user_choice)
         logic_unit.send_data(header) 
 
     def send_to_logic(self, logic_unit): #todo shahar need to change this name to send_to_logic_config_info
@@ -60,6 +70,18 @@ class LogicConfig:
         self.send_config = True
         header = self.build_config_header()
         logic_unit.send_data(header)
+
+    def end_ack_rcvr(self, logic_unit):
+        """
+        """
+        if not self.got_finish:
+            # todo shaharf, handle error, should not reach this code section if we didn't get send start.
+            exit(2)  # todo shaharf, need to see if there is any better way to handle error
+        ack_msg = logic_unit.rcvr_data().decode()
+        print(ack_msg)
+        if (not self.check_end_ack_msg(ack_msg)):
+            # todo shahar need to define what to do if we reach here.
+            exit(2)
 
     def start_ack_rcvr(self, logic_unit):
         """
@@ -87,6 +109,23 @@ class LogicConfig:
             exit(2)
         self.got_ack = True
 
+    def check_end_ack_msg(self, ack_msg):
+        """
+        """
+        rcev_pkt_type = int(ack_msg[0:2], 16)
+        print(rcev_pkt_type)
+        rcev_end_byte = int(ack_msg[2:10], 16)
+        print(rcev_end_byte)
+        rcev_control_byte = int(ack_msg[10:12], 16)
+        print(rcev_control_byte)
+        if (rcev_pkt_type != defines.CONFIG):
+            return False
+        if (rcev_end_byte < 253):
+            return False
+        if (rcev_control_byte != 0):
+            return False
+        return True
+    
     def check_start_ack_msg(self, ack_msg):
         """
         """
@@ -124,6 +163,45 @@ class LogicConfig:
         # todo shaharf need to review this every time new logic rev is released
         self. phase_inc = (self.freq * 10)  # todo shaharf dummy implemntaion
 
+    def convert_end_usr_choice_to_end_byte(self, end_of_op_user_choice):
+        if (end_of_op_user_choice == "1"):
+            return defines.END_CONNECTION
+        elif (end_of_op_user_choice == "2"):
+            return defines.REDO
+        elif (end_of_op_user_choice == "3"):
+            return defines.RESTART
+        else:
+            print("got invalid end_usr_choice")
+            # todo define error handle routine
+
+    def build_end_header(self, end_of_op_user_choice):
+        """
+        the header itself is 64 bits long (8B)
+        header format: 1B     | 4B            | 1B
+                       type   | end_type_byte | control_byte
+        sender set control byte to FF, recv sends ack msg (echo the msg with unset control byte)
+        to support the defined socket interface between server and client, we need to send 1024 B msg 
+        => add null bytes to header.
+        """
+        end_type_end = self.convert_end_usr_choice_to_end_byte(end_of_op_user_choice)
+        control_byte = 255
+        header = f"{defines.CONFIG:02X}" + f"{end_type_end:08X}" + f"{control_byte:02X}"
+        # extend to have 64 bits long header
+        header = header + "0000"
+        header = header.encode()
+
+        # fill with null chars to have 1024 B msg.
+        desired_length = 1024 # todo shahar switch to defines.
+        # todo shahar maybe need to 1023 because of the null char that end the entire string. (review with print both client and server)
+        # todo shahar need to support the case when we don't need to add null chars (the header itself enough)
+
+        # Calculate the number of null characters to add
+        null_characters = b'\x00' * (desired_length - len(header))
+
+        # Concatenate the original string with null characters to reach the desired length
+        extended_string = header + null_characters
+        return extended_string # the return value is encoded string
+    
     def build_start_header(self, start_indication):
         """
         the header itself is 64 bits long (8B)
