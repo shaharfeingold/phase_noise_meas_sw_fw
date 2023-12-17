@@ -106,7 +106,7 @@ class LogicConnection:
             self.check_ack_close_connection_pkt(ack_msg_to_check)
             self.client_socket.close()
         except Exception as e:
-            print("Error occurred ! {}".formt(e))  # todo shaharf error handling
+            print("Error occurred ! {}".format(e))  # todo shaharf error handling
     
     def build_packet_close_connection(self):
         # the pkt itself is 64 bits long (8B)

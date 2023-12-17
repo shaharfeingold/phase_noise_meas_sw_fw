@@ -122,20 +122,21 @@ def DebugTest():
 
     # wait and get ack
     logic_cfg.end_ack_rcvr(logic_unit)
-
-    if (end_of_op_user_choice == '1'):
-        logic_unit.close_connection()
-    elif (end_of_op_user_choice == '2'):
-        # todo shahar implement redo + support in fw
-        # todo shahar upuntil we implelent redo we will close connection
-        logic_unit.close_connection()
     
-    elif (end_of_op_user_choice == '3'):
+
+    # if (end_of_op_user_choice == '1'):
+        # logic_unit.close_connection()
+    # elif (end_of_op_user_choice == '2'):
         # todo shahar implement redo + support in fw
         # todo shahar upuntil we implelent redo we will close connection
-        logic_unit.close_connection()
-    else:
-        print("unvalid choice please try again")
+        # logic_unit.close_connection()
+    
+    # elif (end_of_op_user_choice == '3'):
+        # todo shahar implement redo + support in fw
+        # todo shahar upuntil we implelent redo we will close connection
+        # logic_unit.close_connection()
+    # else:
+    #    print("unvalid choice please try again")
         #todo shahar implement as while a loop
 
     # logic_unit.close_connection()
