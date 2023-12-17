@@ -174,11 +174,11 @@ void get_start_header(LogicConfig* logic_config, int* client_socket_ptr){
     decode_start_header(logic_config, header, client_socket_ptr);
 }
 
-void get_end_header(LogicConfig* logic_config, int* client_socket_ptr){
+uint32_t get_end_header(LogicConfig* logic_config, int* client_socket_ptr){
     char header[MAX_DATA_LEN];
     memset(header, 0, MAX_DATA_LEN);
     recv_bytes_from_client(client_socket_ptr, header);
-    decode_end_header(logic_config, header, client_socket_ptr);
+    return (decode_end_header(logic_config, header, client_socket_ptr));
 }
 
 void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){

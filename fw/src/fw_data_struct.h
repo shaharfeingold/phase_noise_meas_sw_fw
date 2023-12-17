@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "defines.h"
 
+
 //struct declaration
 typedef struct _LogicConfig{
     uint32_t phase_inc;
@@ -74,5 +75,10 @@ void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buf
 
 int unload_data_from_logic(DataArray* data_array);
 int check_all_data_read(DataArray* data_array);
+
+uint32_t get_end_header(LogicConfig* logic_config, int* client_socket_ptr);
+uint32_t decode_end_header(LogicConfig* logic_config, char header[], int* client_socket_ptr);
+void send_end_ack(LogicConfig* logic_config, char pkt_type, uint32_t end_type_byte, char control_byte, int* client_socket_ptr);
+
 
 #endif
