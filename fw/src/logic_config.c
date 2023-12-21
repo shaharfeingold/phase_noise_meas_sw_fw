@@ -28,6 +28,7 @@ void config_logic(LogicConfig* logic_config){
     if (!write_to_logic(data_to_write, CONIG_BASE_ADDR)) {
         handle_medium_error("Failed to write config logic data");
         // Decide if the function should return or continue
+    }
     write_to_logic(data_to_write, CONIG_BASE_ADDR);
 }
 

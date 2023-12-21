@@ -19,7 +19,7 @@
 int write_to_logic(uint32_t data, uint64_t address){
     verb_print(MED, "DEBUG | enter write_to_logic with : data = %d, address = %x\n", data, address);
     // varaible
-    int fd;
+    //int fd;
     void *ptr;
     char *name = "/dev/mem";
     uint32_t read_data = 0x0000;
@@ -50,7 +50,7 @@ int write_to_logic(uint32_t data, uint64_t address){
 uint32_t read_from_logic(uint64_t address){
     verb_print(MED, "DEBUG | enterd read_from_logic with addr = %x\n", address);
     //variables
-    int fd;
+    //int fd;
     void *ptr;
     char *name = "/dev/mem";
     uint32_t read_data = 0x0000;
@@ -74,7 +74,7 @@ uint32_t read_from_logic(uint64_t address){
 int read_from_array(DataArray* data_array){
     verb_print(MED, "DEBUG | enterd read_from_array\n");
     //variables
-    int fd;
+    //int fd;
     void *ptr;
     char *name = "/dev/mem";
     uint32_t read_data = 0x00000000;
