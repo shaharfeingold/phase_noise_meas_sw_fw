@@ -84,7 +84,7 @@ int read_from_array(DataArray* data_array){
      int fd = open(name, O_RDWR);
     if (fd < 0) {
         handle_medium_error("Failed to open file descriptor in read_from_array");
-        return 1; // or another error code indicating failure
+        return FALSE; // or another error code indicating failure
     }
     verb_print(HIGH, "DEBUG | map the fd to memory address for the read");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, BUFFER_BASE_ADDR); //each pointer of this map is width of 1B (memory is addrsable by bytes)
@@ -99,5 +99,5 @@ int read_from_array(DataArray* data_array){
     verb_print(HIGH, "DEBUG | unmap memory to fd and close file descriptor\n");
     munmap(ptr, sysconf(_SC_PAGESIZE));
     close(fd);
-    return 0;
+    return TRUE;
 }
