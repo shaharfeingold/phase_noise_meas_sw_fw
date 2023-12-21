@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <unistd.h>
+#include "defines.h"
+#include "utils_function.h"
 
 // Define the error severity levels 
 #define FATAL_ERROR -1
@@ -10,6 +13,7 @@
 // Utility function prototypes
 void log_error_to_file(const char* error_message);
 void send_error_notification(const char* error_message);
+int check_file_exist (char* file_name);
 
 // Handle fatal errors
 void handle_fatal_error(const char* error_message) {
@@ -31,9 +35,20 @@ void handle_easy_error(const char* error_message) {
     log_error_to_file(error_message);
 }
 
+int check_file_exist (char* file_name){
+    int result = TRUE;
+    if (access(file_name, F_OK) != -1) {
+       result = FALSE;
+    };
+    return result;
+}
+
 // Utility function to log errors to a file
 void log_error_to_file(const char* error_message) {
-    FILE* file = fopen("", "a"); // Change this path to log path file
+    if (check_file_exist("error.log")){
+        remove("error.log");
+    }
+    FILE* file = fopen("error.log", "a"); // Change this path to log path file
     if (file != NULL) {
         fprintf(file, "Error: %s\n", error_message);
         fclose(file);
