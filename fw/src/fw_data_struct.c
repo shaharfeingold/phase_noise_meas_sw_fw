@@ -306,7 +306,7 @@ int unload_data_from_logic(DataArray* data_array){
         // Decide if you need to stop processing or can continue
         result = FALSE;
     }
-    read_from_array(data_array);
+    //read_from_array(data_array);
     if (!check_all_data_read(data_array)) {
         handle_easy_error("Not all expected data was read in unload_data_from_logic");
         // This might not be critical, so logged as an easy error
