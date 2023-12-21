@@ -12,7 +12,8 @@ import time
 import subprocess
 import connection_module
 import defines
-
+from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
+import socket
 
 class LogicConfig:
     def __init__(self):
@@ -38,14 +39,18 @@ class LogicConfig:
         self.freq = int(freq)
         # todo shaharf, add here verbose print to debug.
         self.store_config = True
-        self.convert_freq_to_phase_inc()
+        try:
+            self.convert_freq_to_phase_inc()
+        except Exception as e:
+            handle_medium_error(f"Error converting frequency to phase increment: {e}")
+
 
     def send_to_logic_start_header(self, logic_unit, start_indication):
         """
         """
         if not self.send_config:
-            # todo shaharf, handle error, should not reach this code section if we didn't get any start_op.
-            exit(2)  # todo shaharf, need to see if there is any better way to handle error
+            handle_easy_error("Attempted to send start header without configuration")
+            return 
         self.start_sent = True
         header = self.build_start_header(start_indication)
         logic_unit.send_data(header) 
@@ -54,8 +59,8 @@ class LogicConfig:
         """
         """
         if not self.got_finish:
-            # todo shaharf, handle error, should not reach this code section if we didn't get any end_op.
-            exit(2)  # todo shaharf, need to see if there is any better way to handle error
+            handle_easy_error("Attempted to send end header without finishing operation")
+            return
         header = self.build_end_header(end_of_op_user_choice)
         logic_unit.send_data(header) 
 
@@ -65,8 +70,8 @@ class LogicConfig:
         :return: freq.
         """
         if not self.store_config:
-            # todo shaharf, handle error, should not reach this code section if we didn't get any config.
-            exit(2)  # todo shaharf, need to see if there is any better way to handle error
+            handle_easy_error("Attempted to send configuration without storing it")
+            return
         self.send_config = True
         header = self.build_config_header()
         logic_unit.send_data(header)

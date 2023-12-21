@@ -6,13 +6,18 @@
 #include "utils_function.h"
 #include "defines.h"
 #include <arpa/inet.h>
-
+#include "error_handling.h"
 // file:        utils_function.c
 // owner:       shahar
 // description: lib with util , general purpose function.
 // comment:     
 
 void convert_hex_to_string(uint64_t address, char target_string[]){
+    // Ensure target_string is large enough for the formatted string
+    if (target_string == NULL) {
+        handle_easy_error("Target string is NULL in convert_hex_to_string");
+        return;
+    }
     verb_print(HIGH, "enterd covert_hex_to_string with address = 0x%x\n", address);
     sprintf(target_string, "0x%016llx", address);
     verb_print(HIGH, "returning from covert_hex_to_string with target_sting = %s\n", target_string);
@@ -67,7 +72,7 @@ void build_data_packet_header(char* header, uint32_t len, int type){
         array_type_casted = 0x0000000000020000;
         break;
     default:
-        exit(1); //if we reach here this is an error //todo shahar need to define how to handle this. exit procedure from software.
+       handle_fatal_error("Invalid type in build_data_packet_header");
     }
     //uint64_t pkt_type_casted = DATA_PKT;
     uint64_t pkt_type_casted = 0x0200000000000000;

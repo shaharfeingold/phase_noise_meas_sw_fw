@@ -10,7 +10,8 @@ import defines
 import data_mgm
 import binascii
 import user_interface
-
+from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
+import socket
 """
 file        : maim.py
 owner       : shaharf
@@ -26,11 +27,13 @@ def main():
     meas_data = data_mgm.Data()
 
     # get from user inputs
-    ip_addr = input("Enter IP address of Red Pitaya\n")
-    port = input("Enter Port Num of Red Pitaya\n")
-    # connect to socket
-    logic_unit.get_from_user_connection_info(ip_addr, port)
-    logic_unit.connect_socket()
+    try:
+        ip_addr = input("Enter IP address of Red Pitaya\n")
+        port = input("Enter Port Num of Red Pitaya\n")
+        logic_unit.get_from_user_connection_info(ip_addr, port)
+        logic_unit.connect_socket()
+    except Exception as e:
+        handle_medium_error(f"Connection error: {e}")
     # get freq to config from user
     freq = input("Please Enter Freq for operation\n")
     logic_cfg.get_freq_from_user(freq)

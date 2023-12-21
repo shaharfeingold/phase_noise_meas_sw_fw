@@ -15,6 +15,7 @@
 #include "defines.h"
 #include "read_write.h"
 #include <pthread.h>
+#include "error_handling.h"
 
 // file:        event_watcher.c
 // owner:       shahar
@@ -53,8 +54,7 @@ void* mainEventThread(void* args){
     //event_watcher_main_logic
     int* exit_status = (int *)malloc(sizeof(int));
     if (exit_status == NULL) {
-        perror("malloc");
-        pthread_exit(NULL); // Terminate with an error status
+        handle_fatal_error("malloc failed in mainEventThread"); 
     }
     while (client_running){
         //monitor the events for logic.
@@ -99,7 +99,7 @@ void events_signals_handler(int sig){
         }
 
         default:{
-            printf("Error !! no a valid signal to handle by user in terminate_signal_handler\n");
+            handle_medium_error("Invalid signal received in events_signals_handler");
             break;
         }
 

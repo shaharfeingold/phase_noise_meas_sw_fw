@@ -7,7 +7,8 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import utilis_func as utilis
-
+from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
+import socket
 """ 
 file: data_mgm.py
 owner: shaharf
@@ -95,8 +96,7 @@ class Data:
         # todo shahar need to see that on real + img together.
         # todo shahar need to convert string to hex. defined later after we knoew the fixed point format.
         if self.check_all_data_recv():
-            print("Error trying to store new item but all data already received in client side")
-            # todo shaharf swith to exception or error handling !!!
+            handle_easy_error("Attempted to store new item but all data already received")
             return
         self.data_size += 1
         if (self.data_type == defines.REAL_DATA_MSG):
@@ -117,16 +117,16 @@ class Data:
     def get_index(self, index):
         self.logger.debug("entered get_index")
         if index > (self.data_size - 1):
-            print("Trying to access item out of range")
-            return
-            # todo shaharf switch to exception or error handling !!!
+            handle_easy_error("Attempt to access item out of range in get_index")
+            return None
         return self.data[index]
 
     def compute_ftt(self):
         # todo shahar review, if we are using this methods we are assuming that we are getting the data before fft (only real value)
         # Create a sample signal
         if (self.data_type != defines.REAL_DATA_MSG):
-            self.logger.debug("Error ! trying to compute fft with value which are not only real")
+            handle_easy_error("Attempted to compute FFT with invalid data type")
+            return
             # todo shahar continue implement how to handle this.
         
         signal = np.array(utilis.convertList32HexToInt(self.real_data))

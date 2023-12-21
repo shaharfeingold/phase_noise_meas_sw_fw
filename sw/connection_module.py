@@ -12,6 +12,8 @@ import subprocess
 import socket
 import logging
 import defines
+from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
+import socket
 
 # todo shaharf review if enough
 MAX_MSG_SIZE = 1024  # in terms of bytes, the amount of the bytes to read from socket at once
@@ -51,10 +53,11 @@ class LogicConnection:
         :description: get data to send, according to type parse it and send it through socket
         :return: # todo shahar TBD
         """
+    def send_data(self, data):
         try:
             self.client_socket.sendall(data)
         except Exception as e:
-            print("Error occurred ! {}".format(e))  # todo shaharf error handling
+            handle_medium_error(f"Error occurred while sending data: {e}")  # todo shaharf error handling
 
     def rcvr_data(self):
         """
@@ -69,26 +72,27 @@ class LogicConnection:
             # may cause a problem when sending data segments less then 1024 B
             return data_rcvr
         except Exception as e:
-            print("Error occurred ! {}".formt(e))  # todo shaharf error handling
+            handle_medium_error(f"Error occurred while receiving data: {e}")
+            return None
 
     def connect_socket(self):
         try:
             self.client_socket.connect(self.logic_address)
             self.connection_established = True
             # todo shahar verbose print to log connection success
-        except ConnectionRefusedError:
+        except ConnectionRefusedError as e:
             # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
-            print("Connection refused. Make sure the server is running.")
-            exit(2)
-        except TimeoutError:
+            handle_medium_error("Connection refused. Make sure the server is running.")
+            sys.exit(2)
+        except TimeoutError as e:
             # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
             # todo shaharf need to define error procedure
-            print("Connection timed out. The server might be unreachable.")
-            exit(2)
+            handle_medium_error("Connection timed out. The server might be unreachable.")
+            sys.exit(2)
         except socket.error as e:
             # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
-            print("Socket error:", e)
-            exit(2)
+            handle_medium_error(f"Socket error: {e}")
+            sys.exit(2)
         return 0  # todo shaharf if are here we connect succfully
 
     def get_from_user_connection_info(self, ip, port):
@@ -103,10 +107,12 @@ class LogicConnection:
             pkt_to_send = self.build_packet_close_connection()
             self.send_data(pkt_to_send)
             ack_msg_to_check = self.rcvr_data().decode()
+            if not self.check_ack_close_connection_pkt(ack_msg_to_check):
+                handle_easy_error("Invalid ACK received for close connection packet.")
             self.check_ack_close_connection_pkt(ack_msg_to_check)
             self.client_socket.close()
         except Exception as e:
-            print("Error occurred ! {}".format(e))  # todo shaharf error handling
+            handle_medium_error(f"Error occurred while closing connection: {e}")  # todo shaharf error handling
     
     def build_packet_close_connection(self):
         # the pkt itself is 64 bits long (8B)

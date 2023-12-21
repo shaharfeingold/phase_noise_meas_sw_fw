@@ -7,7 +7,7 @@
 #include "client_connection.h"
 #include "read_write.h"
 #include "logic_config.h"
-
+#include "error_handling.h"
 // file:        fw_data_struct.c
 // owner:       shahar
 // description: data structs for the fw and their corosponding functions.
@@ -300,9 +300,20 @@ int unload_data_from_logic(DataArray* data_array){
     //     data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
     //     store_new_data(data_array, data_from_logic, 0);
     // }
+    // Assuming read_from_array returns a status code or boolean indicating success/failure
+    if (!read_from_array(data_array)) {
+        handle_medium_error("Failed to read data from array in unload_data_from_logic");
+        // Decide if you need to stop processing or can continue
+        result = FALSE;
+    }
     read_from_array(data_array);
+    if (!check_all_data_read(data_array)) {
+        handle_easy_error("Not all expected data was read in unload_data_from_logic");
+        // This might not be critical, so logged as an easy error
+        result = FALSE;
+    }
     result = check_all_data_read(data_array);
-    //todo shahar add error handling
+    return result;
 }
 
 int check_all_data_read(DataArray* data_array){

@@ -9,7 +9,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include "logic_config.h"
-
+#include "error_handling.h"
 // file:        logic_config.c
 // owner:       shahar
 // description: module to handle the config routine of the logic
@@ -24,6 +24,10 @@ void config_logic(LogicConfig* logic_config){
     verb_print(MED, "Tracker | enable logic to start config phase_inc\n");
     check_config_strcut(logic_config, "config");
     data_to_write = prepare_data_to_write(logic_config, TRUE, FALSE, FALSE);
+    
+    if (!write_to_logic(data_to_write, CONIG_BASE_ADDR)) {
+        handle_medium_error("Failed to write config logic data");
+        // Decide if the function should return or continue
     write_to_logic(data_to_write, CONIG_BASE_ADDR);
 }
 
@@ -129,4 +133,9 @@ void check_config_strcut(LogicConfig* logic_config, char* state){
 
     verb_print(MED, "DEBUG | check result = %s\n", result == 1 ? "TRUE" : "FALSE");
     //todo shahar need to define routine how to handle
+
+     if (result == FALSE) {
+        handle_easy_error("Configuration structure validation failed in check_config_strcut");
+        // decide how to proceed after this error
+    }
 }

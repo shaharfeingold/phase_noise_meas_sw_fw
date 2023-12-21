@@ -9,7 +9,8 @@ import connection_module as connect
 import defines
 import data_mgm
 import binascii
-
+from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
+import socket
 """
 file : maim.py
 owner : shaharf

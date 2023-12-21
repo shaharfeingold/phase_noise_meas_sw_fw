@@ -16,7 +16,7 @@
 #include "main.h"
 #include "defines.h"
 #include "logic_config.h"
-
+#include "error_handling.h"
 // file:        main_flow.c
 // owner:       shahar
 // description: main flow for fw. manage and coordinate.
@@ -67,7 +67,7 @@ void main_signals_handler(int sig){
         //}
 
         default:{
-            verb_print(HIGH, "Error sig number within main signals handler\n");
+            handle_easy_error("Unexpected signal received in main_signals_handler");
             break;
         }
     }

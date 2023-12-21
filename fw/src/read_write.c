@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include "defines.h"
 #include "fw_data_struct.h"
-
+#include "error_handling.h"
 // file:        read_write.c
 // owner:       shahar
 // description: module to read and write to logic unit.
@@ -24,11 +24,11 @@ int write_to_logic(uint32_t data, uint64_t address){
     char *name = "/dev/mem";
     uint32_t read_data = 0x0000;
     verb_print(HIGH, "DEBUG | open a fd to catch the read\n");
-    if((fd = open(name, O_RDWR)) < 0)
-        {
-        perror("open");
-        return 1;
-        }
+    int fd = open(name, O_RDWR);
+    if (fd < 0) {
+        handle_medium_error("Failed to open file descriptor in write_to_logic");
+        return 1; 
+    }
     verb_print(HIGH, "DEBUG | map the fd to memory address for the write and read");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, address); //each pointer of this map is width of 1B (memory is addrsable by bytes)
     // write data to logic
@@ -39,12 +39,12 @@ int write_to_logic(uint32_t data, uint64_t address){
     close(fd);
     // read data from address.
     read_data = read_from_logic(address);
-    if (read_data == data){
-        verb_print(HIGH, "DEBUG | read_data equal to data asked to be written\n");
-        return TRUE;
+    if (read_data != data){
+        handle_easy_error("Data read back does not match data written in write_to_logic");
+        return FALSE;
     }
-    verb_print(HIGH, "DEBUG | read_data not equal to data asked to be written\n");
-    return FALSE;
+    verb_print(HIGH, "DEBUG | read_data equal to data asked to be written\n");
+    return TRUE;
 }
 
 uint32_t read_from_logic(uint64_t address){
@@ -55,11 +55,11 @@ uint32_t read_from_logic(uint64_t address){
     char *name = "/dev/mem";
     uint32_t read_data = 0x0000;
     verb_print(HIGH, "DEBUG | open a fd to catch the read\n");
-    if((fd = open(name, O_RDWR)) < 0)
-        {
-        perror("open");
-        return 1;
-        }
+    int fd = open(name, O_RDWR);
+    if (fd < 0) {
+        handle_medium_error("Failed to open file descriptor in read_from_logic");
+        return 1; 
+    }
     verb_print(HIGH, "DEBUG | map the fd to memory address for the read");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, address); //each pointer of this map is width of 1B (memory is addrsable by bytes)
     read_data = *((uint32_t *)(ptr + 0)); //the output is in the base address of the memory mapping. 
@@ -81,11 +81,11 @@ int read_from_array(DataArray* data_array){
     int index = 0;
     int offset = 0;
     verb_print(HIGH, "DEBUG | open a fd to catch the read\n");
-    if((fd = open(name, O_RDWR)) < 0)
-        {
-        perror("open");
-        return 1;
-        }
+     int fd = open(name, O_RDWR);
+    if (fd < 0) {
+        handle_medium_error("Failed to open file descriptor in read_from_array");
+        return 1; // or another error code indicating failure
+    }
     verb_print(HIGH, "DEBUG | map the fd to memory address for the read");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, BUFFER_BASE_ADDR); //each pointer of this map is width of 1B (memory is addrsable by bytes)
     for (index = 0; index < data_array->TargetLen; index++){
