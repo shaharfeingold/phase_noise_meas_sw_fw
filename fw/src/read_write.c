@@ -95,7 +95,7 @@ int read_from_array(DataArray* data_array){
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping.
         verb_print(HIGH, "DEBUG | Read data from logic = %x\n",read_data);
         read_data_float = convert_fix_point_to_float(read_data);
-        verb_print(HIGH, "DEBUG | Read data from logic as float = 0x%x | %d\n",read_data_float);
+        verb_print(HIGH, "DEBUG | Read data from logic as float = 0x%x | %f\n",read_data_float, read_data);
         // data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
         store_new_data(data_array, read_data_float, 0);
     }
