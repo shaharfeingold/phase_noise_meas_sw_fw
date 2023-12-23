@@ -76,6 +76,7 @@ class Data:
             # todo shahar need to review waht is the data width in B we are sending and make it as a defines
             buffer = logic_unit.client_socket.recv(4)
             hex_string = binascii.hexlify(buffer).decode()
+            self.logger.debug("recv from socket before decode = %s", buffer)
             self.logger.debug("recv from socket = %s", hex_string)
             self.store_new_line(hex_string)
         elif (self.data_type == defines.IMG_DATA_MSG):
