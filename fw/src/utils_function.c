@@ -38,6 +38,7 @@ void verb_print(int verbose, const char* format, ...) {
         va_start(args, format);
         vprintf(format, args);
         va_end(args);
+        fflush(stdout);
     }
 }
 
@@ -82,3 +83,21 @@ void build_data_packet_header(char* header, uint32_t len, int type){
     sprintf(header, "%016llx", result);
     verb_print(HIGH, "the header result from the encoder = %s", header);
 }
+
+float ConvertFixPointToFloat(uint32_t fixed_point){
+    float result = 0;
+   // uint32_t sign_extended = fixed_point << (32 - ARRAY_NUM_WIDTH); //todo review no need to sign extend becuase we are already in 32 bit width num
+    result = (float)fixed_point / (uint32_t)(1 << (ARRAY_FRCTIONAL_BIT + (32 - ARRAY_NUM_WIDTH)));
+    return result;
+}
+
+// float ConvertFixPointToFloat(uint32_t data_from_design){
+//     //int bitMask = 0x00003FFF; //14 bits number 13:0
+//     int result_as_hex = data_from_design ;// & bitMask;
+//     int sign = result_as_hex & (1 << 13); //check if the msb is set
+//     if (sign) { //check if negative
+//         result_as_hex = result_as_hex - (1 << 14);
+//     }
+//     float result_as_float = (float)result_as_hex / (float)( 1<< 13);
+//     return result_as_float;
+// }

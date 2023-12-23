@@ -26,8 +26,8 @@ typedef struct _Events{
 typedef struct _DataArray{
     uint32_t Len;
     uint32_t TargetLen; //can be at most MAX_DATA_LEN
-    uint32_t RealDataArray[MAX_DATA_LEN];
-    uint32_t ImgDataArray[MAX_DATA_LEN];
+    float RealDataArray[MAX_DATA_LEN];
+    float ImgDataArray[MAX_DATA_LEN];
     int RecvAllExpectedData; //bool
 }DataArray;
 
@@ -64,7 +64,7 @@ void handle_read_new_event_vector(Events* event_struct, uint32_t new_event_vecto
 void decode_event_vector(Events* event_struct); //todo implemenet
 
 void init_data_array_struct(DataArray* new_data_array, uint32_t expected_data_len);
-void store_new_data(DataArray* data_array, uint32_t RealData, uint32_t ImgData);
+void store_new_data(DataArray* data_array, float RealData, float ImgData);
 void send_data_array_to_client(DataArray* data_array, int type ,int* client_socket_ptr);
 void send_data_array_to_client_according_to_type(DataArray* data_array, int type ,int* client_socket_ptr);
 

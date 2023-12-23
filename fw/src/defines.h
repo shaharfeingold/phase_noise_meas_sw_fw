@@ -52,4 +52,9 @@ typedef struct sockaddr_in _sockaddr_in;
 #define EVENT_ADDRESS 0x0000000000000000 //todo shahar change after implement logic 8B
 //todo shahar consider pack the address in struct
 
+//array number configuration
+//need to review in case format changes during development of fpga
+#define ARRAY_FRCTIONAL_BIT 29
+#define ARRAY_NUM_WIDTH 32
+
 #endif

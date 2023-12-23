@@ -80,7 +80,7 @@ void init_data_array_struct(DataArray* new_data_array, uint32_t expected_data_le
     clear_uint32_array(new_data_array->ImgDataArray, MAX_DATA_LEN);
 }
 
-void store_new_data(DataArray* data_array, uint32_t RealData, uint32_t ImgData){
+void store_new_data(DataArray* data_array, float RealData, float ImgData){
     verb_print(HIGH, "enterd store_new_data\n");
     data_array->RealDataArray[data_array->Len] = RealData;
     data_array->ImgDataArray[data_array->Len] = ImgData;

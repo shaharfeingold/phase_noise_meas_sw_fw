@@ -78,6 +78,7 @@ int read_from_array(DataArray* data_array){
     void *ptr;
     char *name = "/dev/mem";
     uint32_t read_data = 0x00000000;
+    float read_data_float = 0x00000000;
     int index = 0;
     int offset = 0;
     verb_print(HIGH, "DEBUG | open a fd to catch the read\n");
@@ -93,8 +94,10 @@ int read_from_array(DataArray* data_array){
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping. 
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping.
         verb_print(HIGH, "DEBUG | Read data from logic = %x\n",read_data);
+        read_data_float = convert_fix_point_to_float(read_data);
+        verb_print(HIGH, "DEBUG | Read data from logic as float = 0x%x | %d\n",read_data_float);
         // data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
-        store_new_data(data_array, read_data, 0);
+        store_new_data(data_array, read_data_float, 0);
     }
     verb_print(HIGH, "DEBUG | unmap memory to fd and close file descriptor\n");
     munmap(ptr, sysconf(_SC_PAGESIZE));
