@@ -68,8 +68,8 @@ void store_new_data(DataArray* data_array, float RealData, float ImgData);
 void send_data_array_to_client(DataArray* data_array, int type ,int* client_socket_ptr);
 void send_data_array_to_client_according_to_type(DataArray* data_array, int type ,int* client_socket_ptr);
 
-void clear_uint32_array(uint32_t* array_head, uint32_t len);
-void print_uint32_array(uint32_t* array_head, uint32_t len);
+void clear_uint32_array(float* array_head, uint32_t len);
+void print_uint32_array(float* array_head, uint32_t len);
 
 void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buffer_base_address);
 

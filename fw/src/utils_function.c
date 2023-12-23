@@ -84,7 +84,7 @@ void build_data_packet_header(char* header, uint32_t len, int type){
     verb_print(HIGH, "the header result from the encoder = %s", header);
 }
 
-float ConvertFixPointToFloat(uint32_t fixed_point){
+float convert_fix_point_to_float(uint32_t fixed_point){
     float result = 0;
    // uint32_t sign_extended = fixed_point << (32 - ARRAY_NUM_WIDTH); //todo review no need to sign extend becuase we are already in 32 bit width num
     result = (float)fixed_point / (uint32_t)(1 << (ARRAY_FRCTIONAL_BIT + (32 - ARRAY_NUM_WIDTH)));

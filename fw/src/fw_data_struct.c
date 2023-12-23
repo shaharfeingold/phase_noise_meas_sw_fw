@@ -147,7 +147,7 @@ void send_data_array_to_client_according_to_type(DataArray* data_array, int type
     }
 }
 
-void clear_uint32_array(uint32_t* array_head, uint32_t len){
+void clear_uint32_array(float* array_head, uint32_t len){
     verb_print(HIGH, "entered clear_uint32_array\n");
     uint32_t index = 0;
     for (index = 0; index < len ; index++){
@@ -156,7 +156,7 @@ void clear_uint32_array(uint32_t* array_head, uint32_t len){
     print_uint32_array(array_head, len);
 }
 
-void print_uint32_array(uint32_t* array_head, uint32_t len){
+void print_uint32_array(float* array_head, uint32_t len){
     int index = 0;
     verb_print(HIGH,"print array = %p\n", array_head);
     for (index = 0; index < len; index++){
