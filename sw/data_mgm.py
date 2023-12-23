@@ -129,7 +129,7 @@ class Data:
             return
             # todo shahar continue implement how to handle this.
         
-        signal = np.array(utilis.convertList32HexToInt(self.real_data))
+        signal = np.array(utilis.convertList32HexToFloat(self.real_data))
         # print(self.real_data)
         # print(signal)
         # Compute the FFT   
