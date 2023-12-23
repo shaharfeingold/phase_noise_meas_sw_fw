@@ -85,7 +85,7 @@ void store_new_data(DataArray* data_array, float RealData, float ImgData){
     data_array->RealDataArray[data_array->Len] = RealData;
     data_array->ImgDataArray[data_array->Len] = ImgData;
     data_array->Len += 1;
-    verb_print(HIGH, "DEBUG | going to store new record:\nRealData = %d, ImgData = %d, updated array Len = %d", RealData, ImgData, data_array->Len);
+    verb_print(HIGH, "DEBUG | going to store new record:\nRealData = %f, ImgData = %f, updated array Len = %d", RealData, ImgData, data_array->Len);
 }
 
 void send_data_array_to_client(DataArray* data_array, int type ,int* client_socket_ptr){
