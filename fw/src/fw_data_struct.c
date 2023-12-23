@@ -151,7 +151,8 @@ void clear_uint32_array(float* array_head, uint32_t len){
     verb_print(HIGH, "entered clear_uint32_array\n");
     uint32_t index = 0;
     for (index = 0; index < len ; index++){
-        *(array_head + index) = 0;
+        // *(array_head + index) = 0;
+        array_head[index] = 0;
     }
     print_uint32_array(array_head, len);
 }
@@ -160,7 +161,7 @@ void print_uint32_array(float* array_head, uint32_t len){
     int index = 0;
     verb_print(HIGH,"print array = %p\n", array_head);
     for (index = 0; index < len; index++){
-        verb_print(HIGH, "item %d | value = %d\t", index, *(array_head + index));
+        verb_print(HIGH, "item %d | value = %f\t", index, *(array_head + index));
         if(index % 4 == 3){
             verb_print(HIGH, "\n");
         }
