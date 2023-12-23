@@ -91,9 +91,9 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	}
 }
 
-void send_uint32_t_to_client(int* client_socket, uint32_t data){
+void send_uint32_t_to_client(int* client_socket, float data){
 	verb_print(HIGH, "send_data_as_uint32_to_client with data = %d\n", data);
-	uint32_t data_in_network_order = encode_uint_data_to_send(data);
+	float data_in_network_order = encode_uint_data_to_send(data);
 	int bytes_sent = 0;
 	int bytes_left = 0;
 	bytes_sent += send(*client_socket, &data_in_network_order, sizeof(data_in_network_order), 0);

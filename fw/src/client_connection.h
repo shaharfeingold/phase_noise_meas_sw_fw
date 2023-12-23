@@ -14,7 +14,7 @@ int accept_connection(int server_socket, _sockaddr_in* client_addr);
 void init_connection(int* server_socket, int* client_socket, _sockaddr_in* server_addr, _sockaddr_in* client_addr);
 
 void send_data_as_string_to_client(int* client_socket, char data[]); //this function gets the data as encoded string. only sends bytes
-void send_uint32_t_to_client(int* client_socket, uint32_t data);
+void send_uint32_t_to_client(int* client_socket, float data);
 
 void recv_bytes_from_client(int* client_socket_ptr, char data[]);
 #endif
