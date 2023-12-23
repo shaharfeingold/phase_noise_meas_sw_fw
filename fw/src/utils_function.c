@@ -53,6 +53,7 @@ uint64_t convert_string_to_hex_uint64_t(char src_string[]){
 uint32_t encode_uint_data_to_send(float data_as_uint){
     uint32_t hex_string_to_send = *((uint32_t*)&data_as_uint);
     uint32_t result = htonl(data_as_uint);
+    verb_print(HIGH, "encode_uint_data_to_send | float = %d | hex = 0x%x\n", data_as_uint, hex_string_to_send);
     return result;
 }
 
