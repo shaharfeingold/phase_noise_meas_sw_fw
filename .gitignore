@@ -221,3 +221,4 @@ dkms.conf
 # user defined
 workdir/
 .vscode
+.idea/
