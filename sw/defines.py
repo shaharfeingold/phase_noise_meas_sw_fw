@@ -22,3 +22,5 @@ IMG_DATA_MSG = 1
 REAL_IMG_DATA_MSG = 2
 
 DEBUG = True # todo shahar review this to init main flow and not debug mode
+
+PHASE_INC_WIDTH = 16

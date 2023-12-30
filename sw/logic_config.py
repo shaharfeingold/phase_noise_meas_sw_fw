@@ -19,6 +19,7 @@ class LogicConfig:
     def __init__(self):
         self.freq = 0  # user freq input using get_freq_from_user
         self.phase_inc = 0  # this value send to logic's cordic ip
+        self.logic_clk = 50 # todo shahar review according to final logic implementaion| value in MHz 
         self.send_config = False
         self.got_ack = False
         self.store_config = False
@@ -166,7 +167,9 @@ class LogicConfig:
     def convert_freq_to_phase_inc(self):
         # todo shaharf need to include calcutation once we detrmined to bus width of cordic
         # todo shaharf need to review this every time new logic rev is released
-        self. phase_inc = (self.freq * 10)  # todo shaharf dummy implemntaion
+        a = (2**defines.PHASE_INC_WIDTH) * self.freq
+        b = self.logic_clk
+        self.phase_inc = (a/b)  # todo shaharf dummy implemntaion
 
     def convert_end_usr_choice_to_end_byte(self, end_of_op_user_choice):
         if (end_of_op_user_choice == "1"):
