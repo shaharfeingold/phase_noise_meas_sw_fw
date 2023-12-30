@@ -37,7 +37,7 @@ class LogicConfig:
         return result
 
     def get_freq_from_user(self, freq):
-        self.freq = int(freq)
+        self.freq = float(freq)
         # todo shaharf, add here verbose print to debug.
         self.store_config = True
         try:
@@ -167,9 +167,10 @@ class LogicConfig:
     def convert_freq_to_phase_inc(self):
         # todo shaharf need to include calcutation once we detrmined to bus width of cordic
         # todo shaharf need to review this every time new logic rev is released
-        a = (2**defines.PHASE_INC_WIDTH) * self.freq
-        b = self.logic_clk
-        self.phase_inc = (a/b)  # todo shaharf dummy implemntaion
+        a = (2**defines.PHASE_INC_WIDTH) * self.freq * 1000000
+        b = self.logic_clk * 1000000
+        self.phase_inc = int(a/b)  # todo shaharf dummy implemntaion
+        print("calculated phase inc = ", self.phase_inc)
 
     def convert_end_usr_choice_to_end_byte(self, end_of_op_user_choice):
         if (end_of_op_user_choice == "1"):

@@ -29,7 +29,7 @@ int write_to_logic(uint32_t data, uint64_t address){
         handle_medium_error("Failed to open file descriptor in write_to_logic");
         return 1; 
     }
-    verb_print(HIGH, "DEBUG | map the fd to memory address for the write and read");
+    verb_print(HIGH, "DEBUG | map the fd to memory address for the write and read\n");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, address); //each pointer of this map is width of 1B (memory is addrsable by bytes)
     // write data to logic
     verb_print(HIGH, "DEBUG | write data on addr 0x%x with the value %d\n", address, data);
