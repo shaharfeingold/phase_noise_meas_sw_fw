@@ -137,10 +137,10 @@ class Data:
         # print(self.real_data)
         # print(signal)
         # save the data in a file and send it to user. # todo shahar ask from user the mail address.
-        self.save_and_send_array_in_a_file(signal)
         # Compute the FFT   
         fs = self.sample_freq*1000000 # todo converd to Hz units
         fft_result = np.fft.fft(signal)
+        self.save_and_send_array_in_a_file(signal, fft_result)
         frequencies = np.fft.fftfreq(len(fft_result), 1/fs)  # Frequency values
 
         # Plot the FFT result
@@ -153,16 +153,19 @@ class Data:
         plt.tight_layout()
         plt.show()
 
-    def save_and_send_array_in_a_file(self, signal):
+    def save_and_send_array_in_a_file(self, signal, fft_result):
         current_datetime = datetime.now()
         formatted_date_time = current_datetime.strftime('%d%m%Y_%H_%M_%S')
-        file_path = "signal_" + formatted_date_time + ".txt"
-        np.savetxt(file_path, signal, delimiter=',', )
-        self.send_file_to_mail(file_path)
+        file_path_1 = "signal_" + formatted_date_time + ".txt"
+        np.savetxt(file_path_1, signal, delimiter=',')
+        file_path_2 = "fft_result_" + formatted_date_time + ".txt"
+        np.savetxt(file_path_2, fft_result, delimiter=',')
+        self.send_file_to_mail(file_path_1, file_path_2)
     
-    def send_file_to_mail(self, file_path):
-        command1 = ['echo', '"raw result"'] 
-        command2 = ['mutt' , '-s' ,'"raw result"' , '-a' , file_path , '--' , 'shahar.feingold@gmail.com']
+    def send_file_to_mail(self, file_path_1, file_path_2):
+        body_msg = "attached below raw result for further analysis"
+        command1 = ['echo', body_msg] 
+        command2 = ['mutt' , '-s' ,'phase noise meas - raw result' , '-a' , file_path_1, '-a', file_path_2  , '--' , 'shahar.feingold@gmail.com']
 
 
         #todo change the address to user address
