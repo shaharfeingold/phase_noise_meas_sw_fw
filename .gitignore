@@ -222,3 +222,4 @@ dkms.conf
 workdir/
 .vscode
 .idea/
+*.txy
