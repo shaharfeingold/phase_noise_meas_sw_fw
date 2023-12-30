@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import utilis_func as utilis
 from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
 import socket
+from datetime import datetime
+import subprocess
+
 """ 
 file: data_mgm.py
 owner: shaharf
@@ -133,6 +136,8 @@ class Data:
         signal = np.array(utilis.convertList32HexToFloat(self.real_data))
         # print(self.real_data)
         # print(signal)
+        # save the data in a file and send it to user. # todo shahar ask from user the mail address.
+        self.save_and_send_array_in_a_file(signal)
         # Compute the FFT   
         fs = self.sample_freq*1000000 # todo converd to Hz units
         fft_result = np.fft.fft(signal)
@@ -147,3 +152,30 @@ class Data:
 
         plt.tight_layout()
         plt.show()
+
+    def save_and_send_array_in_a_file(self, signal):
+        current_datetime = datetime.now()
+        formatted_date_time = current_datetime.strftime('%d%m%Y_%H_%M_%S')
+        file_path = "signal_" + formatted_date_time + ".txt"
+        np.savetxt(file_path, signal, delimiter=',', )
+        self.send_file_to_mail(file_path)
+    
+    def send_file_to_mail(self, file_path):
+        command1 = ['echo', '"raw result"'] 
+        command2 = ['mutt' , '-s' ,'"raw result"' , '-a' , file_path , '--' , 'shahar.feingold@gmail.com']
+
+
+        #todo change the address to user address
+        self.logger.debug("%s\n%s", command1, command2)
+        try:
+            process1 = subprocess.run(command1, stdout=subprocess.PIPE, text=True)
+            output1 = process1.stdout
+            # Use the output of the first command as input for the second command
+            process2 = subprocess.run(command2, input=output1, stdout=subprocess.PIPE, text=True)
+            
+        except subprocess.CalledProcessError as e:
+            # If the command execution fails, capture the error
+            print("Command '{}' returned non-zero exit status {}.".format(e.cmd, e.returncode))
+            print("Error output:\n", e.stderr)
+    
+
