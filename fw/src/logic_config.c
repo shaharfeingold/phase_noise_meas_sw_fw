@@ -21,6 +21,8 @@ void config_logic(LogicConfig* logic_config){
     //write to logic start_config
     verb_print(MED, "Tracker | start config logic. send phase inc\n");
     //todo shahar add phase inc write after having support in logic side 
+    data_to_write = prepare_data_to_write_phase_inc(logic_config->phase_inc);
+    write_to_logic(data_to_write, PHASE_INC_ADDR);
     verb_print(MED, "Tracker | enable logic to start config phase_inc\n");
     check_config_strcut(logic_config, "config");
     data_to_write = prepare_data_to_write(logic_config, TRUE, FALSE, FALSE);
@@ -87,6 +89,11 @@ void send_restart_op_to_logic(LogicConfig* logic_config, uint32_t end_type_byte)
     verb_print(MED, "Tracker | enable restart vld\n");
     data_to_write = prepare_data_to_write(logic_config, FALSE, FALSE, TRUE);
     write_to_logic(data_to_write, CONIG_BASE_ADDR);
+}
+
+uint32_t prepare_data_to_write_phase_inc(uint32_t phase_inc){
+    verb_print(HIGH, "DEBUG | enterd prepare_data_to_write_phase_inc with phase_inc %d \n", phase_inc);
+    return phase_inc;
 }
 
 uint32_t prepare_data_to_write(LogicConfig* logic_config, int start_config, int start_op, int restart_vld){
