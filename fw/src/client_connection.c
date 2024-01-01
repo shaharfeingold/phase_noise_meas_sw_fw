@@ -116,7 +116,7 @@ void send_uint32_t_to_client(int* client_socket, float data){
 }
 // todo - if null -> retry
 void recv_bytes_from_client(int* client_socket_ptr, char data[]){
-	int bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, 0);
+	int bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, MSG_WAITALL);
 	if (bytes_recv == -1) {
         handle_easy_error("Error receiving bytes from client");
 		// todo - Decide if you need to close the socket here

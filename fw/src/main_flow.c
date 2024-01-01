@@ -233,7 +233,7 @@ int main(int argc, char** argv){
     send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);
 
     memset(buffer, 0, sizeof(buffer));
-    if (recv(client_socket, buffer, sizeof(buffer), 0) == -1) {
+    if (recv(client_socket, buffer, sizeof(buffer), MSG_WAITALL) == -1) {
     	perror("Error receiving data");
     	exit(1);
    	}
