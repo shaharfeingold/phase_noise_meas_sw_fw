@@ -19,6 +19,13 @@ description : main file to call each class and excute commands and functionality
 todo        : 1. wrap some function to be able to jump at the end of operation
 """
 
+
+# todo saray need to create a infite loop to enter the right format:
+# ip: x.x.x.x when each x is <= 255
+# port: any postive number not float
+# freq: float > 0 (right now the freq should be lower then 1.1) # todo saray replace 1.1 with defines
+# with each retry supply the correct promt. 
+
 def setup_connection(logic_unit):
     max_attempts = 3
     for attempt in range(max_attempts):
