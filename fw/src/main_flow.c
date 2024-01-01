@@ -201,6 +201,7 @@ int main(int argc, char** argv){
 
     //wait for config header to arrive.
     //todo need to handle a case where the config header is delayed. (maybe loop)
+    reconfig:
     verb_print(MED, "DEBUG | Get config packet from client\n");
     verb_print(MED, "DEBUG | decode config pakcet and send ack if needed\n");
     get_config_header(&logic_config, &client_socket);
@@ -209,6 +210,7 @@ int main(int argc, char** argv){
     verb_print(MED, "DEBUG | start config logic\n");
     config_logic(&logic_config);
 
+    restart:
     verb_print(MED, "DEBUG | Get start packet from client\n");
     verb_print(MED, "DEBUG | decode start pakcet and send ack if needed\n");
     get_start_header(&logic_config, &client_socket);
@@ -250,12 +252,13 @@ int main(int argc, char** argv){
         
         switch (end_type_byte){
             case END_CONNECTION:
-               // loop = FALSE;
                 break;
             case REDO:
+                goto reconfig;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
             case RESTART:
+                goto restart;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
             default:
