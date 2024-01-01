@@ -149,9 +149,9 @@ int main(int argc, char** argv){
     // init structs
     init_logic_config_struct(&logic_config);
     init_events_struct(&events, EVENT_MASK);
-    if (!init_logic_config_struct(&logic_config) || !init_events_struct(&events, EVENT_MASK)) {
-        handle_fatal_error("Initialization failed in main");
-    }
+    // if (!init_logic_config_struct(&logic_config) || !init_events_struct(&events, EVENT_MASK)) {
+    //     handle_fatal_error("Initialization failed in main");
+    // }
     init_buffer_info(&buffer_info, BUFFER_LEN, BUFFER_BASE_ADDR);
     init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
 

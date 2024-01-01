@@ -72,7 +72,7 @@ class LogicConnection:
         :return: # todo shahar TBD
         """
         try:
-            data_rcvr = self.client_socket.recv(MAX_MSG_SIZE) # todo shahar review this and remove later
+            data_rcvr = self.client_socket.recv(defines.MAX_MSG_SIZE) # todo shahar review this and remove later
             # may cause a problem when sending data segments less then 1024 B
             return data_rcvr
         except Exception as e:
