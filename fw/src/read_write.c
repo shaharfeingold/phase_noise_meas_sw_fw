@@ -35,6 +35,7 @@ int write_to_logic(uint32_t data, uint64_t address){
         close(fd);
         handle_medium_error("Memory mapping failed in write_to_logic");
         return FALSE;
+    }
     // write data to logic
     verb_print(HIGH, "DEBUG | write data on addr 0x%x with the value %d\n", address, data);
     *((uint32_t *)(ptr)) = data;   
