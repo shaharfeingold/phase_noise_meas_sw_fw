@@ -31,6 +31,10 @@ int write_to_logic(uint32_t data, uint64_t address){
     }
     verb_print(HIGH, "DEBUG | map the fd to memory address for the write and read\n");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, address); //each pointer of this map is width of 1B (memory is addrsable by bytes)
+    if (ptr == MAP_FAILED) {
+        close(fd);
+        handle_medium_error("Memory mapping failed in write_to_logic");
+        return FALSE;
     // write data to logic
     verb_print(HIGH, "DEBUG | write data on addr 0x%x with the value %d\n", address, data);
     *((uint32_t *)(ptr)) = data;   
@@ -62,6 +66,11 @@ uint32_t read_from_logic(uint64_t address){
     }
     verb_print(HIGH, "DEBUG | map the fd to memory address for the read");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, address); //each pointer of this map is width of 1B (memory is addrsable by bytes)
+    if (ptr == MAP_FAILED) {
+        close(fd);
+        handle_medium_error("Memory mapping failed in read_from_logic");
+        return 0; // or another appropriate error code
+    }
     read_data = *((uint32_t *)(ptr + 0)); //the output is in the base address of the memory mapping. 
     read_data = *((uint32_t *)(ptr + 0)); //the output is in the base address of the memory mapping.
     verb_print(HIGH, "DEBUG | Read data from logic = %x\n",read_data);
@@ -85,16 +94,21 @@ int read_from_array(DataArray* data_array){
      int fd = open(name, O_RDWR);
     if (fd < 0) {
         handle_medium_error("Failed to open file descriptor in read_from_array");
-        return FALSE; // or another error code indicating failure
+        return FALSE; 
     }
     verb_print(HIGH, "DEBUG | map the fd to memory address for the read");
     ptr = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ|PROT_WRITE, MAP_SHARED, fd, BUFFER_BASE_ADDR); //each pointer of this map is width of 1B (memory is addrsable by bytes)
+    if (ptr == MAP_FAILED) {
+        close(fd);
+        handle_medium_error("Memory mapping failed in read_from_array");
+        return FALSE; 
+    }
     for (index = 0; index < data_array->TargetLen; index++){
         offset = index * 4;
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping. 
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping.
         verb_print(HIGH, "DEBUG | Read data from logic = %x\n",read_data);
-        read_data_float = convert_fix_point_to_float(read_data);
+                read_data_float = convert_fix_point_to_float(read_data);
         verb_print(HIGH, "DEBUG | Read data from logic as float = 0x%x | %f\n",read_data_float, read_data);
         // data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
         store_new_data(data_array, read_data_float, 0);

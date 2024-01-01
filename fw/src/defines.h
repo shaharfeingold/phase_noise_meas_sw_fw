@@ -59,4 +59,9 @@ typedef struct sockaddr_in _sockaddr_in;
 #define ARRAY_FRCTIONAL_BIT 29
 #define ARRAY_NUM_WIDTH 32
 
+#define MAX_MSG_SIZE 1024 //in terms of bytes //todo shahar review this number
+#define MAP_FAILED ((void *)-1)
+#define INVALID_READ 0xFFFFFFFF 
+
+
 #endif

@@ -48,7 +48,7 @@ void log_error_to_file(const char* error_message) {
     if (check_file_exist("error.log")){
         remove("error.log");
     }
-    FILE* file = fopen("error.log", "a"); // Change this path to log path file
+    FILE* file = fopen("error.log", "a"); 
     if (file != NULL) {
         fprintf(file, "Error: %s\n", error_message);
         fclose(file);
@@ -59,7 +59,6 @@ void log_error_to_file(const char* error_message) {
 
 // Utility function to send error notifications (stub)
 void send_error_notification(const char* error_message) {
-    // Implement sending error notification, e.g., to a monitoring system
-    // This is a stub and should be filled in based on your application's needs
+
 }
 

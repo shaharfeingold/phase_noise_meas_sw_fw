@@ -19,6 +19,23 @@ description : main file to call each class and excute commands and functionality
 todo        : 1. wrap some function to be able to jump at the end of operation
 """
 
+def setup_connection(logic_unit):
+    max_attempts = 3
+    for attempt in range(max_attempts):
+        try:
+            ip_addr = input("Enter IP address of Red Pitaya: ")
+            port = input("Enter Port Number of Red Pitaya: ")
+            logic_unit.get_from_user_connection_info(ip_addr, port)
+            logic_unit.connect_socket()
+            print("Connection established successfully.")
+            return True  # Return True if connection is successful
+        except Exception as e:
+            if attempt < max_attempts - 1:
+                print("Connection failed, retrying...")
+            else:
+                handle_medium_error(f"Connection error: {e}")
+                return False  # Return False if all attempts fail
+
 
 def main():
     # first set up all the modules:
@@ -26,21 +43,17 @@ def main():
     logic_cfg = logic_config.LogicConfig()
     meas_data = data_mgm.Data()
 
-    # get from user inputs
-    try:
-        ip_addr = input("Enter IP address of Red Pitaya\n")
-        port = input("Enter Port Num of Red Pitaya\n")
-        logic_unit.get_from_user_connection_info(ip_addr, port)
-        logic_unit.connect_socket()
-    except Exception as e:
-        handle_medium_error(f"Connection error: {e}")
-    # get freq to config from user
+    if not setup_connection(logic_unit):
+        return
+
     freq = input("Please Enter Freq for operation\n")
     logic_cfg.get_freq_from_user(freq)
+
     # send config msg
     msg_to_send = str(defines.CONFIG) + str(logic_cfg.send_to_logic())
     print(msg_to_send + '\n')
     logic_unit.send_data(msg_to_send.encode())
+
     # get the echoed msg from the server and set flags
     buffer = logic_unit.rcvr_data().decode()
     print("rcvr data from server : " + buffer + '\n')
@@ -49,8 +62,10 @@ def main():
         print(logic_cfg)
         print(logic_unit)
         print("test succeed")
+    
     logic_unit.close_connection()
     return 0
+
 
 def DebugTest():
     # first set up all the modules:
@@ -61,12 +76,8 @@ def DebugTest():
     # set up user interface
     user_interface.print_hello_msg()
 
-    # get from user inputs
-    ip_addr = user_interface.get_ip_addr()
-    port = user_interface.get_port()
-    # connect to socket
-    logic_unit.get_from_user_connection_info(ip_addr, port)
-    logic_unit.connect_socket()
+    if not setup_connection(logic_unit):
+        return
 
     # start config red pitya
     user_interface.print_config_setup_msg()

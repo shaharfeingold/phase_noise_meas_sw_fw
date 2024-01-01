@@ -9,11 +9,18 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+def handle_cleanup():
+    """
+    Handle cleanup and shutdown procedures.
+    """
+    logger.info("Initiating cleanup procedures.")
+
 def handle_fatal_error(error_message):
     """
     Handle fatal errors that require the program to exit.
     """
     logger.error(f"Fatal Error: {error_message}")
+    handle_cleanup()  # Call the cleanup function before exiting
     sys.exit(1)
 
 def handle_medium_error(error_message):

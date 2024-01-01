@@ -32,7 +32,8 @@ void bind_server_socket(int server_socket, _sockaddr_in* server_addr){
 	if (bind(server_socket, (struct sockaddr*)server_addr, sizeof(*server_addr)) == -1) {
 			//todo shahar check syntax (struct sockaddr*)server_addr if correct.
 			//todo shahar check syntax sizeof(*server_addr) if correct.
-        	handle_fatal_error("Error binding");
+        	close(server_socket); // Close the socket before error handling
+			handle_fatal_error("Error binding");
     	}
 }
 
@@ -49,7 +50,8 @@ int accept_connection(int server_socket, _sockaddr_in* client_addr){
 	int client_socket;
 	socklen_t client_addr_len = sizeof(*client_addr);
     if ((client_socket = accept(server_socket, (struct sockaddr*)client_addr, &client_addr_len)) == -1) {
-        handle_fatal_error("Error accepting connection");
+        close(server_socket); // Close the server socket before error handling
+		handle_fatal_error("Error accepting connection");
     }	
 
 	// Enable TCP_NODELAY
@@ -82,6 +84,8 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	verb_print(HIGH, "DEBUG | first attempt, #bytes sends = %d\n", bytes_sent);
 	if (bytes_sent == -1){
  		handle_medium_error("Error sending data to client");
+		close(*client_socket);  // Close the client socket
+    	return;  // Exit the function
 	}
 	//todo shahar code review this section
 	while(bytes_sent < strlen(data)){
@@ -100,6 +104,8 @@ void send_uint32_t_to_client(int* client_socket, float data){
 	verb_print(HIGH, "DEBUG | first attempt, #bytes sends = %d\n", bytes_sent);
 	if (bytes_sent == -1){
  		handle_medium_error("Error sending data to client");
+		close(*client_socket);  // Close the client socket
+    	return;  // Exit the function
 	}
 	//todo shahar review this section.
 	while(bytes_sent < sizeof(data_in_network_order)){
@@ -108,11 +114,12 @@ void send_uint32_t_to_client(int* client_socket, float data){
 		verb_print(HIGH, "DEBUG | other attempt attempt, #bytes sends = %d, bytes left = %d\n", bytes_sent, bytes_left);
 	}
 }
-
+// todo - if null -> retry
 void recv_bytes_from_client(int* client_socket_ptr, char data[]){
 	int bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, 0);
 	if (bytes_recv == -1) {
         handle_easy_error("Error receiving bytes from client");
+		// todo - Decide if you need to close the socket here
     }
 	verb_print(HIGH, "got the following bytes from socket : %s\n", data);
 }

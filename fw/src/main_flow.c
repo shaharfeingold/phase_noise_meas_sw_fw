@@ -86,7 +86,7 @@ char get_end_of_operation_pkt(int* client_socket_ptr){
     memset(pkt, 0, MAX_MSG_SIZE);
     char pkt_type;
     recv_bytes_from_client(client_socket_ptr, pkt);
-    pkt_type = decode_end_of_op_pkt(pkt, client_socket_ptr);
+        pkt_type = decode_end_of_op_pkt(pkt, client_socket_ptr);
     return pkt_type;
 }
 
@@ -94,16 +94,22 @@ char decode_end_of_op_pkt(char* pkt, int* client_socket_ptr){
     verb_print(HIGH, "entered decode_end_of_op_pkt\n");
     uint64_t pkt_as_uint = convert_string_to_hex_uint64_t(pkt);
     char pkt_type = (pkt_as_uint & 0xFF00000000000000) >> 56; //1B long
-    verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
+        verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
     char control_byte = (pkt_as_uint & 0x0000000000FF0000) >> 16; //4B long;//1B long
     verb_print(HIGH, "DEBUG | control_byte recv from header = %d\n", control_byte);
     if ((pkt_type >= RESTART) && (control_byte == 255)){ //meaning good packet end of operation pkt
         send_end_of_op_ack(pkt_type, control_byte, client_socket_ptr);
     }
+    else {
+        handle_medium_error("Invalid end of operation packet received");
+        }
     return pkt_type;
 }
 
 void send_end_of_op_ack(char pkt_type, char control_byte, int* client_socket_ptr){
+    if (client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to send_end_of_op_ack");
+    }
     verb_print(HIGH, "entered send_end_of_op_ack\n");
     uint64_t ack_pkt_as_uint = 0x0000000000000000;
     uint64_t pkt_type_casted = (uint64_t)pkt_type << 56;
@@ -143,6 +149,9 @@ int main(int argc, char** argv){
     // init structs
     init_logic_config_struct(&logic_config);
     init_events_struct(&events, EVENT_MASK);
+    if (!init_logic_config_struct(&logic_config) || !init_events_struct(&events, EVENT_MASK)) {
+        handle_fatal_error("Initialization failed in main");
+    }
     init_buffer_info(&buffer_info, BUFFER_LEN, BUFFER_BASE_ADDR);
     init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
 

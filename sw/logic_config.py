@@ -51,7 +51,7 @@ class LogicConfig:
         """
         if not self.send_config:
             handle_easy_error("Attempted to send start header without configuration")
-            return 
+            return # Exiting the method
         self.start_sent = True
         header = self.build_start_header(start_indication)
         logic_unit.send_data(header) 
@@ -78,42 +78,53 @@ class LogicConfig:
         logic_unit.send_data(header)
 
     def end_ack_rcvr(self, logic_unit):
-        """
-        """
-        if not self.got_finish:
-            # todo shaharf, handle error, should not reach this code section if we didn't get send start.
-            exit(2)  # todo shaharf, need to see if there is any better way to handle error
-        ack_msg = logic_unit.rcvr_data().decode()
-        print(ack_msg)
-        if (not self.check_end_ack_msg(ack_msg)):
-            # todo shahar need to define what to do if we reach here.
-            exit(2)
+        max_attempts = 3
+        attempts = 0
+        while attempts < max_attempts:
+            if not self.got_finish:
+                handle_medium_error("End ACK reception attempted without operation finishing")
+                return
+            ack_msg = logic_unit.rcvr_data().decode()
+            if self.check_end_ack_msg(ack_msg):
+                return
+            else:
+                handle_medium_error("Invalid end ACK message received")
+                attempts += 1
+        handle_fatal_error("Maximum attempts for end ACK reception exceeded")
+
 
     def start_ack_rcvr(self, logic_unit):
-        """
-        """
-        if not self.start_sent:
-            # todo shaharf, handle error, should not reach this code section if we didn't get send start.
-            exit(2)  # todo shaharf, need to see if there is any better way to handle error
-        ack_msg = logic_unit.rcvr_data().decode()
-        print(ack_msg)
-        if (not self.check_start_ack_msg(ack_msg)):
-            # todo shahar need to define what to do if we reach here.
-            exit(2)
+        max_attempts = 3
+        attempts = 0
+        while attempts < max_attempts:
+            if not self.start_sent:
+                handle_medium_error("Start ACK reception attempted without sending start signal")
+                return
+            ack_msg = logic_unit.rcvr_data().decode()
+            if self.check_start_ack_msg(ack_msg):
+                return
+            else:
+                handle_medium_error("Invalid start ACK message received")
+                attempts += 1
+        handle_fatal_error("Maximum attempts for start ACK reception exceeded")
 
-    def ack_rcvr(self, logic_unit): # todo shahar need to change the name to config_ack_rcvr
-        if not self.store_config:
-            # todo shaharf, handle error, should not reach this code section if we didn't get any config.
-            exit(2)  # todo shaharf, need to see if there is any better way to handle error
-        if not self.send_config:
-            # todo shaharf, if we reach here before we send anything to logic error
-            exit(2)
-        ack_msg = logic_unit.rcvr_data().decode()
-        print(ack_msg)
-        if (not self.check_ack_msg(ack_msg)):
-            # todo shahar need to define what to do if we reach here.
-            exit(2)
-        self.got_ack = True
+
+    def ack_rcvr(self, logic_unit):
+        max_attempts = 3
+        attempts = 0
+        while attempts < max_attempts:
+            if not self.store_config or not self.send_config:
+                handle_medium_error("ACK reception attempted without proper configuration")
+                return
+            ack_msg = logic_unit.rcvr_data().decode()
+            if self.check_ack_msg(ack_msg):
+                self.got_ack = True
+                return
+            else:
+                handle_medium_error("Invalid configuration ACK message received")
+                attempts += 1
+        handle_fatal_error("Maximum attempts for ACK reception exceeded")
+
 
     def check_end_ack_msg(self, ack_msg):
         """
@@ -167,10 +178,15 @@ class LogicConfig:
     def convert_freq_to_phase_inc(self):
         # todo shaharf need to include calcutation once we detrmined to bus width of cordic
         # todo shaharf need to review this every time new logic rev is released
-        a = (2**defines.PHASE_INC_WIDTH) * self.freq * 1000000
-        b = self.logic_clk * 1000000
-        self.phase_inc = int(a/b)  # todo shaharf dummy implemntaion
-        print("calculated phase inc = ", self.phase_inc)
+        try:
+            a = (2**defines.PHASE_INC_WIDTH) * self.freq * 1000000
+            b = self.logic_clk * 1000000
+            self.phase_inc = int(a/b)  # todo shaharf dummy implemntaion
+            print("calculated phase inc = ", self.phase_inc)
+        except Exception as e:
+            handle_medium_error(f"Error converting frequency to phase increment: {e}")
+            new_freq = input("Please re-enter frequency: ")
+            self.get_freq_from_user(new_freq)
 
     def convert_end_usr_choice_to_end_byte(self, end_of_op_user_choice):
         if (end_of_op_user_choice == "1"):
@@ -246,21 +262,25 @@ class LogicConfig:
         # sender set control byte to FF, recv sends ack msg (echo the msg with unset control byte)
         # to support the defined socket interface between server and client, we need to send 1024 B msg 
         # => add null bytes to header.
-        phase_inc = self.phase_inc
-        control_byte = 255
-        header = f"{defines.CONFIG:02X}" + f"{phase_inc:08X}" + f"{control_byte:02X}"
-        # extend to have 64 bits long header
-        header = header + "0000"
-        header = header.encode()
+        try:
+            phase_inc = self.phase_inc
+            control_byte = 255
+            header = f"{defines.CONFIG:02X}" + f"{phase_inc:08X}" + f"{control_byte:02X}"
+            # extend to have 64 bits long header
+            header = header + "0000"
+            header = header.encode()
 
-        # fill with null chars to have 1024 B msg.
-        desired_length = 1024 # todo shahar switch to defines.
-        # todo shahar maybe need to 1023 because of the null char that end the entire string. (review with print both client and server)
-        # todo shahar need to support the case when we don't need to add null chars (the header itself enough)
+            # fill with null chars to have 1024 B msg.
+            desired_length = 1024 # todo shahar switch to defines.
+            # todo shahar maybe need to 1023 because of the null char that end the entire string. (review with print both client and server)
+            # todo shahar need to support the case when we don't need to add null chars (the header itself enough)
 
-        # Calculate the number of null characters to add
-        null_characters = b'\x00' * (desired_length - len(header))
+            # Calculate the number of null characters to add
+            null_characters = b'\x00' * (desired_length - len(header))
 
-        # Concatenate the original string with null characters to reach the desired length
-        extended_string = header + null_characters
-        return extended_string # the return value is encoded string
+            # Concatenate the original string with null characters to reach the desired length
+            extended_string = header + null_characters
+            return extended_string # the return value is encoded string
+        except Exception as e:
+            handle_medium_error(f"Error building config header: {e}")
+            return None  # Return None or appropriate response

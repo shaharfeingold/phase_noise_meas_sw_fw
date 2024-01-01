@@ -18,6 +18,9 @@
 //get a pointer for a new allocated strct and modify it inside.
 //modify all field to zero.
 void init_logic_config_struct(LogicConfig* new_logic_config){
+    if (new_logic_config == NULL) {
+        handle_fatal_error("LogicConfig pointer is NULL");
+    }
     new_logic_config->config_sent = 0;
     new_logic_config->got_finish = 0;
     new_logic_config->phase_inc = 0;
@@ -26,26 +29,41 @@ void init_logic_config_struct(LogicConfig* new_logic_config){
 
 //update field config_sent.
 void UpdateConfigSent(LogicConfig* logic_config, uint32_t data){
+    if (logic_config == NULL) {
+        handle_fatal_error("LogicConfig pointer is NULL");
+    }
     logic_config->config_sent = data;
 }
 
 //update field got_finish.
 void UpdateGotFinish(LogicConfig* logic_config, uint32_t data){
+    if (logic_config == NULL) {
+        handle_fatal_error("LogicConfig pointer is NULL");
+    }
     logic_config->got_finish = data;
 }
 
 //update field phase_inc.
 void UpdatePhaseInc(LogicConfig* logic_config, uint32_t data){
+    if (logic_config == NULL) {
+        handle_fatal_error("LogicConfig pointer is NULL in UpdateConfigSent");
+    }
     logic_config->phase_inc = data;
 }
 
 //update field start_sent.
 void UpdateStartSent(LogicConfig* logic_config, uint32_t data){
+    if (logic_config == NULL) {
+        handle_fatal_error("LogicConfig pointer is NULL in UpdateConfigSent");
+    } 
     logic_config->start_sent = data;
 }
 
 //get a pointer for a new allocated strct and modify it inside.
 void init_events_struct(Events* new_event_struct, uint32_t event_mask){
+    if (new_event_struct == NULL) {
+        handle_fatal_error("Events pointer is NULL");
+    }
     new_event_struct->EventsBitsVector = 0x00000000;
     new_event_struct->EventMask = event_mask;
     new_event_struct->EventVectorMasked = 0x00000000;
@@ -55,6 +73,9 @@ void init_events_struct(Events* new_event_struct, uint32_t event_mask){
 }
 
 void UpdateEventsVec(Events* event_strcut, uint32_t new_event_vec){
+    if (event_strcut == NULL) {
+        handle_fatal_error("Events pointer is NULL");
+    }
     event_strcut->EventsBitsVector = new_event_vec;
 }
 
@@ -73,6 +94,9 @@ void decode_event_vector(Events* event_struct) {
 //todo shahar make function to set bit event.
 
 void init_data_array_struct(DataArray* new_data_array, uint32_t expected_data_len){
+    if (new_data_array == NULL) {
+        handle_fatal_error("DataArray pointer is NULL");
+    }
     verb_print(HIGH, "entered init_data_array function\n");
     new_data_array->Len = 0;
     new_data_array->TargetLen = expected_data_len;
@@ -89,6 +113,12 @@ void store_new_data(DataArray* data_array, float RealData, float ImgData){
 }
 
 void send_data_array_to_client(DataArray* data_array, int type ,int* client_socket_ptr){
+    if (client_socket_ptr == NULL || data_array == NULL) {
+        handle_fatal_error("Null pointer passed to send_data_array_to_client");
+    }
+    if (data_array->Len != data_array->TargetLen){
+        handle_medium_error("Data length mismatch in send_data_array_to_client");
+    }
     verb_print(HIGH, "entered send_data_array_to_client\n");
     verb_print(MED, "Goind to send data collected from the array to client. msg type = %d\n", type);
     //how data is going to be send:
@@ -121,6 +151,9 @@ void send_data_array_to_client(DataArray* data_array, int type ,int* client_sock
 }
 
 void send_data_array_to_client_according_to_type(DataArray* data_array, int type ,int* client_socket_ptr){
+    if (data_array == NULL || client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to send_data_array_to_client_according_to_type");
+    }
     verb_print(HIGH, "send_data_array_to_client_according_to_type with data_type =%d\n", type);
     int index = 0;
     uint32_t len = data_array->Len;
@@ -169,6 +202,9 @@ void print_uint32_array(float* array_head, uint32_t len){
 }
 
 void get_start_header(LogicConfig* logic_config, int* client_socket_ptr){
+    if (logic_config == NULL || client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to get_start_header");
+    }
     char header[MAX_DATA_LEN];
     memset(header, 0, MAX_DATA_LEN);
     recv_bytes_from_client(client_socket_ptr, header);
@@ -176,6 +212,9 @@ void get_start_header(LogicConfig* logic_config, int* client_socket_ptr){
 }
 
 uint32_t get_end_header(LogicConfig* logic_config, int* client_socket_ptr){
+    if (logic_config == NULL || client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to get_end_header");
+    }
     char header[MAX_DATA_LEN];
     memset(header, 0, MAX_DATA_LEN);
     recv_bytes_from_client(client_socket_ptr, header);
@@ -183,6 +222,9 @@ uint32_t get_end_header(LogicConfig* logic_config, int* client_socket_ptr){
 }
 
 void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){
+    if (logic_config == NULL || client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to get_config_header");
+    }
     char header[MAX_DATA_LEN];
     memset(header, 0, MAX_DATA_LEN);
     recv_bytes_from_client(client_socket_ptr, header);
@@ -190,6 +232,9 @@ void get_config_header(LogicConfig* logic_config, int* client_socket_ptr){
 }
 
 uint32_t decode_end_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
+    if (logic_config == NULL || header == NULL || client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to decode_end_header");
+    }
     uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
     char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
     verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
@@ -206,6 +251,9 @@ uint32_t decode_end_header(LogicConfig* logic_config, char header[], int* client
 }
 
 void decode_start_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
+    if (logic_config == NULL || header == NULL || client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to decode_start_header");
+    }
     uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
     char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
     verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
@@ -222,6 +270,9 @@ void decode_start_header(LogicConfig* logic_config, char header[], int* client_s
 
 //todo shahar change name to decode_config_header
 void decode_header(LogicConfig* logic_config, char header[], int* client_socket_ptr){
+    if (logic_config == NULL || header == NULL || client_socket_ptr == NULL) {
+        handle_fatal_error("Null pointer passed to decode_header");
+    }
     uint64_t header_as_uint = convert_string_to_hex_uint64_t(header);
     char pkt_type = (header_as_uint & 0xFF00000000000000) >> 56; //1B long
     verb_print(HIGH, "DEBUG | pkt_type recv from header = %d\n", pkt_type);
@@ -287,6 +338,9 @@ void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_in
 
 //todo shahar connect to vars/defines
 void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buffer_base_address){
+    if (buffer_info == NULL) {
+        handle_fatal_error("BufferInfo pointer is NULL");
+    }
     buffer_info->buffer_base_address = buffer_base_address;
     buffer_info->buffer_len = buffer_len;
 }

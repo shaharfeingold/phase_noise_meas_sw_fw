@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include "defines.h"
 
-#define MAX_MSG_SIZE 1024 //in terms of bytes. //todo shahar move to defines file //todo shahar review this number
-
 int create_server_socket();
 void set_server_addr_struct(_sockaddr_in* server_addr);
 void bind_server_socket(int server_socket, _sockaddr_in* server_addr);

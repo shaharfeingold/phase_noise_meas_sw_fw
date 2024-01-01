@@ -16,6 +16,10 @@ RESTART = 253
 REDO = 254
 END_CONNECTION = 255 #0xFF (1B)
 
+# todo shaharf review if enough
+MAX_MSG_SIZE = 1024  # in terms of bytes, the amount of the bytes to read from socket at once
+# todo shahar review above if it is enough or can be reduced.
+
 # data msg types defines:
 REAL_DATA_MSG = 0
 IMG_DATA_MSG = 1

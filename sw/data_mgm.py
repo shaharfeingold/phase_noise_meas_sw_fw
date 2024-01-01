@@ -47,6 +47,13 @@ class Data:
         result = result + '\n' + "Req To Send Data Send ? : {}".format(str(self.req_sent))
         result = result + '\n' + "Data Received From Server ? : {}".format(str(self.data_rcvr))
         return result
+    
+    def __del__(self):
+        # Close any open files or network connections
+        # Shut down the logger
+        self.logger.removeHandler(self.handler)
+        self.handler.close()
+
 
     def send_req_to_data(self):
         # todo make sure it is resamlbe to logic config module
@@ -73,27 +80,26 @@ class Data:
         self.logger.debug("the decoded header is: pkt_type = %s, data_type = %d, expected_length = %d", pkt_type, self.data_type, self.data_size_expected)
 
     # todo shahar need to also include in decode_header rcve function !!! prio1
+    # todo shahar need to review waht is the data width in B we are sending and make it as a defines
     def store_new_line_wrapper(self, logic_unit):
         self.logger.debug("entered store_new_line_wrapper when data_type = %s", self.data_type)
-        if (self.data_type == defines.REAL_DATA_MSG):
-            # todo shahar need to review waht is the data width in B we are sending and make it as a defines
-            buffer = logic_unit.client_socket.recv(4)
-            hex_string = binascii.hexlify(buffer).decode()
-            self.logger.debug("recv from socket before decode = %s", buffer)
-            self.logger.debug("recv from socket = %s", hex_string)
-            self.store_new_line(hex_string)
-        elif (self.data_type == defines.IMG_DATA_MSG):
-            buffer = logic_unit.client_socket.recv(4)
-            hex_string = binascii.hexlify(buffer).decode()
-            self.logger.debug("recv from socket = %s", hex_string)
-            self.store_new_line(hex_string)
-        else:
-            buffer = logic_unit.client_socket.recv(4)
-            hex_string_1 = binascii.hexlify(buffer).decode()
-            buffer = logic_unit.client_socket.recv(4)
-            hex_string_2 = binascii.hexlify(buffer).decode()
-            self.logger.debug("recv from socket = %s and %s", hex_string_1, hex_string_2)
-            self.store_new_line(hex_string_1, hex_string_2)
+        try:
+            if self.data_type == defines.REAL_DATA_MSG or self.data_type == defines.IMG_DATA_MSG:
+                buffer = logic_unit.client_socket.recv(4)
+                hex_string = binascii.hexlify(buffer).decode()
+                self.logger.debug("recv from socket = %s", hex_string)
+                self.store_new_line(hex_string)
+            else:  # For both real and img data
+                for _ in range(2):
+                    buffer = logic_unit.client_socket.recv(4)
+                    hex_string = binascii.hexlify(buffer).decode()
+                    self.logger.debug("recv from socket = %s", hex_string)
+                    self.store_new_line(hex_string)
+        except socket.error as e:
+            handle_medium_error(f"Socket error during data reception: {e}")
+            logic_unit.close_connection()
+            return
+
 
     def store_new_line(self, item, item2 = ''):
         self.logger.debug("entered store_new_line")
@@ -157,10 +163,19 @@ class Data:
         current_datetime = datetime.now()
         formatted_date_time = current_datetime.strftime('%d%m%Y_%H_%M_%S')
         file_path_1 = "signal_" + formatted_date_time + ".txt"
-        np.savetxt(file_path_1, signal, delimiter=',')
         file_path_2 = "fft_result_" + formatted_date_time + ".txt"
-        np.savetxt(file_path_2, fft_result, delimiter=',')
-        self.send_file_to_mail(file_path_1, file_path_2)
+
+        try:
+            with open(file_path_1, 'w') as file:
+                np.savetxt(file, signal, delimiter=',')
+            with open(file_path_2, 'w') as file:
+                np.savetxt(file, fft_result, delimiter=',')
+
+            self.send_file_to_mail(file_path_1, file_path_2)
+
+        except Exception as e:
+            handle_easy_error(f"Error saving or sending files: {e}")
+
     
     def send_file_to_mail(self, file_path_1, file_path_2):
         body_msg = "attached below raw result for further analysis"

@@ -16,6 +16,9 @@
 // comment:     
 
 void config_logic(LogicConfig* logic_config){
+    if (logic_config == NULL) {
+        handle_fatal_error("Null pointer passed to config_logic");
+    }
     uint32_t data_to_write = 0x00000000;
     verb_print(HIGH, "DEBUG | enterd config_logic\n");
     //write to logic start_config
@@ -29,12 +32,15 @@ void config_logic(LogicConfig* logic_config){
     
     if (!write_to_logic(data_to_write, CONIG_BASE_ADDR)) {
         handle_medium_error("Failed to write config logic data");
-        // Decide if the function should return or continue
+        // todo - Decide if the function should return or continue
     }
     write_to_logic(data_to_write, CONIG_BASE_ADDR);
 }
 
 void config_start(LogicConfig* logic_config){
+    if (logic_config == NULL) {
+        handle_fatal_error("Null pointer passed to config_start");
+    }
     uint32_t data_to_write = 0x00000000;
     verb_print(HIGH, "DEBUG | enterd config_start\n");
     //write to logic start_config
@@ -46,6 +52,9 @@ void config_start(LogicConfig* logic_config){
 }
 
 void wait_4_finish(LogicConfig* logic_config){
+    if (logic_config == NULL) {
+        handle_fatal_error("Null pointer passed to wait_4_finish");
+    }
     verb_print(HIGH, "DEBUG | entered wait_4_finish\n");
     int finish_op = 0x00000000;
     while (TRUE){
@@ -81,11 +90,14 @@ uint32_t prepare_restart_type_to_write(uint32_t end_type_byte){
 }
 
 void send_restart_op_to_logic(LogicConfig* logic_config, uint32_t end_type_byte){
+    if (logic_config == NULL) {
+        handle_fatal_error("Null pointer passed to send_restart_op_to_logic");
+    }
     verb_print(HIGH, "DEBUG | send_restart_op_to_logic\n");
     uint32_t data_to_write = 0x00000000;
     verb_print(MED, "Tracker | write restart type\n");
     data_to_write = prepare_restart_type_to_write(end_type_byte);
-    write_to_logic(data_to_write, CONIG_BASE_ADDR);
+        write_to_logic(data_to_write, CONIG_BASE_ADDR);
     verb_print(MED, "Tracker | enable restart vld\n");
     data_to_write = prepare_data_to_write(logic_config, FALSE, FALSE, TRUE);
     write_to_logic(data_to_write, CONIG_BASE_ADDR);
@@ -118,6 +130,9 @@ uint32_t prepare_data_to_write(LogicConfig* logic_config, int start_config, int 
 }
 
 void check_config_strcut(LogicConfig* logic_config, char* state){
+    if (logic_config == NULL || state == NULL) {
+        handle_fatal_error("Null pointer passed to check_config_strcut");
+    }
     verb_print(MED, "DEBUG | entered check_config_strcut\n");
     int start_config = logic_config->config_sent;
     uint32_t phase_inc = logic_config->phase_inc;
@@ -144,6 +159,6 @@ void check_config_strcut(LogicConfig* logic_config, char* state){
 
      if (result == FALSE) {
         handle_easy_error("Configuration structure validation failed in check_config_strcut");
-        // decide how to proceed after this error
+        // todo - decide how to proceed after this error
     }
 }
