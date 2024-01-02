@@ -122,10 +122,13 @@ def DebugTest():
     # todo shahar need to convert number to the right format.
 
     msg_to_send = "got all msg and sending this ack" # if we want to send this need to make sure that its 1024 B wide.
+    msg_to_send = msg_to_send.ljust(1023, '!')
+    msg_to_send = msg_to_send.encode() + b'\x00'
+    print("msg_to_send len", len(msg_to_send))
     print(msg_to_send)
     str_to_debug = "recived from logic #" + str(meas_data.data_size) + " is all expected data (" + str(meas_data.data_size_expected) + ") rcvr ? " + str(meas_data.check_all_data_recv())
     print(str_to_debug)
-    logic_unit.send_data(msg_to_send.encode())
+    logic_unit.send_data(msg_to_send)
     logic_cfg.got_finish = True # todo wrap around function of rcvr data
 
     # data anylsis:

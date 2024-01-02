@@ -63,7 +63,7 @@ class LogicConfig:
             handle_easy_error("Attempted to send end header without finishing operation")
             return
         header = self.build_end_header(end_of_op_user_choice)
-        logic_unit.send_data(header) 
+        logic_unit.send_data(header)
 
     def send_to_logic(self, logic_unit): #todo shahar need to change this name to send_to_logic_config_info
         """
