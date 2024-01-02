@@ -254,11 +254,11 @@ int main(int argc, char** argv){
             case END_CONNECTION:
                 break;
             case REDO:
-                goto reconfig;
+                goto restart;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
             case RESTART:
-                goto restart;
+                goto reconfig;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
             default:

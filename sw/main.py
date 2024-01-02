@@ -20,12 +20,6 @@ todo        : 1. wrap some function to be able to jump at the end of operation
 """
 
 
-# todo saray need to create a infite loop to enter the right format:
-# ip: x.x.x.x when each x is <= 255
-# port: any postive number not float
-# freq: float > 0 (right now the freq should be lower then 1.1) # todo saray replace 1.1 with defines
-# with each retry supply the correct promt. 
-
 def setup_connection(logic_unit):
     max_attempts = 3
     for attempt in range(max_attempts):
@@ -117,6 +111,25 @@ def end_op(logic_cfg, logic_unit):
         # todo shahar implement as while a loop
 
     # logic_unit.close_connection() # todo shahar consider to remove
+
+def validate_ip(ip_addr):
+    try:
+        parts = ip_addr.split('.')
+        return len(parts) == 4 and all(0 <= int(part) <= 255 for part in parts)
+    except ValueError:
+        return False
+
+def validate_port(port):
+    try:
+        return int(port) > 0
+    except ValueError:
+        return False
+
+def validate_freq(freq):
+    try:
+        return 0 < float(freq) <= defines.MAX_FREQUENCY  
+    except ValueError:
+        return False
     
 # def main():
 #     # first set up all the modules:
@@ -152,6 +165,30 @@ def DebugTest():
     InitStage = True
     ConfigStage = True
     NeedToExit = False
+
+    logic_unit = connect.LogicConnection()
+    logic_cfg = logic_config.LogicConfig()
+    meas_data = data_mgm.Data()
+
+    user_interface.print_hello_msg()
+
+    while True:
+        ip_addr = user_interface.get_ip_addr()
+        if validate_ip(ip_addr):
+            break
+        print("Invalid IP format. Please try again.")
+
+    while True:
+        port = user_interface.get_port()
+        if validate_port(port):
+            break
+        print("Invalid port number. Please enter a positive integer.")
+
+    while True:
+        freq = user_interface.get_freq_from_user()
+        if validate_freq(freq):
+            break
+        print("Invalid frequency. Please enter a positive float less than or equal to 1.1.")
 
     while (True):
         if (InitStage):
