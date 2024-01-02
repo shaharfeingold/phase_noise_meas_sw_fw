@@ -254,10 +254,12 @@ int main(int argc, char** argv){
             case END_CONNECTION:
                 break;
             case REDO:
+                init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
                 goto restart;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
             case RESTART:
+                init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
                 goto reconfig;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
