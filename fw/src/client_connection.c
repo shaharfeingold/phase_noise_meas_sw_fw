@@ -114,15 +114,38 @@ void send_uint32_t_to_client(int* client_socket, float data){
 		verb_print(HIGH, "DEBUG | other attempt attempt, #bytes sends = %d, bytes left = %d\n", bytes_sent, bytes_left);
 	}
 }
-// todo - if null -> retry
+
 void recv_bytes_from_client(int* client_socket_ptr, char data[]){
-	int bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, MSG_WAITALL);
-	if (bytes_recv == -1) {
-        handle_easy_error("Error receiving bytes from client");
-		// todo - Decide if you need to close the socket here
+    int bytes_recv;
+    int retry_count = 0;
+    int max_retries = 3; // Set maximum retries
+
+    do {
+        bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, MSG_WAITALL);
+        if (bytes_recv > 0) {
+            // Check for valid data
+            break; // Exit loop if data is received
+        } else if (bytes_recv == 0) {
+            // Handle null bytes
+            handle_easy_error("Received null bytes from client");
+            retry_count++;
+        } else {
+            // Handle error
+            handle_easy_error("Error receiving bytes from client");
+            close(*client_socket_ptr); // Close the client socket
+            return; // Exit the function
+        }
+    } while (retry_count < max_retries);
+
+    if (retry_count == max_retries) {
+        handle_medium_error("Max retries reached in receiving bytes from client");
+        close(*client_socket_ptr); // Close the client socket
+        return; // Exit the function
     }
-	verb_print(HIGH, "got the following bytes from socket : %s\n", data);
+
+    verb_print(HIGH, "got the following bytes from socket : %s\n", data);
 }
+
 
 // int main(){
 	// int server_socket, client_socket;
