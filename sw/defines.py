@@ -28,3 +28,5 @@ REAL_IMG_DATA_MSG = 2
 DEBUG = True # todo shahar review this to init main flow and not debug mode
 
 PHASE_INC_WIDTH = 16
+
+MAX_FREQUENCY = 1.1 # maximum frequency value
