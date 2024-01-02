@@ -102,23 +102,22 @@ def end_op(logic_cfg, logic_unit):
     # wait and get ack
     logic_cfg.end_ack_rcvr(logic_unit)
 
-    # if (end_of_op_user_choice == '1'):
-        # logic_unit.close_connection()
-    # elif (end_of_op_user_choice == '2'):
-        # todo shahar implement redo + support in fw
-        # todo shahar upuntil we implelent redo we will close connection
-        # logic_unit.close_connection()
+    if (end_of_op_user_choice == '1'):
+        logic_unit.close_connection()
+        return False, True
     
-    # elif (end_of_op_user_choice == '3'):
-        # todo shahar implement redo + support in fw
-        # todo shahar upuntil we implelent redo we will close connection
-        # logic_unit.close_connection()
-    # else:
-    #    print("unvalid choice please try again")
-        #todo shahar implement as while a loop
+    elif (end_of_op_user_choice == '2'):
+        return False, False
+    
+    elif (end_of_op_user_choice == '3'):
+        return True, False
 
-    logic_unit.close_connection()
+    else:
+       print("unvalid choice please try again")
+        # todo shahar implement as while a loop
 
+    # logic_unit.close_connection() # todo shahar consider to remove
+    
 # def main():
 #     # first set up all the modules:
 #     logic_unit = connect.LogicConnection()
@@ -148,39 +147,48 @@ def end_op(logic_cfg, logic_unit):
 #     logic_unit.close_connection()
 #     return 0
 
-def Init():
-    logic_unit = connect.LogicConnection()
-    logic_cfg = logic_config.LogicConfig()
-    meas_data = data_mgm.Data()
-    return logic_unit, logic_cfg, meas_data
 
 def DebugTest():
-    # first set up all the modules:
-    logic_unit, logic_cfg, meas_data = Init()
-    # set up user interface
-    user_interface.print_hello_msg()
+    InitStage = True
+    ConfigStage = True
+    NeedToExit = False
 
-    if not setup_connection(logic_unit):
-        return
+    while (True):
+        if (InitStage):
+            # first set up all the modules:
+            logic_unit = connect.LogicConnection()
+            logic_cfg = logic_config.LogicConfig()
+            meas_data = data_mgm.Data()
+            InitStage = False
 
-    # start config red pitya
-    setup_logic_config(logic_unit, logic_cfg)
+            # set up user interface
+            user_interface.print_hello_msg()
 
-    # wait for user to start operation
-    wait_4_start_op(logic_cfg, logic_unit)
+            if not setup_connection(logic_unit):
+                return
+            
+        if (ConfigStage):
+            # start config red pitya
+            setup_logic_config(logic_unit, logic_cfg)
+            ConfigStage = False
 
-    # wait_for_data_and_unload
-    wait_4_data_and_unload(meas_data, logic_unit, logic_cfg)
+        # wait for user to start operation
+        wait_4_start_op(logic_cfg, logic_unit)
 
-    # data anylsis:
-    data_anylsis(meas_data)
+        # wait_for_data_and_unload
+        wait_4_data_and_unload(meas_data, logic_unit, logic_cfg)
 
-    # prompt user how to continue
-    end_op(logic_cfg, logic_unit)
+        # data anylsis:
+        data_anylsis(meas_data)
+
+        # prompt user how to continue
+        ConfigStage, NeedToExit = end_op(logic_cfg, logic_unit)
+
+        if (NeedToExit):
+            break
     
-
     return 0
 
 if __name__ == '__main__':
-    if (defines.DEBUG == True): # todo shahar consider remove this option and defines
-        DebugTest()
+    if (defines.DEBUG == True): # todo shahar consider to remove this, we are not using main 
+        DebugTest()  # todo shahar rename to name 
