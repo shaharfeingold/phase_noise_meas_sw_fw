@@ -24,8 +24,20 @@ def setup_connection(logic_unit):
     max_attempts = 3
     for attempt in range(max_attempts):
         try:
-            ip_addr = input("Enter IP address of Red Pitaya: ")
-            port = input("Enter Port Number of Red Pitaya: ")
+            #ip_addr = input("Enter IP address of Red Pitaya: ")
+            while True:
+                ip_addr = user_interface.get_ip_addr()
+                if validate_ip(ip_addr):
+                    break
+                print("Invalid IP format. Please try again.")
+
+            # port = input("Enter Port Number of Red Pitaya: ")
+            while True:
+                port = user_interface.get_port()
+                if validate_port(port):
+                    break
+                print("Invalid port number. Please enter a positive integer.")
+
             logic_unit.get_from_user_connection_info(ip_addr, port)
             logic_unit.connect_socket()
             print("Connection established successfully.")
@@ -39,7 +51,13 @@ def setup_connection(logic_unit):
 
 def setup_logic_config(logic_unit, logic_cfg):
     user_interface.print_config_setup_msg()
-    freq = user_interface.get_freq_from_user()
+    #freq = user_interface.get_freq_from_user()
+    while True:
+        freq = user_interface.get_freq_from_user()
+        if validate_freq(freq):
+            break
+        print("Invalid frequency. Please enter a positive float in range 0 < f < ", defines.MAX_FREQUENCY)
+
     logic_cfg.get_freq_from_user(freq)
     logic_cfg.send_to_logic(logic_unit)
 
@@ -115,7 +133,9 @@ def end_op(logic_cfg, logic_unit):
 def validate_ip(ip_addr):
     try:
         parts = ip_addr.split('.')
-        return len(parts) == 4 and all(0 <= int(part) <= 255 for part in parts)
+        len_check = len(parts) == 4
+        range_check = all(0 <= int(part) <= 255 for part in parts)
+        return len_check and range_check
     except ValueError:
         return False
 
@@ -165,30 +185,6 @@ def DebugTest():
     InitStage = True
     ConfigStage = True
     NeedToExit = False
-
-    logic_unit = connect.LogicConnection()
-    logic_cfg = logic_config.LogicConfig()
-    meas_data = data_mgm.Data()
-
-    user_interface.print_hello_msg()
-
-    while True:
-        ip_addr = user_interface.get_ip_addr()
-        if validate_ip(ip_addr):
-            break
-        print("Invalid IP format. Please try again.")
-
-    while True:
-        port = user_interface.get_port()
-        if validate_port(port):
-            break
-        print("Invalid port number. Please enter a positive integer.")
-
-    while True:
-        freq = user_interface.get_freq_from_user()
-        if validate_freq(freq):
-            break
-        print("Invalid frequency. Please enter a positive float less than or equal to 1.1.")
 
     while (True):
         if (InitStage):

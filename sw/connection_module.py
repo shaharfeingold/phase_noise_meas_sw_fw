@@ -113,12 +113,12 @@ class LogicConnection:
         # todo shaharf need to add flag or indication that user wants to close and server finish sending info
         # todo shaharf we are not relaying on tcp protocol close connection procedure.
         try:
-            pkt_to_send = self.build_packet_close_connection()
-            self.send_data(pkt_to_send)
-            ack_msg_to_check = self.rcvr_data().decode()
-            if not self.check_ack_close_connection_pkt(ack_msg_to_check):
-                handle_easy_error("Invalid ACK received for close connection packet.")
-            self.check_ack_close_connection_pkt(ack_msg_to_check)
+            # pkt_to_send = self.build_packet_close_connection()
+            # self.send_data(pkt_to_send)
+            # ack_msg_to_check = self.rcvr_data().decode()
+            # if not self.check_ack_close_connection_pkt(ack_msg_to_check):
+            #    handle_easy_error("Invalid ACK received for close connection packet.")
+            # self.check_ack_close_connection_pkt(ack_msg_to_check)
             self.client_socket.close()
         except Exception as e:
             handle_medium_error(f"Error occurred while closing connection: {e}")  
