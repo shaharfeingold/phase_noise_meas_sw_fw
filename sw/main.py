@@ -1,5 +1,5 @@
 #!/opt/homebrew/bin/python3
-
+import argparse
 import sys
 import os
 import subprocess
@@ -18,6 +18,14 @@ owner       : shaharf
 description : main file to call each class and excute commands and functionality.
 todo        : 1. wrap some function to be able to jump at the end of operation
 """
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Phase Measurement Application")
+    parser.add_argument("-m", "--mail", help="Email address to send reports to", type=str)
+    parser.add_argument("--help", help="Display help message", action="store_true")
+    parser.add_argument("--debug_mode", help="Run in debug mode", action="store_true")
+    parser.add_argument("--config_from_command_line", help="Set configuration from command line", action="store_true")
+    parser.add_argument("--data_only", help="Run in data-only mode", action="store_true")
+    return parser.parse_args()
 
 
 def setup_connection(logic_unit):
@@ -223,5 +231,6 @@ def DebugTest():
     return 0
 
 if __name__ == '__main__':
+    args = parse_arguments()
     if (defines.DEBUG == True): # todo shahar consider to remove this, we are not using main 
         DebugTest()  # todo shahar rename to name 
