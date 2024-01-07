@@ -15,6 +15,7 @@
 #include "defines.h"
 #include "read_write.h"
 #include <pthread.h>
+#include "error_handling.h"
 
 // file:        event_watcher.c
 // owner:       shahar
@@ -49,12 +50,11 @@ void* mainEventThread(void* args){
     // Register the signals to thier handlers
     // signal(EVENT_OCCUER, events_signals_handler); //todo only main thread should catch this
     signal(CLIENT_WANTS_TO_CLOSE, events_signals_handler);
-
+    
     //event_watcher_main_logic
     int* exit_status = (int *)malloc(sizeof(int));
     if (exit_status == NULL) {
-        perror("malloc");
-        pthread_exit(NULL); // Terminate with an error status
+        handle_fatal_error("malloc failed in mainEventThread"); 
     }
     while (client_running){
         //monitor the events for logic.
@@ -66,6 +66,7 @@ void* mainEventThread(void* args){
         }
     }
     *exit_status = 0;
+    free(exit_status);
     pthread_exit(exit_status);
 }
 
@@ -75,10 +76,12 @@ void monitorEvents(Events* event_strcut){
     // read vector from logic.
     uint32_t new_event_vec = read_from_logic(EVENT_ADDRESS); //read current event vec.
     int write_succeed = write_to_logic(0x00000000, EVENT_ADDRESS); //after reading events, rest all.
+    if (new_event_vec == -1 || write_succeed == -1) {
+        handle_medium_error("Error in I/O operation with logic");
+    }
     handle_read_new_event_vector(event_strcut, new_event_vec);
     // handle_read_new_event_vector(event_strcut, 0x00000003); //todo prio1 remove for deubg only
 }
-
 
 
 //todo shahar review implementaion and verify the signal working and doing what we want
@@ -99,7 +102,7 @@ void events_signals_handler(int sig){
         }
 
         default:{
-            printf("Error !! no a valid signal to handle by user in terminate_signal_handler\n");
+            handle_medium_error("Invalid signal received in events_signals_handler");
             break;
         }
 

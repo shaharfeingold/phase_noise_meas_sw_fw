@@ -5,6 +5,7 @@
     description: class which hold the socket info client side, hold the address of logic and methods which are connected
                  to logic for send and rcvr"""
 
+import defines
 import sys
 import os
 import time
@@ -12,12 +13,9 @@ import subprocess
 import socket
 import logging
 import defines
+from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
+import socket
 
-# todo shaharf review if enough
-MAX_MSG_SIZE = 1024  # in terms of bytes, the amount of the bytes to read from socket at once
-# todo shahar review above if it is enough or can be reduced.
-
-# todo shahar close looger after finsish dev.
 
 class LogicConnection:
     def __init__(self):
@@ -44,6 +42,13 @@ class LogicConnection:
         result = result + "\nConnection Established : " + str(self.connection_established)
         result = result + "\n-------------"
         return result
+    
+    def __del__(self):
+        if self.client_socket:
+            self.client_socket.close()
+        self.logger.removeHandler(self.handler)  # Shut down the logger
+        self.handler.close()
+
 
     def send_data(self, data):  # assuming data is converted to bytes object utf 8,
         """
@@ -51,10 +56,13 @@ class LogicConnection:
         :description: get data to send, according to type parse it and send it through socket
         :return: # todo shahar TBD
         """
+    def send_data(self, data):
         try:
             self.client_socket.sendall(data)
+            print("sending data :", data)
         except Exception as e:
-            print("Error occurred ! {}".format(e))  # todo shaharf error handling
+            handle_medium_error(f"Error occurred while sending data: {e}")
+            self.close_connection()  # Close the socket if an error occurs
 
     def rcvr_data(self):
         """
@@ -65,31 +73,36 @@ class LogicConnection:
         :return: # todo shahar TBD
         """
         try:
-            data_rcvr = self.client_socket.recv(MAX_MSG_SIZE) # todo shahar review this and remove later
+            data_rcvr = self.client_socket.recv(defines.MAX_MSG_SIZE) # todo shahar review this and remove later
             # may cause a problem when sending data segments less then 1024 B
             return data_rcvr
         except Exception as e:
-            print("Error occurred ! {}".formt(e))  # todo shaharf error handling
+            handle_medium_error(f"Error occurred while receiving data: {e}")
+            self.close_connection()  # Close the socket if an error occurs
+            return None
 
     def connect_socket(self):
         try:
             self.client_socket.connect(self.logic_address)
             self.connection_established = True
-            # todo shahar verbose print to log connection success
-        except ConnectionRefusedError:
-            # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
-            print("Connection refused. Make sure the server is running.")
-            exit(2)
-        except TimeoutError:
-            # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
-            # todo shaharf need to define error procedure
-            print("Connection timed out. The server might be unreachable.")
-            exit(2)
+        except ConnectionRefusedError as e:
+            handle_medium_error("Connection refused. Make sure the server is running.")
+            self.cleanup()  # Clean up before exiting
+            sys.exit(2)
+        except TimeoutError as e:
+            handle_medium_error("Connection timed out. The server might be unreachable.")
+            self.cleanup()  # Clean up before exiting
+            sys.exit(2)
         except socket.error as e:
-            # todo shahar verbose print to log, error + handle error using return and exit program + show user gui a msg.
-            print("Socket error:", e)
-            exit(2)
-        return 0  # todo shaharf if are here we connect succfully
+            handle_medium_error(f"Socket error: {e}")
+            self.cleanup()  # Clean up before exiting
+            sys.exit(2)
+        return 0  
+    
+    def cleanup(self):
+    # Logic to clean up resources
+        if self.client_socket:
+            self.client_socket.close()
 
     def get_from_user_connection_info(self, ip, port):
         self.logic_ip = ip
@@ -100,13 +113,15 @@ class LogicConnection:
         # todo shaharf need to add flag or indication that user wants to close and server finish sending info
         # todo shaharf we are not relaying on tcp protocol close connection procedure.
         try:
-            pkt_to_send = self.build_packet_close_connection()
-            self.send_data(pkt_to_send)
-            ack_msg_to_check = self.rcvr_data().decode()
-            self.check_ack_close_connection_pkt(ack_msg_to_check)
+            # pkt_to_send = self.build_packet_close_connection()
+            # self.send_data(pkt_to_send)
+            # ack_msg_to_check = self.rcvr_data().decode()
+            # if not self.check_ack_close_connection_pkt(ack_msg_to_check):
+            #    handle_easy_error("Invalid ACK received for close connection packet.")
+            # self.check_ack_close_connection_pkt(ack_msg_to_check)
             self.client_socket.close()
         except Exception as e:
-            print("Error occurred ! {}".formt(e))  # todo shaharf error handling
+            handle_medium_error(f"Error occurred while closing connection: {e}")  
     
     def build_packet_close_connection(self):
         # the pkt itself is 64 bits long (8B)
@@ -115,30 +130,33 @@ class LogicConnection:
         # sender set control byte to FF, recv sends ack msg (echo the msg with unset control byte)
         # to support the defined socket interface between server and client, we need to send 1024 B msg 
         # => add null bytes to header.
-        self.logger.debug("entered build_packet_close_connection")
-        if (not self.connection_established):
-            self.logger.debug("trying to send close connection packet but didn't established the connection yet")
-            raise Exception
-            # todo shahar need to define how to handle and what to do unter this error
+        try:
+            self.logger.debug("entered build_packet_close_connection")
+            null_field = '00000000'
+            control_byte = 255
+            header = f"{defines.END_CONNECTION:02X}" + null_field + f"{control_byte:02X}"
+            # extend to have 64 bits long pkt
+            header = header + "0000"
+            header = header.encode()
 
-        null_field = '00000000'
-        control_byte = 255
-        header = f"{defines.END_CONNECTION:02X}" + null_field + f"{control_byte:02X}"
-        # extend to have 64 bits long pkt
-        header = header + "0000"
-        header = header.encode()
+            # fill with null chars to have 1024 B msg.
+            desired_length = 1024 # todo shahar switch to defines.
+            # todo shahar maybe need to 1023 because of the null char that end the entire string. (review with print both client and server)
+            # todo shahar need to support the case when we don't need to add null chars (the header itself enough)
 
-        # fill with null chars to have 1024 B msg.
-        desired_length = 1024 # todo shahar switch to defines.
-        # todo shahar maybe need to 1023 because of the null char that end the entire string. (review with print both client and server)
-        # todo shahar need to support the case when we don't need to add null chars (the header itself enough)
+            # Calculate the number of null characters to add
+            null_characters = b'\x00' * (desired_length - len(header))
 
-        # Calculate the number of null characters to add
-        null_characters = b'\x00' * (desired_length - len(header))
-
-        # Concatenate the original string with null characters to reach the desired length
-        extended_string = header + null_characters
-        return extended_string # the return value is encoded string
+            # Concatenate the original string with null characters to reach the desired length
+            extended_string = header + null_characters
+            return extended_string # the return value is encoded string
+        except Exception as e:
+            handle_medium_error(f"trying to send close connection packet:{e} but didn't established the connection yet")
+            return None
+        #if (not self.connection_established):
+            #self.logger.debug("trying to send close connection packet but didn't established the connection yet")
+            #raise Exception
+            # todo shahar need to define how to handle and what to do unter this error   
 
     def check_ack_close_connection_pkt(self, pkt_to_check):
         self.logger.debug("entered check_ack_close_connection_pkt")

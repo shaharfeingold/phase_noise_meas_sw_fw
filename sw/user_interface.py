@@ -9,7 +9,8 @@ import connection_module as connect
 import defines
 import data_mgm
 import binascii
-
+from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
+import socket
 """
 file : maim.py
 owner : shaharf
@@ -25,18 +26,18 @@ def print_hello_msg():
     print("please retrive the the ip address and the port your red pitya is listening")
 
 def get_ip_addr():
-    ip_addr = input("Enter IP address of Red Pitaya\n")
+    ip_addr = input("Enter IP address of Red Pitaya: ")
     return ip_addr
 
 def get_port():
-    port = input("Enter Port Num of Red Pitaya\n")
+    port = input("Enter Port Num of Red Pitaya: ")
     return port
 
 def print_config_setup_msg():
     print("step 2: please retrive the freq of the oscillator you want to check")
 
 def get_freq_from_user():
-    freq = input("Enter Freq of the external oscillator\n")
+    freq = input("Enter Freq of the external oscillator: ")
     return freq
 
 def print_wait_for_start_op():

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "defines.h"
 
+
 //struct declaration
 typedef struct _LogicConfig{
     uint32_t phase_inc;
@@ -25,8 +26,8 @@ typedef struct _Events{
 typedef struct _DataArray{
     uint32_t Len;
     uint32_t TargetLen; //can be at most MAX_DATA_LEN
-    uint32_t RealDataArray[MAX_DATA_LEN];
-    uint32_t ImgDataArray[MAX_DATA_LEN];
+    float RealDataArray[MAX_DATA_LEN];
+    float ImgDataArray[MAX_DATA_LEN];
     int RecvAllExpectedData; //bool
 }DataArray;
 
@@ -38,8 +39,11 @@ typedef struct _BufferInfo{
 //struct functions:
 void init_logic_config_struct(LogicConfig* new_logic_config);
 void get_config_header(LogicConfig* logic_config, int* client_socket_ptr);
+void get_start_header(LogicConfig* logic_config, int* client_socket_ptr);
 void decode_header(LogicConfig* logic_config, char header[], int* client_socket_ptr);
+void decode_start_header(LogicConfig* logic_config, char header[], int* client_socket_ptr);
 void send_config_ack(LogicConfig* logic_config, char pkt_type, uint32_t phase_inc, char control_byte, int* client_socket_ptr);
+void send_start_ack(LogicConfig* logic_config,char pkt_type, uint32_t start_bit, char control_byte, int* client_socket_ptr);
 void UpdateConfigSent(LogicConfig* logic_config, uint32_t data);
 void UpdateGotFinish(LogicConfig* logic_config, uint32_t data);
 void UpdatePhaseInc(LogicConfig* logic_config, uint32_t data);
@@ -50,7 +54,7 @@ void UpdateConfigAddress(LogicConfig* logic_config, uint64_t config_address);
 //todo shahar need to review the width of the data is read from logic
 void send_to_logic_start_operation(LogicConfig* logic_config);
 char wait_to_finish_operation(LogicConfig* logic_config); //todo shahar here while loop up until we read finish. + consider add a feature to have time out
-void unload_data_from_logic(DataArray* data_array, BufferInfo* buffer_info);
+//void unload_data_from_logic(DataArray* data_array, BufferInfo* buffer_info);
 void get_from_client_start_operation(LogicConfig* logic_config);
 void start_operation_wrapper(LogicConfig* logic_config, BufferInfo* buffer_info); //todo shahar wrapper to all above.
 
@@ -60,13 +64,21 @@ void handle_read_new_event_vector(Events* event_struct, uint32_t new_event_vecto
 void decode_event_vector(Events* event_struct); //todo implemenet
 
 void init_data_array_struct(DataArray* new_data_array, uint32_t expected_data_len);
-void store_new_data(DataArray* data_array, uint32_t RealData, uint32_t ImgData);
+void store_new_data(DataArray* data_array, float RealData, float ImgData);
 void send_data_array_to_client(DataArray* data_array, int type ,int* client_socket_ptr);
 void send_data_array_to_client_according_to_type(DataArray* data_array, int type ,int* client_socket_ptr);
 
-void clear_uint32_array(uint32_t* array_head, uint32_t len);
-void print_uint32_array(uint32_t* array_head, uint32_t len);
+void clear_uint32_array(float* array_head, uint32_t len);
+void print_uint32_array(float* array_head, uint32_t len);
 
 void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buffer_base_address);
+
+int unload_data_from_logic(DataArray* data_array);
+int check_all_data_read(DataArray* data_array);
+
+uint32_t get_end_header(LogicConfig* logic_config, int* client_socket_ptr);
+uint32_t decode_end_header(LogicConfig* logic_config, char header[], int* client_socket_ptr);
+void send_end_ack(LogicConfig* logic_config, char pkt_type, uint32_t end_type_byte, char control_byte, int* client_socket_ptr);
+
 
 #endif

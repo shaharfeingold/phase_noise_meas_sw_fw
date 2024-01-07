@@ -4,21 +4,21 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/tcp.h> // Required for TCP_NODELAY
-
+#include "error_handling.h"
 #include "client_connection.h"
 #include "utils_function.h"
 #include "defines.h"
 
 
-int create_server_socket(){
-	verb_print(MED, "create server socket\n");
-	int server_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_socket == -1){ //todo shahar define handling error and implement.
-		perror("Error creating socket");
-        exit(1);
-	}
-	return server_socket;
+int create_server_socket() {
+    verb_print(MED, "create server socket\n");
+    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket == -1) {
+        handle_fatal_error("Error creating socket");
+    }
+    return server_socket;
 }
+
 
 void set_server_addr_struct(_sockaddr_in* server_addr){ //todo shahar consider to pass the port number as arg.
 	verb_print(MED, "set server addr strcut\n");
@@ -32,16 +32,15 @@ void bind_server_socket(int server_socket, _sockaddr_in* server_addr){
 	if (bind(server_socket, (struct sockaddr*)server_addr, sizeof(*server_addr)) == -1) {
 			//todo shahar check syntax (struct sockaddr*)server_addr if correct.
 			//todo shahar check syntax sizeof(*server_addr) if correct.
-        	perror("Error binding");  //todo shahar define handling error and implement.
-        	exit(1);
+        	close(server_socket); // Close the socket before error handling
+			handle_fatal_error("Error binding");
     	}
 }
 
 void listen_server_socket(int server_socket){
 	verb_print(MED, "server start listing on port = %d\n", PORT); // todo shahar consider set port as arg rather the define
 	if (listen(server_socket, MAX_CONNECTIONS) == -1) {
-        	perror("Error listening"); //todo shahar define handling error and implement.
-        	exit(1);
+        	handle_fatal_error("Error listening");
    	 	}
 }
 
@@ -51,15 +50,14 @@ int accept_connection(int server_socket, _sockaddr_in* client_addr){
 	int client_socket;
 	socklen_t client_addr_len = sizeof(*client_addr);
     if ((client_socket = accept(server_socket, (struct sockaddr*)client_addr, &client_addr_len)) == -1) {
-        perror("Error accepting connection"); //todo shahar define handling error and implement.
-        exit(1);
+        close(server_socket); // Close the server socket before error handling
+		handle_fatal_error("Error accepting connection");
     }	
 
 	// Enable TCP_NODELAY
     int flag = 1;
     if (setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)) == -1) {
-        perror("TCP_NODELAY setting failed");
-        exit(EXIT_FAILURE);
+        handle_fatal_error("TCP_NODELAY setting failed");
     }
 
 	verb_print(MED, "DEBUG | connection accepted, return client socket\n");
@@ -85,7 +83,9 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	bytes_sent += send(*client_socket, data, MAX_MSG_SIZE, 0); //here we send the entire buffer include the null chars
 	verb_print(HIGH, "DEBUG | first attempt, #bytes sends = %d\n", bytes_sent);
 	if (bytes_sent == -1){
- 		perror("Error sending data to client");
+ 		handle_medium_error("Error sending data to client");
+		close(*client_socket);  // Close the client socket
+    	return;  // Exit the function
 	}
 	//todo shahar code review this section
 	while(bytes_sent < strlen(data)){
@@ -95,15 +95,17 @@ void send_data_as_string_to_client(int* client_socket, char data[]){
 	}
 }
 
-void send_uint32_t_to_client(int* client_socket, uint32_t data){
-	verb_print(HIGH, "send_data_as_uint32_to_client with data = %d\n", data);
+void send_uint32_t_to_client(int* client_socket, float data){
 	uint32_t data_in_network_order = encode_uint_data_to_send(data);
+	verb_print(HIGH, "send_data_as_uint32_to_client with data = %f | 0x%x\n", data, data_in_network_order);
 	int bytes_sent = 0;
 	int bytes_left = 0;
 	bytes_sent += send(*client_socket, &data_in_network_order, sizeof(data_in_network_order), 0);
 	verb_print(HIGH, "DEBUG | first attempt, #bytes sends = %d\n", bytes_sent);
 	if (bytes_sent == -1){
- 		perror("Error sending data to client");
+ 		handle_medium_error("Error sending data to client");
+		close(*client_socket);  // Close the client socket
+    	return;  // Exit the function
 	}
 	//todo shahar review this section.
 	while(bytes_sent < sizeof(data_in_network_order)){
@@ -114,8 +116,36 @@ void send_uint32_t_to_client(int* client_socket, uint32_t data){
 }
 
 void recv_bytes_from_client(int* client_socket_ptr, char data[]){
-	int bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, 0);
+    int bytes_recv;
+    int retry_count = 0;
+    int max_retries = 3; // Set maximum retries
+
+    do {
+        bytes_recv = recv(*client_socket_ptr, data, MAX_MSG_SIZE, MSG_WAITALL);
+        if (bytes_recv > 0) {
+            // Check for valid data
+            break; // Exit loop if data is received
+        } else if (bytes_recv == 0) {
+            // Handle null bytes
+            handle_easy_error("Received null bytes from client");
+            retry_count++;
+        } else {
+            // Handle error
+            handle_easy_error("Error receiving bytes from client");
+            close(*client_socket_ptr); // Close the client socket
+            return; // Exit the function
+        }
+    } while (retry_count < max_retries);
+
+    if (retry_count == max_retries) {
+        handle_medium_error("Max retries reached in receiving bytes from client");
+        close(*client_socket_ptr); // Close the client socket
+        return; // Exit the function
+    }
+
+    verb_print(HIGH, "got the following bytes from socket : %s\n", data);
 }
+
 
 // int main(){
 	// int server_socket, client_socket;
