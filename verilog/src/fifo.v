@@ -6,7 +6,7 @@ module fifo(clk, rstn, in_data, in_data_vld, out_data_rdy, out_data_vld,
 //parameters
 parameter DATA_WIDTH = 32; 
 parameter FIFO_SIZE = 1024;
-localparam FIFO_SIZE_WIDTH = $clog2(FIFO_SIZE);
+parameter integer FIFO_SIZE_WIDTH = $clog2(FIFO_SIZE);
 
 //ports
 input clk, rstn;

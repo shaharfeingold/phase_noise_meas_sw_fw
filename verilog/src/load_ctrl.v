@@ -7,7 +7,7 @@ parameter BASE_ADDR = 64'h0000000000000000; //todo shahar switch to the right ad
 parameter ADDR_WIDTH = 64;
 parameter DATA_WIDTH = 32;
 parameter FIFO_SIZE = 1024;
-localparam FIFO_SIZE_WIDTH = $clog2(FIFO_SIZE);
+parameter integer  FIFO_SIZE_WIDTH = $clog2(FIFO_SIZE) + 1;
 
 //interface
 //addr request from design
@@ -31,19 +31,22 @@ output data_out_vld;
 //implementaion
 reg [FIFO_SIZE_WIDTH-1 : 0] data_count_read;
 reg data_out_vld_p;
+reg [DATA_WIDTH-1 : 0] data_out_p;
 
 always @(posedge clk ) begin
     if (~rstn) begin
         data_count_read <= {FIFO_SIZE_WIDTH{1'b0}};
         data_out_vld_p <= 1'b0;
+        data_out_p = {DATA_WIDTH{1'b0}};
     end
     else begin
         data_count_read <= request_vld & data_in_rdy ? data_count_read + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} : data_count_read;
         data_out_vld_p <= request_vld & data_in_rdy;
+        data_out_p <= data_in;
     end
 end
 
-assign data_out = data_in;
+assign data_out = data_out_p;
 assign data_out_vld = data_out_vld_p;
 assign data_in_vld = request_vld;
 
