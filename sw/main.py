@@ -16,12 +16,13 @@ import socket
 file        : maim.py
 owner       : shaharf
 description : main file to call each class and excute commands and functionality.
-todo        : 1. wrap some function to be able to jump at the end of operation
+todo        : 1. need to connect the args from parser to the software logic itself
 """
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Phase Measurement Application")
     parser.add_argument("-m", "--mail", help="Email address to send reports to", type=str)
-    parser.add_argument("--help", help="Display help message", action="store_true")
+    # parser.add_argument("--help", help="Display help message", action="store_true")
     parser.add_argument("--debug_mode", help="Run in debug mode", action="store_true")
     parser.add_argument("--config_from_command_line", help="Set configuration from command line", action="store_true")
     parser.add_argument("--data_only", help="Run in data-only mode", action="store_true")
