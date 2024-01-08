@@ -223,3 +223,4 @@ workdir/
 .vscode
 .idea/
 *.txt
+*.vvp
