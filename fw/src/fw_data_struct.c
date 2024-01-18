@@ -112,31 +112,37 @@ void store_new_data(DataArray* data_array, float RealData, float ImgData){
     verb_print(HIGH, "DEBUG | going to store new record:\nRealData = %f, ImgData = %f, updated array Len = %d", RealData, ImgData, data_array->Len);
 }
 
-void send_data_array_to_client(DataArray* data_array, int type ,int* client_socket_ptr){
-    if (client_socket_ptr == NULL || data_array == NULL) {
+void send_data_array_to_client(DataArray* data_array_ch0, DataArray* data_array_ch1, int type ,int NumOfChannels ,int* client_socket_ptr){
+    if (client_socket_ptr == NULL || data_array_ch0 == NULL || data_array_ch1) {
         handle_fatal_error("Null pointer passed to send_data_array_to_client");
     }
-    if (data_array->Len != data_array->TargetLen){
+    if (data_array_ch0->Len != data_array_ch0->TargetLen){
         handle_medium_error("Data length mismatch in send_data_array_to_client");
     }
-    verb_print(HIGH, "entered send_data_array_to_client\n");
+    if(NumOfChannels == 2){
+        if (data_array_ch1->Len != data_array_ch1->TargetLen){
+            handle_medium_error("Data length mismatch in send_data_array_to_client");
+        }
+    }
+    verb_print(HIGH, "entered send_data_array_to_client NumOfChannels = %d\n", NumOfChannels);
     verb_print(MED, "Goind to send data collected from the array to client. msg type = %d\n", type);
     //how data is going to be send:
     //* all data is send as bytes (string) need to encode it on server and decode it (convert back to num) on client side
     //* goint to send item by item.
     //1. first msg: type of msg = data, array_len, array_type [real, img, real+img]
     //2. payload one by one (in case read+img, real + img)
+    //3. in case of 2 channels: first channel and then the other channel
     //implement:
     //print warning in case expected len is not equal to len.
-    uint32_t len = data_array->Len;
-    uint32_t expected_len = data_array->TargetLen;
+    uint32_t len = data_array_ch0->Len;
+    uint32_t expected_len = data_array_ch0->TargetLen;
     int client_socket = *client_socket_ptr;
-    int index = 0;
+    //int index = 0;
     char data[MAX_MSG_SIZE];
     memset(data, 0, MAX_MSG_SIZE);
     char header[MAX_MSG_SIZE];
     memset(header, 0, MAX_MSG_SIZE);
-    if (len != expected_len){
+    if (len != expected_len){ //seems unrelevent due to if at the function head
         verb_print(MED, "Going to send data to client but not recv all the expcted data from logic.\n");
         // todo shahar review. now it is just a warning. maybe need to switch to exit. according to flow
         // we will defined later.
@@ -145,7 +151,10 @@ void send_data_array_to_client(DataArray* data_array, int type ,int* client_sock
    // build header of packet;
    build_data_packet_header(header, len, type);
    send_data_as_string_to_client(client_socket_ptr, header);
-   send_data_array_to_client_according_to_type(data_array, type ,client_socket_ptr);
+   send_data_array_to_client_according_to_type(data_array_ch0, type ,client_socket_ptr);
+   if (NumOfChannels == 2){
+    send_data_array_to_client_according_to_type(data_array_ch1, type ,client_socket_ptr);
+   }
    //updata + print that all data is sent from client side.
    verb_print(HIGH, "finish sending to client data accroding to data type = %d", type);
 }

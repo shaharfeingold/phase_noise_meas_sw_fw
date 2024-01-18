@@ -123,11 +123,30 @@ void send_end_of_op_ack(char pkt_type, char control_byte, int* client_socket_ptr
     send_data_as_string_to_client(client_socket_ptr, ack_pkt);
 }
 
+int GetNumOfChannels(int argc, char** argv){
+    // check for default --> channel 1
+    if (argc == 1){
+        return 1; //defualt value
+    }
+    if (argc > 2){
+        printf("ERROR! | Should provid only one argument to script\n");
+        printf("Usage:\n");
+        printf("<script_name> <num_of_ch>\n");
+        printf("Please try again\n");
+        exit(1);
+    }
+    else{
+        //should check that the argument is a number
+        return (argv[1]-48); // 48 is ascii code for zero
+    }
+}
+
 int main(int argc, char** argv){
     //var structs:
     LogicConfig logic_config;
     // Events events; //todo shahar prio3 review | moved to be global.
-    DataArray data_array;
+    DataArray data_array_ch0;
+    DataArray data_array_ch1; //in case of 2 channael
     BufferInfo buffer_info;
 
     //vars socket
@@ -141,6 +160,9 @@ int main(int argc, char** argv){
     pthread_t event_monitor_pthread;
     int* event_monitor_exist_status;
 
+    //num of chaneels:
+    int NumOfChannels = GetNumOfChannels(argc, argv);
+
     //vars for shared data
     ThreadArgs thread_args;  
 
@@ -153,7 +175,8 @@ int main(int argc, char** argv){
     //     handle_fatal_error("Initialization failed in main");
     // }
     init_buffer_info(&buffer_info, BUFFER_LEN, BUFFER_BASE_ADDR);
-    init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
+    init_data_array_struct(&data_array_ch0, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
+    init_data_array_struct(&data_array_ch1, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
 
     // init socket
     init_connection(&server_socket, &client_socket, &server_addr, &client_addr);
@@ -225,12 +248,15 @@ int main(int argc, char** argv){
 
     //unload data from logic
     verb_print(MED, "DEBUG | unload data from logic\n");
-    unload_data_from_logic(&data_array);
+    unload_data_from_logic(&data_array_ch0);
+    if(NumOfChannels == 2){
+        unload_data_from_logic_ch1(&data_array_ch1); //todo implement
+    };
 
     //send data to client
     
     verb_print(MED, "DEBUG | send data to client\n");
-    send_data_array_to_client(&data_array, REAL_DATA_MSG, &client_socket);
+    send_data_array_to_client(&data_array_ch0, &data_array_ch1, REAL_DATA_MSG, NumOfChannels, &client_socket);
 
     memset(buffer, 0, sizeof(buffer));
     if (recv(client_socket, buffer, sizeof(buffer), MSG_WAITALL) == -1) {
@@ -254,12 +280,14 @@ int main(int argc, char** argv){
             case END_CONNECTION:
                 break;
             case REDO:
-                init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
+                init_data_array_struct(&data_array_ch0, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
+                init_data_array_struct(&data_array_ch1, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
                 goto restart;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
             case RESTART:
-                init_data_array_struct(&data_array, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
+                init_data_array_struct(&data_array_ch0, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
+                init_data_array_struct(&data_array_ch1, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
                 goto reconfig;
                 //todo shahar need to support this type jump to the relavent program point
                 break;
