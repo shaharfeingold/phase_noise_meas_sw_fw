@@ -174,7 +174,7 @@ int main(int argc, char** argv){
     // if (!init_logic_config_struct(&logic_config) || !init_events_struct(&events, EVENT_MASK)) {
     //     handle_fatal_error("Initialization failed in main");
     // }
-    init_buffer_info(&buffer_info, BUFFER_LEN, BUFFER_BASE_ADDR);
+    init_buffer_info(&buffer_info, BUFFER_LEN, BUFFER_BASE_ADDR_CH0);
     init_data_array_struct(&data_array_ch0, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
     init_data_array_struct(&data_array_ch1, MAX_DATA_LEN); //todo shahar need to review this defines and change if needed //todo shahar review this after finishing debug.
 
@@ -244,7 +244,7 @@ int main(int argc, char** argv){
 
     //wait for stop
     verb_print(MED, "DEBUG | wait for finish op\n");
-    wait_4_finish(&logic_config);
+    wait_4_finish(&logic_config, NumOfChannels);
 
     //unload data from logic
     verb_print(MED, "DEBUG | unload data from logic\n");

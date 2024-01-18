@@ -51,18 +51,28 @@ void config_start(LogicConfig* logic_config){
     write_to_logic(data_to_write, CONIG_BASE_ADDR);
 }
 
-void wait_4_finish(LogicConfig* logic_config){
+void wait_4_finish(LogicConfig* logic_config, int NumOfChannels){
     if (logic_config == NULL) {
         handle_fatal_error("Null pointer passed to wait_4_finish");
     }
     verb_print(HIGH, "DEBUG | entered wait_4_finish\n");
     int finish_op = 0x00000000;
     while (TRUE){
-        finish_op = (read_from_logic(FINISH_OP_DATA_COUNT_BASE_ADDR) & FINISH_OP_MASK) >> 11 ;
-        verb_print(HIGH, "DEBUG | read_design, finish_op = %d\n", finish_op);
-        sleep(2);
-        if (finish_op == TRUE){
-            return;
+        if (NumOfChannels == 1){
+            finish_op = (read_from_logic(FINISH_OP_DATA_COUNT_BASE_ADDR) & FINISH_OP_MASK_1_CH) >> 11 ;
+            verb_print(HIGH, "DEBUG | read_design, finish_op = %d\n", finish_op);
+            sleep(2);
+            if (finish_op == TRUE){
+                return;
+            }
+        }
+        if (NumOfChannels == 2){
+            finish_op = (read_from_logic(FINISH_OP_DATA_COUNT_BASE_ADDR) & FINISH_OP_MASK_2_CH) >> 22 ;
+            verb_print(HIGH, "DEBUG | read_design, finish_op = %d\n", finish_op);
+            sleep(2);
+            if (finish_op == TRUE){
+                return;
+            }
         }
     }
 }

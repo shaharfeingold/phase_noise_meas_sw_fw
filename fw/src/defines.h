@@ -29,7 +29,8 @@ typedef struct sockaddr_in _sockaddr_in;
 //buffer info
 //todo shahar need to review this defines after finish logic
 #define BUFFER_LEN  MAX_DATA_LEN //buffer inside the logic
-#define BUFFER_BASE_ADDR 0x40000000
+#define BUFFER_BASE_ADDR_CH0 0x40000000
+#define BUFFER_BASE_ADDR_CH1 0x43C00000
 
 //config addr
 //todo shahar need to review this defines after finish logic
