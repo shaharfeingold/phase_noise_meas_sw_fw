@@ -4,7 +4,7 @@
 module async_fifo_tb ();
 
     parameter DATA_WIDTH = 32;
-    parameter FIFO_DEPTH = 3;
+    parameter FIFO_DEPTH = 8;
     parameter FIFO_DEPTH_WIDTH = $clog2(FIFO_DEPTH);
 
     //ports
@@ -40,7 +40,7 @@ reg start_clk2;
 
 initial begin
     $dumpfile("async_fifo_tb_dump.vcd");
-    $dumpvars(0, async_fifo_tb, async_fifo_tb.top.memory[0], async_fifo_tb.top.memory[1], async_fifo_tb.top.memory[2]);
+    $dumpvars(0, async_fifo_tb, async_fifo_tb.top.memory[0], async_fifo_tb.top.memory[1], async_fifo_tb.top.memory[2], async_fifo_tb.top.memory[3], async_fifo_tb.top.memory[4],async_fifo_tb.top.memory[5], async_fifo_tb.top.memory[6], async_fifo_tb.top.memory[7]);
 rd_clk = 1'b0;
 wr_clk = 1'b0;
 rst = 1'b0;
@@ -58,7 +58,7 @@ $display("finish reset\n");
 #10;
 $display("!! push data and read\n");
 data_in_vld = 1'b1;
-read_req = 1'b1;
+read_req = 1'b0;
 data_in = 1;
 #10;
 data_in = 2;
