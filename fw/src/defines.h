@@ -49,7 +49,7 @@ typedef struct sockaddr_in _sockaddr_in;
 #define FINISH_OP_MASK_1_CH 0x00000800 //in case we are using one channal
 #define FINISH_OP_MASK_2_CH 0x00400000 //in case we are using two channal
 #define DATA_COUNT_MASK_1 0x000007FF
-#define DATA_CONUT_MASK_2 0x003FF800
+#define DATA_COUNT_MASK_2 0x003FF800
 
 //Event Mask
 //todo shahar need to make after define which events should be read by the fw according to severity
