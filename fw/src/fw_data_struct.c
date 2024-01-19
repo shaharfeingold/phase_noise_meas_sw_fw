@@ -113,7 +113,7 @@ void store_new_data(DataArray* data_array, float RealData, float ImgData){
 }
 
 void send_data_array_to_client(DataArray* data_array_ch0, DataArray* data_array_ch1, int type ,int NumOfChannels ,int* client_socket_ptr){
-    if (client_socket_ptr == NULL || data_array_ch0 == NULL || data_array_ch1) {
+    if (client_socket_ptr == NULL || data_array_ch0 == NULL || data_array_ch1 == NULL) {
         handle_fatal_error("Null pointer passed to send_data_array_to_client");
     }
     if (data_array_ch0->Len != data_array_ch0->TargetLen){
@@ -153,7 +153,7 @@ void send_data_array_to_client(DataArray* data_array_ch0, DataArray* data_array_
    send_data_as_string_to_client(client_socket_ptr, header);
    send_data_array_to_client_according_to_type(data_array_ch0, type ,client_socket_ptr);
    if (NumOfChannels == 2){
-    send_data_array_to_client_according_to_type(data_array_ch1, type ,client_socket_ptr);
+        send_data_array_to_client_according_to_type(data_array_ch1, type ,client_socket_ptr);
    }
    //updata + print that all data is sent from client side.
    verb_print(HIGH, "finish sending to client data accroding to data type = %d", type);
@@ -376,7 +376,7 @@ int unload_data_from_logic(DataArray* data_array){
         // This might not be critical, so logged as an easy error
         result = FALSE;
     }
-    result = check_all_data_read(data_array);
+    //result = check_all_data_read(data_array);
     return result;
 }
 
@@ -385,4 +385,22 @@ int check_all_data_read(DataArray* data_array){
         return FALSE;
     }
     return TRUE;
+}
+
+int unload_data_from_logic_ch1(DataArray* data_array){
+    int result = TRUE;
+    
+    if (!read_from_array_ch1(data_array)) {
+        handle_medium_error("Failed to read data from array in unload_data_from_logic ch1");
+        // Decide if you need to stop processing or can continue
+        result = FALSE;
+    }
+    //read_from_array(data_array);
+    if (!check_all_data_read(data_array)) {
+        handle_easy_error("Not all expected data was read in unload_data_from_logic ch1");
+        // This might not be critical, so logged as an easy error
+        result = FALSE;
+    }
+    //result = check_all_data_read(data_array);
+    return result;
 }

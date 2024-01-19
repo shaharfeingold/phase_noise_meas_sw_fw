@@ -5,7 +5,6 @@
 #include <time.h>
 #include <pthread.h>
 
-//for socket?
 #include <unistd.h>
 #include <arpa/inet.h>
 
@@ -17,17 +16,14 @@
 #include "defines.h"
 #include "logic_config.h"
 #include "error_handling.h"
+
 // file:        main_flow.c
 // owner:       shahar
 // description: main flow for fw. manage and coordinate.
 // comment:     todo shahar need to define error handling and memory error
 //              todo need to catch the event when the client wants to close  
 //              todo review all >> or << operation
-//              need to implemenet "wait to start operation"
-//              need to implemenet "wait to stop operation"
-//              need to implement restart --> reset all data strcucts (as well in software)
 
-// todo shahar need to add all modules.
 //kill to send signal to process.
 //pthread_kill to send signal to a thread within the process.
 
@@ -250,7 +246,7 @@ int main(int argc, char** argv){
     verb_print(MED, "DEBUG | unload data from logic\n");
     unload_data_from_logic(&data_array_ch0);
     if(NumOfChannels == 2){
-        unload_data_from_logic_ch1(&data_array_ch1); //todo implement
+        unload_data_from_logic_ch1(&data_array_ch1);
     };
 
     //send data to client
