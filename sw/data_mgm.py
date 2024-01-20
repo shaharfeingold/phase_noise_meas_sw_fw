@@ -12,6 +12,7 @@ import socket
 from datetime import datetime
 import subprocess
 
+
 """ 
 file: data_mgm.py
 owner: shaharf
@@ -28,9 +29,12 @@ class Data:
         self.data_size = 0
         self.data_size_expected = 0
         self.data_type = 0 # only real -> 0, only img -> 1, both real and img -> 2
-        self.sample_freq = 50 # sampling frequncy in units of MHz # todo shahar review this defualt value # todo shahar prio1 need to pass this parameters using the config pkt or using a define
+        self.sample_freq = defines.CLOCK_FREQ # sampling frequncy in units of MHz # todo shahar review this defualt value # todo shahar prio1 need to pass this parameters using the config pkt or using a define
         self.req_sent = False
         self.data_rcvr = False
+        self.signal = '' # signal - only real (after convert to float)
+        self.fft_result = '' # fft result of signal
+        self.freq_vec_for_fft = '' # freq. vec for fft plot
     
         # create a logger under Data class
         self.logger = logging.getLogger(__name__)
@@ -89,7 +93,7 @@ class Data:
                 hex_string = binascii.hexlify(buffer).decode()
                 self.logger.debug("recv from socket = %s", hex_string)
                 self.store_new_line(hex_string)
-            else:  # For both real and img data
+            else:  # For both real and img data # todo review , i think this broken # todo shahar need to fix implementaion
                 for _ in range(2):
                     buffer = logic_unit.client_socket.recv(4)
                     hex_string = binascii.hexlify(buffer).decode()
@@ -145,13 +149,13 @@ class Data:
         # save the data in a file and send it to user. # todo shahar ask from user the mail address.
         # Compute the FFT   
         fs = self.sample_freq*1000000 # todo converd to Hz units
-        fft_result = np.fft.fft(signal)
-        self.save_and_send_array_in_a_file(signal, fft_result)
-        frequencies = np.fft.fftfreq(len(fft_result), 1/fs)  # Frequency values
+        self.fft_result = np.fft.fft(signal)
+        #self.save_and_send_array_in_a_file(signal, self.fft_result)
+        self.freq_vec_for_fft = np.fft.fftfreq(len(self.fft_result), 1/fs)  # Frequency values
 
         # Plot the FFT result
         plt.figure(figsize=(10, 6))
-        plt.plot(frequencies, np.abs(fft_result))
+        plt.plot(self.freq_vec_for_fft, np.abs(self.fft_result))
         plt.title("FFT ")
         plt.xlabel("Frequency (Hz)")
         plt.ylabel("Amplitude")
@@ -159,41 +163,46 @@ class Data:
         plt.tight_layout()
         plt.show()
 
-    def save_and_send_array_in_a_file(self, signal, fft_result):
-        current_datetime = datetime.now()
-        formatted_date_time = current_datetime.strftime('%d%m%Y_%H_%M_%S')
-        file_path_1 = "signal_" + formatted_date_time + ".txt"
-        file_path_2 = "fft_result_" + formatted_date_time + ".txt"
+    # def save_and_send_array_in_a_file(self, signal, fft_result):
+    #     current_datetime = datetime.now()
+    #     formatted_date_time = current_datetime.strftime('%d%m%Y_%H_%M_%S')
+    #     file_path_1 = "signal_" + formatted_date_time + ".txt"
+    #     file_path_2 = "fft_result_" + formatted_date_time + ".txt"
 
-        try:
-            with open(file_path_1, 'w') as file:
-                np.savetxt(file, signal, delimiter=',')
-            with open(file_path_2, 'w') as file:
-                np.savetxt(file, fft_result, delimiter=',')
+    #     try:
+    #         with open(file_path_1, 'w') as file:
+    #             np.savetxt(file, signal, delimiter=',')
+    #         with open(file_path_2, 'w') as file:
+    #             np.savetxt(file, fft_result, delimiter=',')
 
-            self.send_file_to_mail(file_path_1, file_path_2)
+    #         self.send_file_to_mail(file_path_1, file_path_2)
 
-        except Exception as e:
-            handle_easy_error(f"Error saving or sending files: {e}")
+    #     except Exception as e:
+    #         handle_easy_error(f"Error saving or sending files: {e}")
 
     
-    def send_file_to_mail(self, file_path_1, file_path_2):
-        body_msg = "attached below raw result for further analysis"
-        command1 = ['echo', body_msg] 
-        command2 = ['mutt' , '-s' ,'phase noise meas - raw result' , '-a' , file_path_1, '-a', file_path_2  , '--' , 'shahar.feingold@gmail.com']
+    # def send_file_to_mail(self, file_path_1, file_path_2):
+    #     body_msg = "attached below raw result for further analysis"
+    #     command1 = ['echo', body_msg] 
+    #     command2 = ['mutt' , '-s' ,'phase noise meas - raw result' , '-a' , file_path_1, '-a', file_path_2  , '--' , 'shahar.feingold@gmail.com']
 
 
-        #todo change the address to user address
-        self.logger.debug("%s\n%s", command1, command2)
-        try:
-            process1 = subprocess.run(command1, stdout=subprocess.PIPE, text=True)
-            output1 = process1.stdout
-            # Use the output of the first command as input for the second command
-            process2 = subprocess.run(command2, input=output1, stdout=subprocess.PIPE, text=True)
+    #     #todo change the address to user address
+    #     self.logger.debug("%s\n%s", command1, command2)
+    #     try:
+    #         process1 = subprocess.run(command1, stdout=subprocess.PIPE, text=True)
+    #         output1 = process1.stdout
+    #         # Use the output of the first command as input for the second command
+    #         process2 = subprocess.run(command2, input=output1, stdout=subprocess.PIPE, text=True)
             
-        except subprocess.CalledProcessError as e:
-            # If the command execution fails, capture the error
-            print("Command '{}' returned non-zero exit status {}.".format(e.cmd, e.returncode))
-            print("Error output:\n", e.stderr)
-    
+    #     except subprocess.CalledProcessError as e:
+    #         # If the command execution fails, capture the error
+    #         print("Command '{}' returned non-zero exit status {}.".format(e.cmd, e.returncode))
+    #         print("Error output:\n", e.stderr)
 
+        
+    
+    def CopyHeaderFromOther(self, other_meas_data):
+        self.logger.debug("entered CopyHeaderFromOther")
+        self.data_type = other_meas_data.data_type
+        self.data_size_expected = other_meas_data.data_size_expected
