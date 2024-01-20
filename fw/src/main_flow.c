@@ -133,7 +133,10 @@ int GetNumOfChannels(int argc, char** argv){
     }
     else{
         //should check that the argument is a number
-        return (argv[1]-48); // 48 is ascii code for zero
+        char Num = argv[1][0];
+        int result = (int) Num - 48;
+        printf("NumOfChannels = %d\n", result);
+        return result; // 48 is ascii code for zero
     }
 }
 
