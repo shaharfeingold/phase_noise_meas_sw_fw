@@ -65,7 +65,7 @@ void decode_event_vector(Events* event_struct); //todo implemenet
 
 void init_data_array_struct(DataArray* new_data_array, uint32_t expected_data_len);
 void store_new_data(DataArray* data_array, float RealData, float ImgData);
-void send_data_array_to_client(DataArray* data_array, int type ,int* client_socket_ptr);
+void send_data_array_to_client(DataArray* data_array_ch0, DataArray* data_array_ch1, int type , int NumOfChannels, int* client_socket_ptr);
 void send_data_array_to_client_according_to_type(DataArray* data_array, int type ,int* client_socket_ptr);
 
 void clear_uint32_array(float* array_head, uint32_t len);

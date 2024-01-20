@@ -9,13 +9,16 @@
 module system_ctrl(clk, rstn, clken, start_op, finish_op, event_start_op_when_system_not_ready,
                    event_finihs_op_when_system_not_ready, restart_vld, restart_type, 
                    event_restart_vld_when_system_not_in_finish_mode, start_config, phase_inc, 
-                   event_start_config_when_state_is_not_idle, in_data, in_data_vld, 
-                   event_in_data_when_system_not_ready, out_data, out_data_vld);
+                   event_start_config_when_state_is_not_idle, in_data_ch0, in_data_ch1, in_data_vld_ch0, in_data_vld_ch1, 
+                   event_in_data_when_system_not_ready, out_data_ch0, out_data_ch1, out_data_vld_ch0, out_data_vld_ch1, 
+                   out_addr_ch0, out_addr_ch1, data_count_ch0, data_count_ch1, phase_inc_vld);
 //parameters
 parameter FIFO_SIZE = 1024;
 parameter integer FIFO_SIZE_WIDTH  = $clog2(FIFO_SIZE) + 1;
 
 parameter DATA_WIDTH = 32;
+
+parameter PHASE_INC_WIDTH = 16;
 
 //system state
 parameter IDLE = 0;
@@ -57,18 +60,27 @@ output event_restart_vld_when_system_not_in_finish_mode;
 //ouside_interface:
 //start_confg | phase_inc
 input start_config;
-input [DATA_WIDTH-1 : 0] phase_inc; 
+input [PHASE_INC_WIDTH-1 : 0] phase_inc; 
+output phase_inc_vld;
 output event_start_config_when_state_is_not_idle;
 
 // ---------------
 // -- ctrl flow --
 // ---------------
-input [DATA_WIDTH-1 : 0] in_data;
-input in_data_vld;
+input [DATA_WIDTH-1 : 0] in_data_ch0; 
+input in_data_vld_ch0;
+input [DATA_WIDTH-1 : 0] in_data_ch1;
+input in_data_vld_ch1;
 output event_in_data_when_system_not_ready;
 
-output [DATA_WIDTH-1 : 0] out_data;
-output out_data_vld;
+output [DATA_WIDTH-1 : 0] out_data_ch0;
+output out_data_vld_ch0;
+output [DATA_WIDTH-1 : 0] out_data_ch1;
+output out_data_vld_ch1;
+output [FIFO_SIZE_WIDTH -2 : 0] out_addr_ch0;
+output [FIFO_SIZE_WIDTH -2 : 0] out_addr_ch1;
+output [FIFO_SIZE_WIDTH - 1:0] data_count_ch0;
+output [FIFO_SIZE_WIDTH - 1:0] data_count_ch1;
 
 //implement
 
@@ -76,24 +88,43 @@ output out_data_vld;
 reg [NUM_OF_STATES_WIDTH-1 : 0] state;
 reg [NUM_OF_STATES_WIDTH-1 : 0] state_ns;
 reg [1:0] delay_counter;
-wire config_done = (delay_counter == 2'b10);
+wire config_done = (delay_counter == 2'b11);
 
 //misc
-reg [FIFO_SIZE_WIDTH-1 : 0] fifo_size;
-wire fifo_not_full = fifo_size < FIFO_SIZE;
-wire fifo_full = fifo_size == FIFO_SIZE;
-wire fifo_overflow = fifo_size > FIFO_SIZE;
+reg [FIFO_SIZE_WIDTH-1 : 0] fifo_size_ch0;
+reg [FIFO_SIZE_WIDTH-1 : 0] fifo_size_ch1;
+reg [FIFO_SIZE_WIDTH -2 :0] out_addr_p_ch0;
+reg [FIFO_SIZE_WIDTH -2 :0] out_addr_p_ch1;
+wire fifo_not_full_ch0 = fifo_size_ch0 < FIFO_SIZE;
+wire fifo_not_full_ch1 = fifo_size_ch1 < FIFO_SIZE;
+wire fifo_full_ch0 = fifo_size_ch0 == FIFO_SIZE;
+wire fifo_full_ch1 = fifo_size_ch1 == FIFO_SIZE;
+wire fifo_overflow_ch0 = fifo_size_ch0 > FIFO_SIZE;
+wire fifo_overflow_ch1 = fifo_size_ch1 > FIFO_SIZE;
 
 always @(posedge clk) begin
     if (~rstn) begin
         state <= {NUM_OF_STATES_WIDTH{1'b0}};
         delay_counter <= 2'b00;
-        fifo_size <= {FIFO_SIZE_WIDTH{1'b0}};
+        fifo_size_ch0 <= {FIFO_SIZE_WIDTH{1'b0}};
+        fifo_size_ch1 <= {FIFO_SIZE_WIDTH{1'b0}};
+        out_addr_p_ch0 <= {FIFO_SIZE_WIDTH-1{1'b0}};
+        out_addr_p_ch1 <= {FIFO_SIZE_WIDTH-1{1'b0}};
     end
     else begin
         state <= state_ns;
         delay_counter <= (state == CONFIG) ? delay_counter + 2'b01 : 2'b00; 
-        fifo_size <= in_data_vld & fifo_not_full ? fifo_size + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} : fifo_size;
+        fifo_size_ch0 <= in_data_vld_ch0 & fifo_not_full_ch0 ? fifo_size_ch0 + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} :  
+                     (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH{1'b0}} : fifo_size_ch0;
+
+        fifo_size_ch1 <= in_data_vld_ch1 & fifo_not_full_ch1 ? fifo_size_ch1 + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} :  
+                     (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH{1'b0}} : fifo_size_ch0;
+
+        out_addr_p_ch0 <= in_data_vld_ch0 & fifo_not_full_ch0 ? out_addr_p_ch0 + {{FIFO_SIZE_WIDTH-2{1'b0}},1'b1} :  
+                     (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH-1{1'b0}} : out_addr_p_ch0;
+
+        out_addr_p_ch1 <= in_data_vld_ch1 & fifo_not_full_ch1 ? out_addr_p_ch1 + {{FIFO_SIZE_WIDTH-2{1'b0}},1'b1} :  
+                     (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH-1{1'b0}} : out_addr_p_ch1;
     end
 end
 
@@ -102,7 +133,7 @@ always @(*) begin
         IDLE: state_ns =  start_config ? CONFIG : IDLE;
         CONFIG: state_ns = config_done ? WAIT_FOR_START : CONFIG;
         WAIT_FOR_START: state_ns = start_op ? EXE : WAIT_FOR_START ;
-        EXE: state_ns = fifo_full ? FINISH : EXE; 
+        EXE: state_ns = fifo_full_ch0 & fifo_full_ch1 ? FINISH : EXE; 
         //todo shahar review syntax below
         FINISH: state_ns = restart_vld ? 
                         (restart_type == REDO) ? WAIT_FOR_START : 
@@ -124,8 +155,15 @@ end
 //     end
 // end
 
-assign out_data = in_data;
-assign out_data_vld = in_data_vld & fifo_not_full;
+assign out_data_ch0 = in_data_ch0;
+assign out_data_ch1 = in_data_ch1;
+assign out_data_vld_ch0 = in_data_vld_ch0 & fifo_not_full_ch0;
+assign out_data_vld_ch1 = in_data_vld_ch1 & fifo_not_full_ch1;
 assign finish_op = (state == FINISH);
 assign clken = (state == EXE);
+assign out_addr_ch0 = out_addr_p_ch0;
+assign out_addr_ch1 = out_addr_p_ch1;
+assign data_count_ch0 = fifo_size_ch0;
+assign data_count_ch1 = fifo_size_ch1;
+assign phase_inc_vld = (state == CONFIG);
 endmodule
