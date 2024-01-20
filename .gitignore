@@ -219,7 +219,7 @@ Mkfile.old
 dkms.conf
 
 # user defined
-workdir/
+workdir*/
 .vscode
 .idea/
 *.txt
