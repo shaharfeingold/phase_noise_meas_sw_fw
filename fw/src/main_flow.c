@@ -263,7 +263,7 @@ int main(int argc, char** argv){
     	exit(1);
    	}
     verb_print(MED, "DEBUG | Received message from client: %s\n", buffer); //todo shahar need to remove this echo msg.
-
+	printf("len = %d\n", strlen(buffer));
     //todo shahar stopped here develop //add send restrat vld+type to logic
     uint32_t end_type_byte = get_end_header(&logic_config, &client_socket); 
 
