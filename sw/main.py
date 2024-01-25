@@ -126,7 +126,7 @@ def data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod
     # todo shahar implement + add print to screen
     meas_data_ch0.compute_ftt()
     if (NumOfChannels == 2):
-        meas_data_ch1.compute_fft()
+        meas_data_ch1.compute_ftt()
 
     # send raw data to user according to channel
     if (NumOfChannels == 1):
@@ -134,7 +134,7 @@ def data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod
     else:
         utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail)
 
-    corelate_mod.GetSignal(meas_data_ch0, meas_data_ch1, NumOfChannels)
+    corelate_mod.GetSignals(meas_data_ch0, meas_data_ch1, NumOfChannels)
     corelate_mod.CalcCorelate()
     # wait to close window
 

@@ -32,6 +32,7 @@ class Data:
         self.sample_freq = defines.CLOCK_FREQ # sampling frequncy in units of MHz # todo shahar review this defualt value # todo shahar prio1 need to pass this parameters using the config pkt or using a define
         self.req_sent = False
         self.data_rcvr = False
+
         self.signal = '' # signal - only real (after convert to float)
         self.fft_result = '' # fft result of signal
         self.freq_vec_for_fft = '' # freq. vec for fft plot
@@ -143,13 +144,13 @@ class Data:
             return
             # todo shahar continue implement how to handle this.
         
-        signal = np.array(utilis.convertList32HexToFloat(self.real_data))
+        self.signal = np.array(utilis.convertList32HexToFloat(self.real_data))
         # print(self.real_data)
         # print(signal)
         # save the data in a file and send it to user. # todo shahar ask from user the mail address.
         # Compute the FFT   
         fs = self.sample_freq*1000000 # todo converd to Hz units
-        self.fft_result = np.fft.fft(signal)
+        self.fft_result = np.fft.fft(self.signal)
         #self.save_and_send_array_in_a_file(signal, self.fft_result)
         self.freq_vec_for_fft = np.fft.fftfreq(len(self.fft_result), 1/fs)  # Frequency values
 

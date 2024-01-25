@@ -49,9 +49,20 @@ class Corelate:
     def CalcCorelate(self):
         if self.NumOfChannels == 2:
             self.corelate_result = np.correlate(self.signal_ch0, self.signal_ch1, mode='full')
-
+            mixing = self.signal_ch0 * np.conjugate(self.signal_ch1)
+            corelate_result_log = np.log10(self.corelate_result)
+            #mixing_log = np.log10(mixing)
             plt.figure(figsize=(10, 6))
-            plt.plot(np.abs(self.corelate_result))
+            size = int(len(self.corelate_result))
+            #todo cleanup
+            fs = fs = 125*1000000
+            freq_vec = np.fft.fftfreq(len(self.signal_ch0), 1/fs)
+            #plt.plot(np.abs(self.corelate_result))
+            #plt.plot(corelate_result_log.real[0:int(size/2)])
+            mixingPerHz = np.gradient(mixing, freq_vec)
+            mixing_log = np.log10(mixingPerHz)
+            plt.plot(mixing_log.real)
+            plt.xscale('log')
             plt.title("Cross-Corelation over fft ")
             #plt.xlabel("Frequency (Hz)")
             plt.ylabel("Amplitude")

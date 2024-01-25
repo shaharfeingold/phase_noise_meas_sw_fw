@@ -45,13 +45,13 @@ def save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail):
 
     try:
         with open(file_path_1_ch0, 'w') as file:
-            np.savetxt(file, meas_data_ch0.signal, delimiter=',')
+            np.savetxt(file_path_1_ch0, meas_data_ch0.signal, delimiter=',')
         with open(file_path_1_ch1, 'w') as file:
-            np.savetxt(file, meas_data_ch1.signal, delimiter=',')
+            np.savetxt(file_path_1_ch1, meas_data_ch1.signal, delimiter=',')
         with open(file_path_2_ch0, 'w') as file:
-            np.savetxt(file, meas_data_ch0.fft_result, delimiter=',')
+            np.savetxt(file_path_2_ch0, meas_data_ch0.fft_result, delimiter=',')
         with open(file_path_2_ch1, 'w') as file:
-            np.savetxt(file, meas_data_ch1.fft_result, delimiter=',')
+            np.savetxt(file_path_2_ch1, meas_data_ch1.fft_result, delimiter=',')
 
         send_file_to_mail(file_path_1_ch0, file_path_1_ch1, file_path_2_ch0, file_path_2_ch1, mail)
 
