@@ -26,30 +26,33 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Phase Measurement Application")
     parser.add_argument("-m", "--mail", help="Email address to send reports to", type=str, required=True, dest='mail')
     # parser.add_argument("--help", help="Display help message", action="store_true")
-    parser.add_argument("--debug_mode", help="Run in debug mode", action="store_true")
+    parser.add_argument("--debug_mode", help="Run in debug mode", action="store_true") # todo need to support this
     parser.add_argument("--config_from_command_line", help="Set configuration from command line", dest='batchmode', action="store_true")
     parser.add_argument("-i", "--ip_addr", help="in case of config from command line specify the red pitaya ip address", dest='ip', type=str)
     parser.add_argument("-p", "--port", help="in case of config from comaand line specify the red pitaya port", dest='port', type=int)
-    parser.add_argument("--data_only", help="Run in data-only mode", action="store_true") #just send mail and not showing graph.
+    parser.add_argument("-f","--freq", help="oscillator working freq", dest='freq', type=str)
+    parser.add_argument("--data_only", help="Run in data-only mode", action="store_true") #just send mail and not showing graph. # todo need to support this
     parser.add_argument("-v", "--verbos", help="verbose print", choices=["info,debug,error,fatal"], type=str) # todo shahar need to support this
     parser.add_argument("-n", "--num_of_channels", help="specify the number of channels", dest='channels', choices=[1,2], type=int, default=2)
+    parser.add_argument("-r", "--repetition", help="number of repetition of calculation", dest='repeat', choices=range(1,10), type=int, default=1)
+    
     return parser.parse_args()
 
 
-def setup_connection(logic_unit):
+def setup_connection(ui_mod, logic_unit):
     max_attempts = 3
     for attempt in range(max_attempts):
         try:
             #ip_addr = input("Enter IP address of Red Pitaya: ")
             while True:
-                ip_addr = user_interface.get_ip_addr()
+                ip_addr = ui_mod.get_ip_addr()
                 if validate_ip(ip_addr):
                     break
                 print("Invalid IP format. Please try again.")
 
             # port = input("Enter Port Number of Red Pitaya: ")
             while True:
-                port = user_interface.get_port()
+                port = ui_mod.get_port()
                 if validate_port(port):
                     break
                 print("Invalid port number. Please enter a positive integer.")
@@ -65,11 +68,11 @@ def setup_connection(logic_unit):
                 handle_medium_error(f"Connection error: {e}")
                 return False  # Return False if all attempts fail
 
-def setup_logic_config(logic_unit, logic_cfg):
-    user_interface.print_config_setup_msg()
+def setup_logic_config(ui_mod, logic_unit, logic_cfg):
+    ui_mod.print_config_setup_msg()
     #freq = user_interface.get_freq_from_user()
     while True:
-        freq = user_interface.get_freq_from_user()
+        freq = ui_mod.get_freq_from_user()
         if validate_freq(freq):
             break
         print("Invalid frequency. Please enter a positive float in range 0 < f < ", defines.MAX_FREQUENCY)
@@ -80,18 +83,18 @@ def setup_logic_config(logic_unit, logic_cfg):
     # wait and get ack
     logic_cfg.ack_rcvr(logic_unit)
 
-def wait_4_start_op(logic_cfg, logic_unit):
-    user_interface.print_wait_for_start_op()
-    start_indication = user_interface.get_from_user_start_op_indication()
+def wait_4_start_op(ui_mod, logic_cfg, logic_unit):
+    ui_mod.print_wait_for_start_op()
+    start_indication = ui_mod.get_from_user_start_op_indication()
     logic_cfg.send_to_logic_start_header(logic_unit, start_indication)
     
     # wait and get ack
     logic_cfg.start_ack_rcvr(logic_unit)
 
     # wait for recv from server operation finished
-    user_interface.print_wait_to_finish_op()
+    ui_mod.print_wait_to_finish_op()
 
-def wait_4_data_and_unload(meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, NumOfChannels):
+def wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, NumOfChannels):
     # wait until header of data recv which indicat of finish operation.
     # todo shahar need to make sure that we are blocked up until the header recv. maybe add some sleep
     meas_data_ch0.decode_header(logic_unit)
@@ -100,7 +103,7 @@ def wait_4_data_and_unload(meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, 
         meas_data_ch1.CopyHeaderFromOther(meas_data_ch0) # todo implelent
 
     # signal user the now unload data
-    user_interface.print_data_unload()
+    ui_mod.print_data_unload()
 
     # unload data
     
@@ -135,13 +138,13 @@ def data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod
         utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail)
 
     corelate_mod.GetSignals(meas_data_ch0, meas_data_ch1, NumOfChannels)
-    corelate_mod.CalcCorelate()
+    corelate_mod.CalcPsd()
     # wait to close window
 
-def end_op(logic_cfg, logic_unit):
-    user_interface.print_end_of_op_how_to_proceed()
+def end_op(ui_mod, logic_cfg, logic_unit):
+    ui_mod.print_end_of_op_how_to_proceed()
     # wait for user to choose: redo ? new config ? exit:
-    end_of_op_user_choice = user_interface.print_end_of_op_options()
+    end_of_op_user_choice = ui_mod.print_end_of_op_options()
 
     # send to logic end of operation packet according to usr choice.
     logic_cfg.send_to_logic_end_header(logic_unit, end_of_op_user_choice)
@@ -191,8 +194,10 @@ def Main(args):
     InitStage = True
     ConfigStage = True
     NeedToExit = False
+    ui_mod = user_interface.UI(args.batchmode, args.ip, args.port, args.freq)
 
     NumOfChannels = args.channels
+    CountRepetition = 0
 
     while (True):
         if (InitStage):
@@ -205,27 +210,27 @@ def Main(args):
             InitStage = False
 
             # set up user interface
-            user_interface.print_hello_msg()
+            ui_mod.print_hello_msg()
 
-            if not setup_connection(logic_unit):
+            if not setup_connection(ui_mod, logic_unit):
                 return
             
         if (ConfigStage):
             # start config red pitya
-            setup_logic_config(logic_unit, logic_cfg)
+            setup_logic_config(ui_mod, logic_unit, logic_cfg)
             ConfigStage = False
 
         # wait for user to start operation
-        wait_4_start_op(logic_cfg, logic_unit)
+        wait_4_start_op(ui_mod, logic_cfg, logic_unit)
 
         # wait_for_data_and_unload
-        wait_4_data_and_unload(meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, NumOfChannels)
+        wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, NumOfChannels)
 
         # data anylsis:
         data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, args.mail, corelate_mod)
 
         # prompt user how to continue
-        ConfigStage, NeedToExit = end_op(logic_cfg, logic_unit)
+        ConfigStage, NeedToExit = end_op(ui_mod, logic_cfg, logic_unit)
 
         if (NeedToExit):
             break
@@ -244,8 +249,8 @@ def validate_args(args):
 
     #validate config from commad line
     if (args.batchmode == True):
-        if (args.port == None or args.ip == None):
-            print("If config_from_command_line is set to true need to specify ip address and port of the red pitaya")
+        if (args.port == None or args.ip == None or args.freq == None):
+            print("If config_from_command_line is set to true need to specify working freq, ip address and port of the red pitaya")
             result = False 
 
     if (result == False):
