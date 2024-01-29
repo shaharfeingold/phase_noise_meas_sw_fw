@@ -12,6 +12,7 @@ import socket
 from datetime import datetime
 import subprocess
 import data_mgm
+from scipy.signal import correlate, welch
 
 
 """ 
@@ -24,13 +25,19 @@ description: store data, get data, send request, manage data
 
 
 class Corelate:
-    def __init__(self):
+    def __init__(self, RepeatCount):
+        # todo sfeingold cleanup of unused vars
         self.signal_ch0 = ''
         self.fft_signal_ch0 = ''
         self.signal_ch1 = ''
         self.fft_signal_ch1 = ''
         self.NumOfChannels = 0
         self.corelate_result = ''
+        self.RepetitionCounter = 0
+        self.RepeatCount = RepeatCount
+        self.fft_size = defines.MAX_ARRAY_SIZE #todo review in case we want to know pad with zeros with fft
+        self.psd_est = np.zeros(self.fft_size)
+        self.psd_est_1 = np.zeros(513)
 
         # create a logger under Data class
         self.logger = logging.getLogger(__name__)
@@ -50,6 +57,7 @@ class Corelate:
         self.fft_signal_ch1 = meas_data_ch1.fft_result
 
         self.NumOfChannels = NumOfChannels
+        self.RepetitionCounter += 1
     
     def CalcPsd(self):
             #todo cleanup
@@ -63,22 +71,40 @@ class Corelate:
             diff_signal = self.signal_ch0 - self.signal_ch1
             diff_signal_unwrap = np.unwrap(diff_signal)
             fft_diff_signal = np.fft.fft(diff_signal_unwrap)
-            fft_size = len(diff_signal_unwrap)
-            psd_est = (1/fft_size) * (fft_diff_signal * np.conjugate(fft_diff_signal))
+            # fft_size = len(diff_signal_unwrap)
+            #using paradigm methods directly
+            self.psd_est = self.psd_est + (1/self.fft_size) * (fft_diff_signal * np.conjugate(fft_diff_signal))
+            # using welch methods from scipy
+            freq, temp = welch(diff_signal_unwrap, fs=fs, nperseg=self.fft_size)
+            self.psd_est_1 = self.psd_est_1 + temp
             #plt.plot(np.abs(self.corelate_result))
             #plt.plot(corelate_result_log.real[0:int(size/2)])
             #mixingPerHz = np.gradient(mixing, freq_vec)
             #mixing_log = np.log10(mixingPerHz)
             #freq_vec = np.fft.fftfreq(len(self.signal_ch0), 1/fs)
-            freq_vec = np.arange(0,fft_size, 1) * (fs/fft_size)
-            psd_est_db = 10 * np.log10(psd_est)
+            
+            if (self.RepetitionCounter == self.RepeatCount):
+                self.psd_est = self.psd_est / self.RepeatCount
+                freq_vec = np.arange(0,self.fft_size, 1) * (fs/self.fft_size)
+                psd_est_db = 10 * np.log10(self.psd_est)
+            
+                plt.figure(figsize=(10, 6))
+                plt.plot(freq_vec[0:self.fft_size//2], psd_est_db.real[0:self.fft_size//2])
+                plt.xscale('log')
+                plt.title("PSD")
+                plt.xlabel("Frequency (Hz)")
+                plt.ylabel("db/Hz")
 
-            plt.figure(figsize=(10, 6))
-            plt.plot(freq_vec[0:fft_size//2], psd_est_db.real[0:fft_size//2])
-            plt.xscale('log')
-            plt.title("Cross-Corelation over fft ")
-            #plt.xlabel("Frequency (Hz)")
-            plt.ylabel("Amplitude")
+                plt.tight_layout()
 
-            plt.tight_layout()
-            plt.show()
+                # figure for the welch algo
+                plt.figure(figsize=(10, 6))
+                plt.plot(freq, 10*np.log10(self.psd_est_1/self.RepeatCount))
+                plt.xscale('log')
+                plt.title("PSD")
+                plt.xlabel("Frequency (Hz)")
+                plt.ylabel("db/Hz")
+
+                plt.show()
+
+                

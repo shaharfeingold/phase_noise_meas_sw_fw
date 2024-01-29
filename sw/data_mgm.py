@@ -155,14 +155,15 @@ class Data:
         self.freq_vec_for_fft = np.fft.fftfreq(len(self.fft_result), 1/fs)  # Frequency values
 
         # Plot the FFT result
-        plt.figure(figsize=(10, 6))
-        plt.plot(self.freq_vec_for_fft, np.abs(self.fft_result))
-        plt.title("FFT ")
-        plt.xlabel("Frequency (Hz)")
-        plt.ylabel("Amplitude")
+        # todo shahar for now i comment this becuase this havily affecting multi samples
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(self.freq_vec_for_fft, np.abs(self.fft_result))
+        # plt.title("FFT ")
+        # plt.xlabel("Frequency (Hz)")
+        # plt.ylabel("Amplitude")
 
-        plt.tight_layout()
-        plt.show()
+        # plt.tight_layout()
+        # plt.show()
 
     # def save_and_send_array_in_a_file(self, signal, fft_result):
     #     current_datetime = datetime.now()

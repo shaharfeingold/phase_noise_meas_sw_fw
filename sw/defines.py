@@ -29,6 +29,8 @@ DEBUG = True # todo shahar review this to init main flow and not debug mode
 
 PHASE_INC_WIDTH = 16
 
-MAX_FREQUENCY = 1.1 # maximum frequency value from the user the system is supported. # todo prio1 shahar review before finihs the project
+MAX_FREQUENCY = 20 # maximum frequency value from the user the system is supported. # todo prio1 shahar review before finihs the project
 
 CLOCK_FREQ = 125 # in MHz
+
+MAX_ARRAY_SIZE = 1024

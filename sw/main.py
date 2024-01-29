@@ -14,6 +14,7 @@ from error_handling import handle_fatal_error, handle_medium_error, handle_easy_
 import socket
 import utilis_func
 import corelate_module as corelate
+import time
 
 """
 file        : maim.py
@@ -83,9 +84,13 @@ def setup_logic_config(ui_mod, logic_unit, logic_cfg):
     # wait and get ack
     logic_cfg.ack_rcvr(logic_unit)
 
-def wait_4_start_op(ui_mod, logic_cfg, logic_unit):
+def wait_4_start_op(ui_mod, logic_cfg, logic_unit, RepetitionCounter, TotalrepeatCount):
     ui_mod.print_wait_for_start_op()
-    start_indication = ui_mod.get_from_user_start_op_indication()
+    if (TotalrepeatCount == 1 or (TotalrepeatCount > 1 and RepetitionCounter == 0)):
+        start_indication = ui_mod.get_from_user_start_op_indication()
+    else:
+        time.sleep(1) # to pause between hiting the start (mimic human behavior)
+        start_indication = "1"
     logic_cfg.send_to_logic_start_header(logic_unit, start_indication)
     
     # wait and get ack
@@ -125,7 +130,7 @@ def wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, log
     logic_unit.send_data(msg_to_send)
     logic_cfg.got_finish = True # todo wrap around function of rcvr data
 
-def data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod):
+def data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod, path_list):
     # todo shahar implement + add print to screen
     meas_data_ch0.compute_ftt()
     if (NumOfChannels == 2):
@@ -133,19 +138,22 @@ def data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod
 
     # send raw data to user according to channel
     if (NumOfChannels == 1):
-        utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch0, mail) # bug in case of one channels we are sending both channels
+        utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch0, mail, path_list) # bug in case of one channels we are sending both channels
     else:
-        utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail)
+        utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail, path_list)
 
     corelate_mod.GetSignals(meas_data_ch0, meas_data_ch1, NumOfChannels)
     corelate_mod.CalcPsd()
     # wait to close window
+    return path_list
 
-def end_op(ui_mod, logic_cfg, logic_unit):
+def end_op(ui_mod, logic_cfg, logic_unit, RepetitionCounter, TotalRepeatCount):
     ui_mod.print_end_of_op_how_to_proceed()
     # wait for user to choose: redo ? new config ? exit:
-    end_of_op_user_choice = ui_mod.print_end_of_op_options()
-
+    if ((TotalRepeatCount == 1) or (TotalRepeatCount > 1 and RepetitionCounter == TotalRepeatCount)):
+        end_of_op_user_choice = ui_mod.print_end_of_op_options()
+    else: 
+        end_of_op_user_choice = "2"
     # send to logic end of operation packet according to usr choice.
     logic_cfg.send_to_logic_end_header(logic_unit, end_of_op_user_choice)
 
@@ -195,9 +203,10 @@ def Main(args):
     ConfigStage = True
     NeedToExit = False
     ui_mod = user_interface.UI(args.batchmode, args.ip, args.port, args.freq)
+    path_list = []
 
     NumOfChannels = args.channels
-    CountRepetition = 0
+    RepetitionCounter = 0
 
     while (True):
         if (InitStage):
@@ -206,7 +215,7 @@ def Main(args):
             logic_cfg = logic_config.LogicConfig()
             meas_data_ch0 = data_mgm.Data()
             meas_data_ch1 = data_mgm.Data()
-            corelate_mod = corelate.Corelate()
+            corelate_mod = corelate.Corelate(args.repeat)
             InitStage = False
 
             # set up user interface
@@ -221,20 +230,21 @@ def Main(args):
             ConfigStage = False
 
         # wait for user to start operation
-        wait_4_start_op(ui_mod, logic_cfg, logic_unit)
+        wait_4_start_op(ui_mod, logic_cfg, logic_unit, RepetitionCounter, args.repeat)
 
         # wait_for_data_and_unload
         wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, NumOfChannels)
 
         # data anylsis:
-        data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, args.mail, corelate_mod)
-
+        path_list = data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, args.mail, corelate_mod, path_list)
+        RepetitionCounter += 1
         # prompt user how to continue
-        ConfigStage, NeedToExit = end_op(ui_mod, logic_cfg, logic_unit)
+        ConfigStage, NeedToExit = end_op(ui_mod, logic_cfg, logic_unit, RepetitionCounter, args.repeat)
 
         if (NeedToExit):
             break
     
+    utilis_func.send_file_to_mail(path_list, args.mail)
     return 0
 
 def validate_args(args):
