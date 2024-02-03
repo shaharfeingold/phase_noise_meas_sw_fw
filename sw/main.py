@@ -35,7 +35,7 @@ def parse_arguments():
     parser.add_argument("--data_only", help="Run in data-only mode", action="store_true") #just send mail and not showing graph. # todo need to support this
     parser.add_argument("-v", "--verbos", help="verbose print", choices=["info,debug,error,fatal"], type=str) # todo shahar need to support this
     parser.add_argument("-n", "--num_of_channels", help="specify the number of channels", dest='channels', choices=[1,2], type=int, default=2)
-    parser.add_argument("-r", "--repetition", help="number of repetition of calculation", dest='repeat', choices=range(1,10), type=int, default=1)
+    parser.add_argument("-r", "--repetition", help="number of repetition of calculation", dest='repeat', choices=range(1,51), type=int, default=1)
     
     return parser.parse_args()
 
