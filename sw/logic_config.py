@@ -130,11 +130,11 @@ class LogicConfig:
         """
         """
         rcev_pkt_type = int(ack_msg[0:2], 16)
-        print(rcev_pkt_type)
+        #print(rcev_pkt_type)
         rcev_end_byte = int(ack_msg[2:10], 16)
-        print(rcev_end_byte)
+        #print(rcev_end_byte)
         rcev_control_byte = int(ack_msg[10:12], 16)
-        print(rcev_control_byte)
+        #print(rcev_control_byte)
         if (rcev_pkt_type != defines.CONFIG):
             return False
         if (rcev_end_byte < 253):
@@ -147,11 +147,11 @@ class LogicConfig:
         """
         """
         rcev_pkt_type = int(ack_msg[0:2], 16)
-        print(rcev_pkt_type)
+        #print(rcev_pkt_type)
         rcev_start_bit = int(ack_msg[2:10], 16)
-        print(rcev_start_bit)
+        #print(rcev_start_bit)
         rcev_control_byte = int(ack_msg[10:12], 16)
-        print(rcev_control_byte)
+        #print(rcev_control_byte)
         if (rcev_pkt_type != defines.START):
             return False
         if (rcev_start_bit != 1):
@@ -162,11 +162,11 @@ class LogicConfig:
     
     def check_ack_msg(self, ack_msg): # todo shahar need to change the name to check_config_ack_msg
         rcev_pkt_type = int(ack_msg[0:2], 16)
-        print(rcev_pkt_type)
+        #print(rcev_pkt_type)
         rcev_phase_inc = int(ack_msg[2:10], 16)
-        print(rcev_phase_inc)
+        #print(rcev_phase_inc)
         rcev_control_byte = int(ack_msg[10:12], 16)
-        print(rcev_control_byte)
+        #print(rcev_control_byte)
         if (rcev_pkt_type != defines.CONFIG):
             return False
         if (rcev_phase_inc != self.phase_inc):
@@ -182,7 +182,7 @@ class LogicConfig:
             a = (2**defines.PHASE_INC_WIDTH) * self.freq * 1000000
             b = self.logic_clk * 1000000
             self.phase_inc = int(a/b)  # todo shaharf dummy implemntaion
-            print("calculated phase inc = ", self.phase_inc)
+            #print("calculated phase inc = ", self.phase_inc)
         except Exception as e:
             handle_medium_error(f"Error converting frequency to phase increment: {e}")
             new_freq = input("Please re-enter frequency: ")

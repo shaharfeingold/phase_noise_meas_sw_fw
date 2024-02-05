@@ -100,6 +100,12 @@ def wait_4_start_op(ui_mod, logic_cfg, logic_unit, RepetitionCounter, Totalrepea
     ui_mod.print_wait_to_finish_op()
 
 def wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, NumOfChannels):
+    meas_data_ch0.data_size = 0
+    meas_data_ch1.data_size = 0
+    meas_data_ch0.real_data.clear()
+    meas_data_ch0.img_data.clear()
+    meas_data_ch1.real_data.clear()
+    meas_data_ch1.img_data.clear()
     # wait until header of data recv which indicat of finish operation.
     # todo shahar need to make sure that we are blocked up until the header recv. maybe add some sleep
     meas_data_ch0.decode_header(logic_unit)
@@ -123,10 +129,10 @@ def wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, log
     msg_to_send = "got all msg and sending this ack" # if we want to send this need to make sure that its 1024 B wide.
     msg_to_send = msg_to_send.ljust(1023, '!')
     msg_to_send = msg_to_send.encode() + b'\x00'
-    print("msg_to_send len", len(msg_to_send))
-    print(msg_to_send)
+    #print("msg_to_send len", len(msg_to_send))
+    #print(msg_to_send)
     str_to_debug = "recived from logic #" + str(meas_data_ch0.data_size) + " is all expected data (" + str(meas_data_ch0.data_size_expected) + ") rcvr ? " + str(meas_data_ch0.check_all_data_recv())
-    print(str_to_debug)
+    #print(str_to_debug)
     logic_unit.send_data(msg_to_send)
     logic_cfg.got_finish = True # todo wrap around function of rcvr data
 
@@ -160,14 +166,14 @@ def end_op(ui_mod, logic_cfg, logic_unit, RepetitionCounter, TotalRepeatCount):
     # wait and get ack
     logic_cfg.end_ack_rcvr(logic_unit)
 
-    if (end_of_op_user_choice == '1'):
-        logic_unit.close_connection()
+    if (end_of_op_user_choice == '1'): # exit
+        logic_unit.close_connection() 
         return False, True
     
-    elif (end_of_op_user_choice == '2'):
+    elif (end_of_op_user_choice == '2'): # redo
         return False, False
     
-    elif (end_of_op_user_choice == '3'):
+    elif (end_of_op_user_choice == '3'): # restart
         return True, False
 
     else:

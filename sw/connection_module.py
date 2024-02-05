@@ -59,7 +59,7 @@ class LogicConnection:
     def send_data(self, data):
         try:
             self.client_socket.sendall(data)
-            print("sending data :", data)
+            #print("sending data :", data)
         except Exception as e:
             handle_medium_error(f"Error occurred while sending data: {e}")
             self.close_connection()  # Close the socket if an error occurs

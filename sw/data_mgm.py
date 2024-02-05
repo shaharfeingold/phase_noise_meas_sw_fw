@@ -95,7 +95,7 @@ class Data:
                 self.logger.debug("recv from socket = %s", hex_string)
                 self.store_new_line(hex_string)
             else:  # For both real and img data # todo review , i think this broken # todo shahar need to fix implementaion
-                for _ in range(2):
+                for i in range(2):
                     buffer = logic_unit.client_socket.recv(4)
                     hex_string = binascii.hexlify(buffer).decode()
                     self.logger.debug("recv from socket = %s", hex_string)

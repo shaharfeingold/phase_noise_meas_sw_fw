@@ -25,7 +25,7 @@ def convert32HexToFloat(num):
 
     # Unpack bytes as a float
     result = struct.unpack('!f', bytes_data)[0]
-    print("value before " + num + " value after " + str(result))
+    #print("value before " + num + " value after " + str(result))
     return result
 
 def convertList32HexToFloat(num_list):
