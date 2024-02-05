@@ -1,4 +1,5 @@
 
+`define DOWN_SAMPLER
 
 // file:        system_ctrl.v
 // owner:       shaharf
@@ -102,6 +103,38 @@ wire fifo_full_ch1 = fifo_size_ch1 == FIFO_SIZE;
 wire fifo_overflow_ch0 = fifo_size_ch0 > FIFO_SIZE;
 wire fifo_overflow_ch1 = fifo_size_ch1 > FIFO_SIZE;
 
+input [DATA_WIDTH-1 : 0] in_data_ch0_d; 
+input in_data_vld_ch0_d;
+input [DATA_WIDTH-1 : 0] in_data_ch1_d; 
+input in_data_vld_ch1_d;
+
+// shift reg section
+`ifdef DOWN_SAMPLER
+    shift_reg shift_reg_ch0(
+        .clk(clk),
+        .rstn(rstn),
+        .data_in(in_data_ch0),
+        .data_in_vld(in_data_vld_ch0),
+        .data_out(in_data_ch0_d),
+        .data_out_vld(in_data_vld_ch0_d)
+        );
+
+        shift_reg shift_reg_ch1(
+            .clk(clk),
+            .rstn(rstn),
+            .data_in(in_data_ch1),
+            .data_in_vld(in_data_vld_ch1),
+            .data_out(in_data_ch1_d),
+            .data_out_vld(in_data_vld_ch1_d)
+        );
+`else
+    assign in_data_ch0_d = in_data_ch0;
+    assign in_data_vld_ch0_d = in_data_vld_ch0;
+    assign in_data_ch1_d = in_data_ch1;
+    assign in_data_vld_ch1_d = in_data_vld_ch1;
+`endif 
+//
+
 always @(posedge clk) begin
     if (~rstn) begin
         state <= {NUM_OF_STATES_WIDTH{1'b0}};
@@ -114,16 +147,16 @@ always @(posedge clk) begin
     else begin
         state <= state_ns;
         delay_counter <= (state == CONFIG) ? delay_counter + 2'b01 : 2'b00; 
-        fifo_size_ch0 <= in_data_vld_ch0 & fifo_not_full_ch0 ? fifo_size_ch0 + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} :  
+        fifo_size_ch0 <= in_data_vld_ch0_d & fifo_not_full_ch0 ? fifo_size_ch0 + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} :  
                      (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH{1'b0}} : fifo_size_ch0;
 
-        fifo_size_ch1 <= in_data_vld_ch1 & fifo_not_full_ch1 ? fifo_size_ch1 + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} :  
+        fifo_size_ch1 <= in_data_vld_ch1_d & fifo_not_full_ch1 ? fifo_size_ch1 + {{FIFO_SIZE_WIDTH-1{1'b0}},1'b1} :  
                      (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH{1'b0}} : fifo_size_ch0;
 
-        out_addr_p_ch0 <= in_data_vld_ch0 & fifo_not_full_ch0 ? out_addr_p_ch0 + {{FIFO_SIZE_WIDTH-2{1'b0}},1'b1} :  
+        out_addr_p_ch0 <= in_data_vld_ch0_d & fifo_not_full_ch0 ? out_addr_p_ch0 + {{FIFO_SIZE_WIDTH-2{1'b0}},1'b1} :  
                      (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH-1{1'b0}} : out_addr_p_ch0;
 
-        out_addr_p_ch1 <= in_data_vld_ch1 & fifo_not_full_ch1 ? out_addr_p_ch1 + {{FIFO_SIZE_WIDTH-2{1'b0}},1'b1} :  
+        out_addr_p_ch1 <= in_data_vld_ch1_d & fifo_not_full_ch1 ? out_addr_p_ch1 + {{FIFO_SIZE_WIDTH-2{1'b0}},1'b1} :  
                      (state == IDLE) || (state == WAIT_FOR_START) ? {FIFO_SIZE_WIDTH-1{1'b0}} : out_addr_p_ch1;
     end
 end
@@ -155,10 +188,10 @@ end
 //     end
 // end
 
-assign out_data_ch0 = in_data_ch0;
-assign out_data_ch1 = in_data_ch1;
-assign out_data_vld_ch0 = in_data_vld_ch0 & fifo_not_full_ch0;
-assign out_data_vld_ch1 = in_data_vld_ch1 & fifo_not_full_ch1;
+assign out_data_ch0 = in_data_ch0_d;
+assign out_data_ch1 = in_data_ch1_d;
+assign out_data_vld_ch0 = in_data_vld_ch0_d & fifo_not_full_ch0;
+assign out_data_vld_ch1 = in_data_vld_ch1_d & fifo_not_full_ch1;
 assign finish_op = (state == FINISH);
 assign clken = (state == EXE);
 assign out_addr_ch0 = out_addr_p_ch0;
