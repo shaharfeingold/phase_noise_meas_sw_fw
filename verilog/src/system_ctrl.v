@@ -110,23 +110,23 @@ input in_data_vld_ch1_d;
 
 // shift reg section
 `ifdef DOWN_SAMPLER
-    shift_reg shift_reg_ch0(
+    down_sampler down_sampler_ch0(
         .clk(clk),
         .rstn(rstn),
         .data_in(in_data_ch0),
         .data_in_vld(in_data_vld_ch0),
         .data_out(in_data_ch0_d),
         .data_out_vld(in_data_vld_ch0_d)
-        );
+    );
 
-        shift_reg shift_reg_ch1(
-            .clk(clk),
-            .rstn(rstn),
-            .data_in(in_data_ch1),
-            .data_in_vld(in_data_vld_ch1),
-            .data_out(in_data_ch1_d),
-            .data_out_vld(in_data_vld_ch1_d)
-        );
+    down_sampler down_sampler_ch1(
+        .clk(clk),
+        .rstn(rstn),
+        .data_in(in_data_ch1),
+        .data_in_vld(in_data_vld_ch1),
+        .data_out(in_data_ch1_d),
+        .data_out_vld(in_data_vld_ch1_d)
+    );
 `else
     assign in_data_ch0_d = in_data_ch0;
     assign in_data_vld_ch0_d = in_data_vld_ch0;
