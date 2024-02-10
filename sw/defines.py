@@ -31,6 +31,6 @@ PHASE_INC_WIDTH = 16
 
 MAX_FREQUENCY = 20 # maximum frequency value from the user the system is supported. # todo prio1 shahar review before finihs the project
 
-CLOCK_FREQ = 50 # in MHz
+CLOCK_FREQ = 5 # in MHz //todo shahar review changed from 50 to 5 due to down_sampler inside the logic
 
 MAX_ARRAY_SIZE = 1024
