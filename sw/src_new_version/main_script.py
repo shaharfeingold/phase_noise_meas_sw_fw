@@ -22,7 +22,7 @@ import json
 file        : maim_script.py
 owner       : shaharf
 description : main script to call 2 instacne of sub scripts to have 2 mesaurment of 2 idependet red pitya
-todo        : 
+todo        : # review and diff the main.py and other files against the first version (without the threding)
 """
 
 def parse_arguments():
@@ -70,7 +70,7 @@ def MainScript(args):
     ########################################################
     ##          Create And Run of sub-scripts             ##
     ########################################################
-    
+
     ########################################################
 
     ########################################################
