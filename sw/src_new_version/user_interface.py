@@ -11,9 +11,11 @@ import data_mgm
 import binascii
 from error_handling import handle_fatal_error, handle_medium_error, handle_easy_error
 import socket
+import time
 """
 file : maim.py
 owner : shaharf
+version : 1
 description : main file to call each class and excute commands and functionality.
 comments: # todo shahar later will switch to GUI
 """
@@ -64,8 +66,10 @@ class UI:
         print("please connect the oscillator to the red pitya and when reday follow the instruction on the screen")
 
     def get_from_user_start_op_indication(self):
-        # todo do we want to include this in batcmode
-        result = input("please hit 1 when ready\n")
+        # in version 2 of this application full batchmode
+        # result = input("please hit 1 when ready\n")
+        time.sleep(1)
+        result = "1"
         return result
 
     def print_wait_to_finish_op(self):
