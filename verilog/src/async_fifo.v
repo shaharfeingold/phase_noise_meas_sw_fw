@@ -2,7 +2,7 @@ module async_fifo(rst, rd_clk, read_req, data_out_vld, data_out, fifo_empty, wr_
 //parameters
 parameter DATA_WIDTH = 32;
 parameter FIFO_DEPTH = 8;
-parameter FIFO_DEPTH_WIDTH = $clog2(FIFO_DEPTH) + 1;
+parameter FIFO_DEPTH_WIDTH = $clog2(FIFO_DEPTH);
 
 //ports
 input rst; //generate a rest for each domain with it clock speratly
@@ -24,13 +24,13 @@ output fifo_full;
 reg [DATA_WIDTH-1 : 0] memory [0 : FIFO_DEPTH-1];
 
 //write_domain - write clock domain
-reg [FIFO_DEPTH_WIDTH-1 : 0] write_ptr;
-wire [FIFO_DEPTH_WIDTH-1 : 0] write_ptr_next;
+reg [FIFO_DEPTH_WIDTH: 0] write_ptr;
+wire [FIFO_DEPTH_WIDTH: 0] write_ptr_next;
 reg fifo_full_p;
-wire full = (write_ptr_next_gray ==  {~read_ptr_gray_wr_sync[FIFO_DEPTH_WIDTH-1:FIFO_DEPTH_WIDTH-2],read_ptr_gray_wr_sync[FIFO_DEPTH_WIDTH-3:0]}); //this line asuuming depth should be at least 3 bits width
-wire fifo_full_aux_wraparound = write_ptr_gray[FIFO_DEPTH_WIDTH-1:FIFO_DEPTH_WIDTH-1] ^ read_ptr_gray_wr_sync[FIFO_DEPTH_WIDTH-1 : FIFO_DEPTH_WIDTH-1];
+wire full = (write_ptr_next_gray ==  {~read_ptr_gray_wr_sync[FIFO_DEPTH_WIDTH:FIFO_DEPTH_WIDTH-1],read_ptr_gray_wr_sync[FIFO_DEPTH_WIDTH-2:0]}); //this line asuuming depth should be at least 3 bits width
+//wire fifo_full_aux_wraparound = write_ptr_gray[FIFO_DEPTH_WIDTH-1:FIFO_DEPTH_WIDTH-1] ^ read_ptr_gray_wr_sync[FIFO_DEPTH_WIDTH-1 : FIFO_DEPTH_WIDTH-1];
 
-assign write_ptr_next =  write_ptr + {{FIFO_DEPTH_WIDTH-1{1'b0}},1'b1} ;
+assign write_ptr_next =  write_ptr + {{FIFO_DEPTH_WIDTH{1'b0}},1'b1} ;
 generate
 genvar i;
 always @(posedge wr_clk ) begin
@@ -42,8 +42,9 @@ always @(posedge wr_clk ) begin
         end
     end
     else begin
-        write_ptr <= (~fifo_full_p & data_in_vld) ? write_ptr_next : write_ptr;
-        memory[write_ptr[FIFO_DEPTH_WIDTH-2:0]] <= (~fifo_full_p & data_in_vld) ? data_in : memory[write_ptr[FIFO_DEPTH_WIDTH-2:0]];
+        //write_ptr <= (~fifo_full_p & data_in_vld) ? write_ptr_next : write_ptr;
+        write_ptr <= (~full & data_in_vld) ? write_ptr_next : write_ptr;
+        memory[write_ptr[FIFO_DEPTH_WIDTH-1:0]] <= (~fifo_full_p & data_in_vld) ? data_in : memory[write_ptr[FIFO_DEPTH_WIDTH-2:0]];
         // fifo_full_p <= fifo_full_aux_wraparound &  (write_ptr_next_gray[FIFO_DEPTH_WIDTH-2:0] == read_ptr_gray_wr_sync[FIFO_DEPTH_WIDTH-2:0]);
         fifo_full_p <= full;
     end
@@ -53,17 +54,17 @@ end
 endgenerate
 
 //read_domain - read clock domain
-reg [FIFO_DEPTH_WIDTH-1 : 0] read_ptr;
-wire [FIFO_DEPTH_WIDTH-1 : 0] read_ptr_next;
+reg [FIFO_DEPTH_WIDTH: 0] read_ptr;
+wire [FIFO_DEPTH_WIDTH: 0] read_ptr_next;
 reg [DATA_WIDTH-1 : 0] data_out_p;
 reg data_out_vld_p;
 reg empty_p;
-wire empty_pp = (read_ptr_next_gray == write_ptr_gray_rd_sync);
+wire empty_pp = (read_ptr_gray == write_ptr_gray_rd_sync);
 
 assign data_out = data_out_p;
 assign data_out_vld = data_out_vld_p;
 
-assign read_ptr_next =  read_ptr + {{FIFO_DEPTH_WIDTH-1{1'b0}},1'b1} ;
+assign read_ptr_next =  read_ptr + {{FIFO_DEPTH_WIDTH{1'b0}},1'b1} ;
 
 always @(posedge rd_clk ) begin
     if (rst) begin
@@ -81,11 +82,12 @@ always @(posedge rd_clk ) begin
     
 end
 
-assign fifo_empty = empty_p;
-assign fifo_full = fifo_full_p;
+assign fifo_empty = empty_pp;
+//assign fifo_full = fifo_full_p;
+assign fifo_full = full;
 
-wire [FIFO_DEPTH_WIDTH-1 : 0] read_ptr_next_gray;
-wire [FIFO_DEPTH_WIDTH-1 : 0] read_ptr_gray;
+wire [FIFO_DEPTH_WIDTH: 0] read_ptr_next_gray;
+wire [FIFO_DEPTH_WIDTH: 0] read_ptr_gray;
 
 graycode2bin #(.DATA_WIDTH(FIFO_DEPTH_WIDTH)) graycode2bin_rd_ptr(
     .in_data(read_ptr),
@@ -97,8 +99,8 @@ graycode2bin #(.DATA_WIDTH(FIFO_DEPTH_WIDTH)) graycode2bin_rd_ptr_next(
     .out_data(read_ptr_next_gray)
 );
 
-wire [FIFO_DEPTH_WIDTH-1 : 0] write_ptr_gray;
-wire [FIFO_DEPTH_WIDTH-1 : 0] write_ptr_next_gray;
+wire [FIFO_DEPTH_WIDTH : 0] write_ptr_gray;
+wire [FIFO_DEPTH_WIDTH : 0] write_ptr_next_gray;
 
 graycode2bin #(.DATA_WIDTH(FIFO_DEPTH_WIDTH)) graycode2bin_wr_ptr_next(
     .in_data(write_ptr_next),
@@ -112,7 +114,7 @@ graycode2bin #(.DATA_WIDTH(FIFO_DEPTH_WIDTH)) graycode2bin_wr_ptr(
 
 
 //sync from write clock to read clock
-wire [FIFO_DEPTH_WIDTH-1 : 0] write_ptr_gray_rd_sync;
+wire [FIFO_DEPTH_WIDTH: 0] write_ptr_gray_rd_sync;
 sync #(.SYNC_WIDTH(2), .FIFO_DEPTH(FIFO_DEPTH)) sync_wr2rd(
     .rst(rst),
     .clk(rd_clk),
@@ -121,7 +123,7 @@ sync #(.SYNC_WIDTH(2), .FIFO_DEPTH(FIFO_DEPTH)) sync_wr2rd(
 );
 
 //sync from read clock to write clock
-wire [FIFO_DEPTH_WIDTH-1 : 0] read_ptr_gray_wr_sync;
+wire [FIFO_DEPTH_WIDTH : 0] read_ptr_gray_wr_sync;
 sync #(.SYNC_WIDTH(2), .FIFO_DEPTH(FIFO_DEPTH)) sync_rd2wr(
     .rst(rst),
     .clk(wr_clk),
@@ -137,22 +139,22 @@ module sync(rst, clk, data_in, data_out);
 //parameters
 parameter SYNC_WIDTH = 2;
 parameter FIFO_DEPTH = 3;
-parameter FIFO_DEPTH_WIDTH = $clog2(FIFO_DEPTH) + 1;
+parameter FIFO_DEPTH_WIDTH = $clog2(FIFO_DEPTH);
 
 //ports
-input [FIFO_DEPTH_WIDTH-1 : 0] data_in;
-output [FIFO_DEPTH_WIDTH-1 : 0] data_out;
+input [FIFO_DEPTH_WIDTH: 0] data_in;
+output [FIFO_DEPTH_WIDTH: 0] data_out;
 input rst; //active high
 input clk;
 
 //implementation
-reg [FIFO_DEPTH_WIDTH-1 : 0] shiftreg [0:SYNC_WIDTH-1];
+reg [FIFO_DEPTH_WIDTH: 0] shiftreg [0:SYNC_WIDTH-1];
 generate
 genvar i;
 always @(posedge clk ) begin
     if (rst) begin
         for (integer i=0 ; i < SYNC_WIDTH ; i = i + 1) begin
-            shiftreg[i] <= {FIFO_DEPTH_WIDTH{1'b0}};
+            shiftreg[i] <= {FIFO_DEPTH_WIDTH+1{1'b0}};
         end
     end
     else begin
@@ -174,8 +176,8 @@ module graycode2bin(in_data, out_data);
 parameter DATA_WIDTH = 32;
 
 //ports
-input [DATA_WIDTH-1 : 0] in_data;
-output [DATA_WIDTH-1 : 0] out_data;
+input [DATA_WIDTH: 0] in_data;
+output [DATA_WIDTH: 0] out_data;
 
 //implementation
 assign out_data = (in_data >> 1) ^ in_data ;

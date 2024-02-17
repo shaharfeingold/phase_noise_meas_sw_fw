@@ -140,9 +140,9 @@ def wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, log
 
 def data_accuire(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod, path_list, Id):
     # todo shahar implement + add print to screen
-    # meas_data_ch0.compute_ftt()
-    # if (NumOfChannels == 2):
-    #     meas_data_ch1.compute_ftt()
+    meas_data_ch0.compute_ftt()
+    if (NumOfChannels == 2):
+        meas_data_ch1.compute_ftt()
 
     # send raw data to user according to channel
     # if (NumOfChannels == 1):
@@ -151,7 +151,7 @@ def data_accuire(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod
     #     utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail, path_list)
 
     corelate_mod.GetSignals(meas_data_ch0, meas_data_ch1, NumOfChannels)
-    corelate_mod.CalcPsd()
+    corelate_mod.CalcPsd(Id)
     # wait to close window
     return path_list
 
