@@ -81,7 +81,7 @@ uint32_t read_from_logic(uint64_t address){
     return read_data;
 }
 
-int read_from_array_ch1(DataArray* data_array){
+int read_from_array_ch1(DataArray* data_array, int Ch){
     verb_print(MED, "DEBUG | enterd read_from_array_ch1\n");
     //variables
     //int fd;
@@ -109,7 +109,7 @@ int read_from_array_ch1(DataArray* data_array){
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping. 
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping.
         verb_print(HIGH, "DEBUG | Read data from logic ch1 = %x\n",read_data);
-                read_data_float = convert_fix_point_to_float(read_data);
+                read_data_float = convert_fix_point_to_float(read_data, Ch);
         verb_print(HIGH, "DEBUG | Read data from logic as float ch1 = 0x%x | %f\n",read_data_float, read_data);
         // data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
         store_new_data(data_array, read_data_float, 0);
@@ -120,7 +120,7 @@ int read_from_array_ch1(DataArray* data_array){
     return TRUE;    
 }
 
-int read_from_array(DataArray* data_array){
+int read_from_array(DataArray* data_array, int Ch){
     verb_print(MED, "DEBUG | enterd read_from_array\n");
     //variables
     //int fd;
@@ -148,7 +148,7 @@ int read_from_array(DataArray* data_array){
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping. 
         read_data = *((uint32_t *)(ptr + offset)); //the output is in the base address of the memory mapping.
         verb_print(HIGH, "DEBUG | Read data from logic = %x\n",read_data);
-                read_data_float = convert_fix_point_to_float(read_data);
+                read_data_float = convert_fix_point_to_float(read_data, Ch);
         verb_print(HIGH, "DEBUG | Read data from logic as float = 0x%x | %f\n",read_data_float, read_data);
         // data_from_logic = read_from_logic(BUFFER_BASE_ADDR + offset);
         store_new_data(data_array, read_data_float, 0);

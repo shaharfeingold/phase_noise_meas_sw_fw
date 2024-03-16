@@ -24,5 +24,5 @@ uint32_t system_call(char cmd[]); //todo create a generic function to create a s
 uint32_t encode_uint_data_to_send(float data_as_uint);
 void build_data_packet_header(char* header, uint32_t len, int type);
 
-float convert_fix_point_to_float(uint32_t fixed_point);
+float convert_fix_point_to_float(uint32_t fixed_point, int Ch);
 #endif

@@ -354,7 +354,7 @@ void init_buffer_info(BufferInfo* buffer_info, uint32_t buffer_len, uint64_t buf
     buffer_info->buffer_len = buffer_len;
 }
 
-int unload_data_from_logic(DataArray* data_array){
+int unload_data_from_logic(DataArray* data_array, int Ch){
     // int index = 0;
     // int offset = 0;
     int result = TRUE;
@@ -365,7 +365,7 @@ int unload_data_from_logic(DataArray* data_array){
     //     store_new_data(data_array, data_from_logic, 0);
     // }
     // Assuming read_from_array returns a status code or boolean indicating success/failure
-    if (!read_from_array(data_array)) {
+    if (!read_from_array(data_array, Ch)) {
         handle_medium_error("Failed to read data from array in unload_data_from_logic");
         // Decide if you need to stop processing or can continue
         result = FALSE;
@@ -387,10 +387,10 @@ int check_all_data_read(DataArray* data_array){
     return TRUE;
 }
 
-int unload_data_from_logic_ch1(DataArray* data_array){
+int unload_data_from_logic_ch1(DataArray* data_array, int Ch){
     int result = TRUE;
     
-    if (!read_from_array_ch1(data_array)) {
+    if (!read_from_array_ch1(data_array, Ch)) {
         handle_medium_error("Failed to read data from array in unload_data_from_logic ch1");
         // Decide if you need to stop processing or can continue
         result = FALSE;

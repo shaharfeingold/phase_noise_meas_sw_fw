@@ -86,12 +86,23 @@ void build_data_packet_header(char* header, uint32_t len, int type){
     verb_print(HIGH, "the header result from the encoder = %s", header);
 }
 
-float convert_fix_point_to_float(uint32_t fixed_point){
+float convert_fix_point_to_float(uint32_t fixed_point, int Ch){
     verb_print(HIGH, "enterd convert_fix_point_to_float\n");
     float result = 0;
    // uint32_t sign_extended = fixed_point << (32 - ARRAY_NUM_WIDTH); //todo review no need to sign extend becuase we are already in 32 bit width num
-	int cast = (int) fixed_point;
-    result = (float)cast / (uint32_t)(1 << (ARRAY_FRCTIONAL_BIT + (32 - ARRAY_NUM_WIDTH)));
+	int32_t cast = (int32_t) fixed_point;
+    int16_t cast_converted = cast & 0x0000ffff;
+    float frac_bit;
+    if (Ch == 0){ //meaning we reading cordic data
+        //result = (float)cast / (uint32_t)(1 << (ARRAY_FRCTIONAL_BIT + (32 - ARRAY_NUM_WIDTH)));
+        frac_bit = 8192;
+        result = (float)cast_converted / frac_bit;
+    }
+    if (Ch == 1){ //meaning we are reading capture sig data //todo shahar review later to capture the real second channel data (cordic ch1)
+        //result = (float)cast / (uint32_t)(1 << (ARRAY_FRCTIONAL_BIT + (32 - ARRAY_NUM_WIDTH)));
+        frac_bit = 32768;
+        result = (float)cast_converted / frac_bit;
+    }
     verb_print(HIGH, "result from convert_fix_point_to_float : %f\n", result);
     return result;
 }

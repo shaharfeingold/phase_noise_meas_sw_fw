@@ -16,6 +16,7 @@
 #include "defines.h"
 #include "logic_config.h"
 #include "error_handling.h"
+#include "read_write.h"
 
 // file:        main_flow.c
 // owner:       shahar
@@ -166,6 +167,10 @@ int main(int argc, char** argv){
     ThreadArgs thread_args;  
 
     // main flow:
+    //first of all reset logic.
+    write_to_logic(0x00000000, RESET_ADDR);
+    sleep(10);
+    write_to_logic(0x00000001, RESET_ADDR);
     print_hello_msg();
     // init structs
     init_logic_config_struct(&logic_config);
@@ -231,7 +236,6 @@ int main(int argc, char** argv){
     //start config the logic
     verb_print(MED, "DEBUG | start config logic\n");
     config_logic(&logic_config);
-
     restart:
     verb_print(MED, "DEBUG | Get start packet from client\n");
     verb_print(MED, "DEBUG | decode start pakcet and send ack if needed\n");
@@ -247,9 +251,9 @@ int main(int argc, char** argv){
 
     //unload data from logic
     verb_print(MED, "DEBUG | unload data from logic\n");
-    unload_data_from_logic(&data_array_ch0);
+    unload_data_from_logic(&data_array_ch0, 0);
     if(NumOfChannels == 2){
-        unload_data_from_logic_ch1(&data_array_ch1);
+        unload_data_from_logic_ch1(&data_array_ch1, 1);
     };
 
     //send data to client

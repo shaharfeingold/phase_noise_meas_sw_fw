@@ -29,8 +29,8 @@ typedef struct sockaddr_in _sockaddr_in;
 //buffer info
 //todo shahar need to review this defines after finish logic
 #define BUFFER_LEN  MAX_DATA_LEN //buffer inside the logic
-#define BUFFER_BASE_ADDR_CH0 0x40000000
-#define BUFFER_BASE_ADDR_CH1 0x43C00000
+#define BUFFER_BASE_ADDR_CH0 0x43C00000
+#define BUFFER_BASE_ADDR_CH1 0x43C10000
 
 //config addr
 //todo shahar need to review this defines after finish logic
@@ -49,7 +49,7 @@ typedef struct sockaddr_in _sockaddr_in;
 #define FINISH_OP_MASK_1_CH 0x00000800 //in case we are using one channal
 #define FINISH_OP_MASK_2_CH 0x00400000 //in case we are using two channal
 #define DATA_COUNT_MASK_1 0x000007FF
-#define DATA_COUNT_MASK_2 0x003FF800
+#define DATA_COUNT_MASK_2 0x007FF800
 
 //Event Mask
 //todo shahar need to make after define which events should be read by the fw according to severity
@@ -66,5 +66,6 @@ typedef struct sockaddr_in _sockaddr_in;
 #define MAP_FAILED ((void *)-1)
 #define INVALID_READ 0xFFFFFFFF 
 
+#define RESET_ADDR 0x41230000
 
 #endif

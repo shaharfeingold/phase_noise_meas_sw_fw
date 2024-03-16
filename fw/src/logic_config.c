@@ -58,22 +58,22 @@ void wait_4_finish(LogicConfig* logic_config, int NumOfChannels){
     verb_print(HIGH, "DEBUG | entered wait_4_finish\n");
     int finish_op = 0x00000000;
     while (TRUE){
-        if (NumOfChannels == 1){
+        //if (NumOfChannels == 1){
             finish_op = (read_from_logic(FINISH_OP_DATA_COUNT_BASE_ADDR) & FINISH_OP_MASK_1_CH) >> 11 ;
             verb_print(HIGH, "DEBUG | read_design, finish_op = %d\n", finish_op);
             sleep(2);
             if (finish_op == TRUE){
                 return;
             }
-        }
-        if (NumOfChannels == 2){
-            finish_op = (read_from_logic(FINISH_OP_DATA_COUNT_BASE_ADDR) & FINISH_OP_MASK_2_CH) >> 22 ;
-            verb_print(HIGH, "DEBUG | read_design, finish_op = %d\n", finish_op);
-            sleep(2);
-            if (finish_op == TRUE){
-                return;
-            }
-        }
+        //}
+        // if (NumOfChannels == 2){
+        //     finish_op = (read_from_logic(FINISH_OP_DATA_COUNT_BASE_ADDR) & FINISH_OP_MASK_2_CH) >> 22 ;
+        //     verb_print(HIGH, "DEBUG | read_design, finish_op = %d\n", finish_op);
+        //     sleep(2);
+        //     if (finish_op == TRUE){
+        //         return;
+        //     }
+        // }
     }
 }
 
