@@ -88,3 +88,14 @@ def send_file_to_mail(path_list, mail):
         # If the command execution fails, capture the error
         print("Command '{}' returned non-zero exit status {}.".format(e.cmd, e.returncode))
         print("Error output:\n", e.stderr)
+
+
+def save_signal_to_file(diff_signal_unwrap, Id, repeat_count):
+    file_path = "signal_id{}_r{}.txt".format(Id, repeat_count)
+
+    try:
+        with open(file_path, 'w') as file:
+            np.savetxt(file_path, diff_signal_unwrap, delimiter=',')
+
+    except Exception as e:
+        handle_easy_error(f"Error saving or sending files: {e}")

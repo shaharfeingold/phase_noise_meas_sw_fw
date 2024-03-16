@@ -37,12 +37,18 @@ async_fifo #(.DATA_WIDTH(DATA_WIDTH), .FIFO_DEPTH(FIFO_DEPTH)) top (
 
 reg start_clk1;
 reg start_clk2;
+reg start_push_data;
+integer i;
 
 initial begin
     $dumpfile("async_fifo_tb_dump.vcd");
-    $dumpvars(0, async_fifo_tb, async_fifo_tb.top.memory[0], async_fifo_tb.top.memory[1], async_fifo_tb.top.memory[2], async_fifo_tb.top.memory[3], async_fifo_tb.top.memory[4],async_fifo_tb.top.memory[5], async_fifo_tb.top.memory[6], async_fifo_tb.top.memory[7]);
+    $dumpvars(0, async_fifo_tb, async_fifo_tb.top.memory[0], 
+    async_fifo_tb.top.memory[1], async_fifo_tb.top.memory[2], async_fifo_tb.top.memory[3], 
+    async_fifo_tb.top.memory[4],async_fifo_tb.top.memory[5], async_fifo_tb.top.memory[6], 
+    async_fifo_tb.top.memory[7]);
 rd_clk = 1'b0;
 wr_clk = 1'b0;
+start_push_data = 1'b0;
 rst = 1'b0;
 data_in_vld = 1'b0;
 read_req = 1'b0;
@@ -55,19 +61,22 @@ rst = 1'b1;
 #100;
 rst = 1'b0;
 $display("finish reset\n");
-#10;
+#15;
 $display("!! push data and read\n");
 data_in_vld = 1'b1;
 read_req = 1'b0;
-data_in = 1;
-#10;
-data_in = 2;
-#10;
-data_in = 3;
-#10;
-data_in = 4;
-#10;
-data_in_vld = 1'b1;
+start_push_data = 1'b1;
+// data_in = 1;
+// #15;
+// data_in = 2;
+// #15;
+// data_in = 3;
+// #15;
+// data_in = 4;
+// #15;
+// data_in_vld = 1'b1;
+#100;
+read_req = 1'b1;
 #1000;
 $display("going to leave simulation");
 $finish;
@@ -76,7 +85,7 @@ end
 
 always begin
     if (start_clk1) begin
-        #5 wr_clk = ~wr_clk;
+        #10 wr_clk = ~wr_clk;
     end
 end
 
@@ -85,11 +94,21 @@ always begin
         #10 rd_clk = ~rd_clk;
     end
     else begin
-        start_clk2 = 1'b1;
         #13;
+        start_clk2 = 1'b1;
     end
 end
 
+always @(*) begin
+    if (start_push_data) begin
+        #1;
+        data_in_vld = 1'b1;
+        for (i = 0; i < 100; i = i+1) begin
+            data_in = i;
+            #20;
+        end
+    end
+end
 // always begin
 //     if (~start_clk2) begin
 //         #13;

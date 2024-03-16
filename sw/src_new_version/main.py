@@ -19,6 +19,7 @@ import time
 """
 file        : maim.py
 owner       : shaharf
+version     : 1
 description : main file to call each class and excute commands and functionality.
 todo        : 1. need to connect the args from parser to the software logic itself
 """
@@ -36,6 +37,7 @@ def parse_arguments():
     parser.add_argument("-v", "--verbos", help="verbose print", choices=["info,debug,error,fatal"], type=str) # todo shahar need to support this
     parser.add_argument("-n", "--num_of_channels", help="specify the number of channels", dest='channels', choices=[1,2], type=int, default=2)
     parser.add_argument("-r", "--repetition", help="number of repetition of calculation", dest='repeat', choices=range(1,51), type=int, default=1)
+    parser.add_argument("--id", required=True, dest='id', type=int)
     
     return parser.parse_args()
 
@@ -136,20 +138,20 @@ def wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, log
     logic_unit.send_data(msg_to_send)
     logic_cfg.got_finish = True # todo wrap around function of rcvr data
 
-def data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod, path_list):
+def data_accuire(meas_data_ch0, meas_data_ch1, NumOfChannels, mail, corelate_mod, path_list, Id):
     # todo shahar implement + add print to screen
     meas_data_ch0.compute_ftt()
     if (NumOfChannels == 2):
         meas_data_ch1.compute_ftt()
 
     # send raw data to user according to channel
-    if (NumOfChannels == 1):
-        utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch0, mail, path_list) # bug in case of one channels we are sending both channels
-    else:
-        utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail, path_list)
+    # if (NumOfChannels == 1):
+    #     utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch0, mail, path_list) # bug in case of one channels we are sending both channels
+    # else:
+    #     utilis_func.save_and_send_array_in_a_file(meas_data_ch0, meas_data_ch1, mail, path_list)
 
     corelate_mod.GetSignals(meas_data_ch0, meas_data_ch1, NumOfChannels)
-    corelate_mod.CalcPsd()
+    corelate_mod.CalcPsd(Id)
     # wait to close window
     return path_list
 
@@ -211,6 +213,8 @@ def Main(args):
     ui_mod = user_interface.UI(args.batchmode, args.ip, args.port, args.freq)
     path_list = []
 
+    Id = args.id
+
     NumOfChannels = args.channels
     RepetitionCounter = 0
 
@@ -242,7 +246,7 @@ def Main(args):
         wait_4_data_and_unload(ui_mod, meas_data_ch0, meas_data_ch1, logic_unit, logic_cfg, NumOfChannels)
 
         # data anylsis:
-        path_list = data_anylsis(meas_data_ch0, meas_data_ch1, NumOfChannels, args.mail, corelate_mod, path_list)
+        path_list = data_accuire(meas_data_ch0, meas_data_ch1, NumOfChannels, args.mail, corelate_mod, path_list, Id)
         RepetitionCounter += 1
         # prompt user how to continue
         ConfigStage, NeedToExit = end_op(ui_mod, logic_cfg, logic_unit, RepetitionCounter, args.repeat)
