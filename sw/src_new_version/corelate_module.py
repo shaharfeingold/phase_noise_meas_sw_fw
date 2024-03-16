@@ -71,6 +71,9 @@ class Corelate:
             #size = int(len(self.corelate_result))
             # fs = defines.CLOCK_FREQ * 1000000
         diff_signal = self.signal_ch0 - self.signal_ch1
+        plt.plot(self.signal_ch0[0:100])
+        plt.show()
+        exit(1)
         diff_signal_unwrap = np.unwrap(diff_signal)
         utilis.save_signal_to_file(diff_signal_unwrap, Id, self.RepetitionCounter-1) # RepetitionCounter -1 to start from zero
             # diff_signal_dec_10 = decimate(diff_signal_unwrap, 10)

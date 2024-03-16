@@ -250,7 +250,7 @@ def Main(args):
         if (NeedToExit):
             break
     
-    utilis_func.send_file_to_mail(path_list, args.mail)
+    #utilis_func.send_file_to_mail(path_list, args.mail)
     return 0
 
 def validate_args(args):

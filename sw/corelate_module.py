@@ -70,21 +70,22 @@ class Corelate:
             #mixing_log = np.log10(mixing)
             #size = int(len(self.corelate_result))
             fs = 125*1000000
-            diff_signal = self.signal_ch0 - self.signal_ch1
+            #diff_signal = self.signal_ch0 - self.signal_ch1
+            diff_signal = self.signal_ch0
             diff_signal_unwrap = np.unwrap(diff_signal)
-            diff_signal_dec_10 = decimate(diff_signal_unwrap, 10)
-            diff_signal_dec_100 = decimate(diff_signal_dec_10, 10)
+            #diff_signal_dec_10 = decimate(diff_signal_unwrap, 10)
+            #diff_signal_dec_100 = decimate(diff_signal_dec_10, 10)
             fft_diff_signal = np.fft.fft(diff_signal_unwrap)
             # fft_size = len(diff_signal_unwrap)
             #using paradigm methods directly
             self.psd_est = self.psd_est + (1/self.fft_size) * (fft_diff_signal * np.conjugate(fft_diff_signal))
             # using welch methods from scipy
             freq, temp = welch(diff_signal_unwrap, fs=fs, nfft=2048)
-            freq1, temp1 = welch(diff_signal_dec_10, fs=fs/10, nfft=2048)
-            freq2, temp2 = welch(diff_signal_dec_100, fs=fs/100, nfft=2048)
+            #freq1, temp1 = welch(diff_signal_dec_10, fs=fs/10, nfft=2048)
+            #freq2, temp2 = welch(diff_signal_dec_100, fs=fs/100, nfft=2048)
             self.psd_est_1 = self.psd_est_1 + temp
-            self.psd_est_1_dec = self.psd_est_1_dec + temp1
-            self.psd_est_1_dec2 = self.psd_est_1_dec2 + temp2
+            #self.psd_est_1_dec = self.psd_est_1_dec + temp1
+            #self.psd_est_1_dec2 = self.psd_est_1_dec2 + temp2
             #plt.plot(np.abs(self.corelate_result))
             #plt.plot(corelate_result_log.real[0:int(size/2)])
             #mixingPerHz = np.gradient(mixing, freq_vec)
@@ -115,22 +116,22 @@ class Corelate:
                 plt.xlim(0.1,1000000)
 
                 # figure for the welch algo with dec by 10 before
-                plt.figure()
-                plt.semilogx(freq1, 10*np.log10(self.psd_est_1_dec/self.RepeatCount))
-                plt.xscale('log')
-                plt.title("PSD - welch with 10 down sampling")
-                plt.xlabel("Frequency (Hz)")
-                plt.ylabel("db/Hz")
-                plt.xlim(0.1,1000000)
+                # plt.figure()
+                # plt.semilogx(freq1, 10*np.log10(self.psd_est_1_dec/self.RepeatCount))
+                # plt.xscale('log')
+                # plt.title("PSD - welch with 10 down sampling")
+                # plt.xlabel("Frequency (Hz)")
+                # plt.ylabel("db/Hz")
+                # plt.xlim(0.1,1000000)
 
                 # figure for the welch algo with dec by 100 before
-                plt.figure()
-                plt.semilogx(freq2, 10*np.log10(self.psd_est_1_dec2/self.RepeatCount))
-                plt.xscale('log')
-                plt.title("PSD - welch with 100 down sampling")
-                plt.xlabel("Frequency (Hz)")
-                plt.ylabel("db/Hz")
-                plt.xlim(0.1,1000000)
+                # plt.figure()
+                # plt.semilogx(freq2, 10*np.log10(self.psd_est_1_dec2/self.RepeatCount))
+                # plt.xscale('log')
+                # plt.title("PSD - welch with 100 down sampling")
+                # plt.xlabel("Frequency (Hz)")
+                # plt.ylabel("db/Hz")
+                # plt.xlim(0.1,1000000)
 
                 plt.show()
 

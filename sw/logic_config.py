@@ -19,7 +19,7 @@ class LogicConfig:
     def __init__(self):
         self.freq = 0  # user freq input using get_freq_from_user
         self.phase_inc = 0  # this value send to logic's cordic ip
-        self.logic_clk = defines.CLOCK_FREQ # todo shahar review according to final logic implementaion| value in MHz 
+        self.logic_clk = 125 # todo shahar review according to final logic implementaion| value in MHz 
         self.send_config = False
         self.got_ack = False
         self.store_config = False
