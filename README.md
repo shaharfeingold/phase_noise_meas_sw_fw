@@ -44,3 +44,45 @@ in case of good compilation you should not see any warning or errors
 ```
 > [!NOTE]
 > every run of the server a log will apper under the workdir for further debuging in case of an error.
+
+### Installing and Running the SW side
+> [!WARNING]
+> the instruction below are for running the SW on Linux/Mac based machine.
+
+1. download from the git `src` dir.
+2. on you host computer (should have able the present graphic) got to a preferable location and do the following:
+```
+mkdir phase_noise_mease
+```
+```
+cd phase_noise_mease
+```
+```
+mkdir sw
+```
+```
+cd sw
+```
+```
+mkdir workdir
+```
+3. copy all the src file (all *.py files) downloaded from the git and place them under fw directory you have just created.
+4. insure the server is running by doing [the instuctions the section above](./README.md#installing-and-running-fw-side)
+5. run the sw by typing the following command under `workdir`
+```
+../src/main.py -m 1@1.com -r <number_of_desire_repetion>
+```
+replace <number_of_desire_repetion> with yours number
+6. follow on screen instrucion
+7. in case any pop window appers please igonre and close it.
+8. copy matlab file `data_anylsis.m` to the `workdir` and open it.
+9. change `num_of_samples` on the second line the <number_of_desire_repetion>
+10. change `f` on the 32 line to the frequncy you testing (working frequncy)
+11. run matlab file 
+12. you shall get 2 graphes: one represting the measuremnt out of fpga and second represting a measerment by using the sampled signal and same methods only implement in the matlab script.
+
+> [!NOTE]
+> in case you want to run in again please make sure to delete all the txt file under you workir. 
+
+> [!NOTE]
+> you can do another measurment without deleteing the previous one by copy all the workdir content to new directory.
