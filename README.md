@@ -72,8 +72,8 @@ mkdir workdir
 ```
 ../src/main.py -m 1@1.com -r <number_of_desire_repetion>
 ```
-replace \<number_of_desire_repetion>\ with yours number
-6. follow on screen instrucion
+\replace <number_of_desire_repetion> with yours number\
+6. follow on screen instrucions
 7. in case any pop window appers please igonre and close it.
 8. copy matlab file `data_anylsis.m` to the `workdir` and open it.
 9. change `num_of_samples` on the second line the \<number_of_desire_repetion>\
