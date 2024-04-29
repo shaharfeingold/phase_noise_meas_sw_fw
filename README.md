@@ -9,17 +9,29 @@ this git including all the src files need to run the software side and firmware 
 3. create a new directory under any prefable location and following below instructions:
 ```
 mkdir phase_noise_mease
+```
+```
 cd phase_noise_mease
+```
+```
 mkdir fw
+```
+```
 cd fw
+```
+```
 mkdir workdir
 ```
 4. copy all the src file downloaded from the git and place them under fw directory you have just created.
 5. go to `workdir` dir you have just created and do the following:
 ```
 rm ../src/*.gch
+```
+```
 gcc ../src/client_connection.c ../src/client_connection.h ../src/defines.h ../src/event_watcher.c ../src/event_watcher.h ../src/fw_data_struct.c ../src/fw_data_struct.h ../src/logic_config.c ../src/logic_config.h ../src/main.h ../src/main_flow.c ../src/read_write.c ../src/read_write.h ../src/utils_function.c ../src/utils_function.h  -lpthread 2> comp.log
- less comp.log
+```
+```
+less comp.log
 ```
 in case of good compilation you should not see any warning or errors
 > [!CAUTION]
