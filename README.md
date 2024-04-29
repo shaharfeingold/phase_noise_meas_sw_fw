@@ -72,11 +72,11 @@ mkdir workdir
 ```
 ../src/main.py -m 1@1.com -r <number_of_desire_repetion>
 ```
-replace \<number_of_desire_repetion\> with yours number
+replace \<number_of_desire_repetion>\ with yours number
 6. follow on screen instrucion
 7. in case any pop window appers please igonre and close it.
 8. copy matlab file `data_anylsis.m` to the `workdir` and open it.
-9. change `num_of_samples` on the second line the \<number_of_desire_repetion\>
+9. change `num_of_samples` on the second line the \<number_of_desire_repetion>\
 10. change `f` on the 32 line to the frequncy you testing (working frequncy)
 11. run matlab file 
 12. you shall get 2 graphes: one represting the measuremnt out of fpga and second represting a measerment by using the sampled signal and same methods only implement in the matlab script.
