@@ -3,7 +3,7 @@ this git including all the src files need to run the software side and firmware 
 
 ## How to use it ?
 
-### Installing FW side
+### Installing and Running FW side
 1. first you will need to download the fw directory to your local computer
 2. connect to red pitya termianl by using your preferefable methods either by ssh or using 3<sup>rd</sup> party software like putty.
 3. create a new directory under any prefable location and following below instructions:
